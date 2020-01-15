@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {
-    Button,
     Grid,
 } from "@material-ui/core";
 
@@ -11,62 +10,59 @@ import {
 // components
 import Widget from "../../components/Widget";
 import PageTitle from "../../components/PageTitle";
-import {Typography} from "../../components/Wrappers";
 
-import {ENABLED_ITEMS, fetcher, GET_REPORT, getUser} from "../../_services/fetcher";
+import {fetcher, GET_SHIFT, getUser} from "../../_utils/fetcher";
 import {
     MuiPickersUtilsProvider,
     KeyboardDateTimePicker
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 
-import {withStyles} from "@material-ui/core/styles";
-import GetUsersDropDown from "./compnonents/GetUsersDropDown";
+import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
 import DataTable from "react-data-table-component";
 import IconButton from "@material-ui/core/IconButton";
 import {Print} from "@material-ui/icons";
-import {textFieldStyle} from "../../_services/inlineStyles";
-
-const useStyles = (theme => ({
-    dashedBorder: {
-        border: "1px dashed",
-        borderColor: theme.palette.primary.main,
-        padding: theme.spacing(2),
-        paddingTop: theme.spacing(4),
-        paddingBottom: theme.spacing(4),
-        marginTop: theme.spacing(1),
-    },
-    text: {
-        marginBottom: theme.spacing(2),
-    },
-    notification: {
-        display: "flex",
-        alignItems: "center",
-        background: "transparent",
-        boxShadow: "none",
-        overflow: "visible",
-    },
-    progress: {
-        visibility: "hidden",
-    },
-}));
-
-
-
+import useStyles from './styles'
+import {textFieldStyle} from "../../_utils/inlineStyles";
+import moment from "moment";
 
 const columnsR = [
-    {name: "Item", selector: "item_name", sortable: true},
-    {name: "Type", selector: "item_category", sortable: true},
-    {name: "Quantity Sold", selector: "qty_sold", sortable: true},
+    {name: "Item", selector: "item_name", sortable: true, grow: 4,},
+    {name: "Start Shift", selector: "qty_start", sortable: true, grow: 1},
     {
-        name: "Total",
+        name: "Top Up", selector: "qty_during", sortable: true,
+        cell: row => row.qty_during ? row.qty_during : 0, grow: 1
+    },
+    {name: "End Shift", selector: "qty_end", sortable: true, grow: 1},
+    {
+        name: "Total Sold",
         selector: "total",
         sortable: true,
         cell: row => {
-            return `${(row.qty_sold * row.item_price).toFixed(2)}`;
-        }
+            // console.log(row);
+            return `${(row.qty_start + (row.qty_during ? row.qty_during : 0) - (row.qty_end ? row.qty_end : 0))}`;
+        }, grow: 1
     },
-    {name: "Left In Stock", selector: "inv", sortable: true}
+    {name: "Left In Stock", selector: "qty_left", sortable: true, grow: 1},
+    {
+        name: 'Status', selector: 'status', sortable: true,
+        cell: row => row.status === "enabled" ? "on-going" : 'ended'
+    },
+    {name: 'User', selector: 'user_name', sortable: true, grow: 3},
+    {
+        name: 'Start Date',
+        selector: 'start_date',
+        sortable: true,
+        grow: 5,
+        format: d => moment(parseInt(d.start_date)).format("lll"),
+    },
+    {
+        name: 'End Date',
+        selector: 'end_date',
+        sortable: true,
+        grow: 5,
+        format: d => moment(parseInt(d.end_date)).format("lll"),
+    },
 ];
 
 const lineDelimiter = "<br>";
@@ -78,7 +74,7 @@ class Shifts extends Component {
         this.user = null;
         this.user_id = -1;
         this.state = {
-            transactions: [],
+            shifts: [],
             startDate: new Date().setHours(5), // set as six am
             endDate: new Date(),
             user_id: 0
@@ -87,11 +83,13 @@ class Shifts extends Component {
         // let user = getUser(localStorage.getItem('token'))
         // if (!user.user_id) throw new Error("Could not get user.\nCould not run report");
 
-        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.state.user_id);
         // console.log(this.state.user)
     }
 
     async componentDidMount() {
+
+        this.fetchShifts(this.state.startDate, this.state.endDate, null, this.state.user_id);
+
         let user = await getUser(localStorage.getItem("token"));
         // console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhh", user)
         // this.user_id = this.user ? this.user.user_id : 0;
@@ -106,7 +104,7 @@ class Shifts extends Component {
         let transactionPoint = null;
         //////////// --------------------------------
 
-        this.fetchTransactions(date, this.state.endDate, transactionPoint, this.state.user_id);
+        this.fetchShifts(date, this.state.endDate, transactionPoint, this.state.user_id);
     };
 
     handleEndDateChange = date => {
@@ -116,10 +114,10 @@ class Shifts extends Component {
         let transactionPoint = null;
         //////////// --------------------------------
 
-        this.fetchTransactions(this.state.startDate, date, transactionPoint, this.state.user_id);
+        this.fetchShifts(this.state.startDate, date, transactionPoint, this.state.user_id);
     };
 
-    fetchTransactions = async (startDate, endDate, transactionPoint, user_id) => {
+    fetchShifts = async (startDate, endDate, transactionPoint, user_id, status) => {
         // console.log(startDate, endDate, transactionPoint, user_id);
 
         if (!this.state.user_id) return;
@@ -128,22 +126,55 @@ class Shifts extends Component {
         // endDate = new
         try {
             let res = await fetcher({
-                query: GET_REPORT,
+                query: GET_SHIFT,
                 variables: {
                     user_id: user_id,
                     startDate,
                     endDate,
-                    transactionPoint
+                    transactionPoint,
+                    status,
                 }
             });
-            let transactions = res.data.getDailyReport;
+            const shiftsReceived = res.data.getShift;
 
-            // console.log(transactions);
+            let shifts = [];
+            for (let shift of shiftsReceived) {
+                for (let shift_det of shift.shift_details) {
+                    // console.log(shift_det);
+                    shifts.push({
+                        item_name: shift_det.item.name,
+                        qty_start: shift_det.qty_start,
+                        qty_during: shift_det.qty_during,
+                        qty_end: shift_det.qty_end,
+                        qty_left: shift_det.item.quantity,
+                        user_name: `${shift.user.first_name} ${shift.user.last_name}`,
+                        status: shift.status,
+                        start_date: shift.createdAt,
+                        end_date: shift.updatedAt
+                    });
+                }
+            }
+            // sort alphabetically
+            shifts.sort(this.compare);
 
-            this.setState({transactions});
+            this.setState({shifts});
         } catch (err) {
             console.log(err);
         }
+    };
+
+    compare = (a, b) => { // source: https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
+        // Use toUpperCase() to ignore character casing
+        const item_nameA = a.item_name.toUpperCase();
+        const item_nameB = b.item_name.toUpperCase();
+
+        let comparison = 0;
+        if (item_nameA > item_nameB) {
+            comparison = 1;
+        } else if (item_nameA < item_nameB) {
+            comparison = -1;
+        }
+        return comparison;
     };
 
     handleRowSelectedChange = (data, value, d, e) => {
@@ -154,9 +185,19 @@ class Shifts extends Component {
         const {value} = e.target;
         this.user_id = e.target.value;
         this.setState({user_id: value});
-        // console.log(this.user_id);
+        // console.log(e.nativeEvent.target);
 
-        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.user_id);
+        this.fetchShifts(this.state.startDate, this.state.endDate, null, this.user_id);
+
+    };
+
+    handleDropDownHTML = e => {
+        // const {value} = e.target;
+        // // this.user_id = e.target.value;
+        // // this.setState({user_id: value});
+        console.log(e.target);
+
+        // this.fetchShifts(this.state.startDate, this.state.endDate, null, this.user_id);
 
     };
 
@@ -276,16 +317,16 @@ class Shifts extends Component {
         // const {classes, theme} = this.props;
         return (
             <>
-                <PageTitle title="Reports"/>
+                <PageTitle title="Shifts"/>
 
                 <Grid container spacing={1}>
 
                     <Grid container item spacing={1} xs={12}>
-                        <Grid item xs={12} md={12}>
+                        <Grid item xs={12}>
                             <Widget disableWidgetMenu>
                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                     <Grid container spacing={3} justify="space-around">
-                                        <Grid item xs={4}>
+                                        <Grid item lg={4} md={4} sm={6} xs={12}>
                                             <KeyboardDateTimePicker
                                                 // disableToolbar
                                                 fullWidth
@@ -303,7 +344,7 @@ class Shifts extends Component {
                                             />
                                         </Grid>
 
-                                        <Grid item xs={4}>
+                                        <Grid item lg={4} md={4} sm={6} xs={12}>
                                             <KeyboardDateTimePicker
                                                 fullWidth
                                                 label="End Date"
@@ -321,12 +362,13 @@ class Shifts extends Component {
                                             />
                                         </Grid>
 
-                                        <Grid item xs={3}>
+                                        <Grid item lg={3} md={3} sm={6} xs={12}>
                                             <GetUsersDropDown
                                                 loggedUserId={this.state.user_id}
                                                 handleDropDownChange={
                                                     this.handleDropDownChange
                                                 }
+                                                handleDropDownHTML={this.handleDropDownHTML}
                                             />
                                         </Grid>
 
@@ -351,20 +393,20 @@ class Shifts extends Component {
                     <Grid container item spacing={1} xs={12}>
                         <Grid item xs={12}>
                             <DataTable
-                                title="Report"
+                                title="Shift"
                                 columns={columnsR}
-                                data={this.state.transactions}
+                                data={this.state.shifts}
                                 // selectableRows // add for checkbox selection
                                 // selectableRowsComponent={Checkbox}
                                 // selectableRowsComponentProps={{ inkDisabled: true }}
                                 // onRowSelected={this.handleChange}
-                                defaultSortField={"item_name"}
+                                defaultSortField={"start_date"}
                                 // clearSelectedRows={this.state.toggledClearRows}
                                 expandableRows={false}
                                 highlightOnHover
                                 pointerOnHover
                                 striped
-                                // sortIcon={arrowDownward}
+                                customStyles={dataTableFont}
                                 // onRowClicked={this.handleRowClicked}
                                 // contextActions={contextActions(this.deleteSelectedRows)}
                                 // pagination
@@ -386,7 +428,16 @@ class Shifts extends Component {
     }
 }
 
+const dataTableFont = {
+    cells: {
+        style: {
+            fontSize: '17px', // override the cell padding for data cells
+            // paddingRight: '8px',
+        },
+    },
+};
+
 // export default withStyles(useStyles, {withTheme: true})(MyLoginPage);
-export default withStyles(useStyles, {withTheme: true})(Shifts);
+export default useStyles(Shifts);
 
 

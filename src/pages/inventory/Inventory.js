@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Img from 'react-image';
-import styled from 'styled-components';
+// import styled from 'styled-components';
 import useStyles from './styles'
 
 import memoize from 'memoize-one';
@@ -10,12 +10,14 @@ import {
     Select, MenuItem, TextField, Button, Grid,
 } from "@material-ui/core";
 import DataTable from "react-data-table-component";
-import {Add, ArrowDownward, Delete, Close,
-    Save as SaveIcon, CloudUpload as CloudUploadIcon} from '@material-ui/icons';
-import GetCategoriesDropDown from "./compnonents/GetCategoriesDropDown";
+import {
+    Add, ArrowDownward, Delete, Close,
+    Save as SaveIcon, CloudUpload as CloudUploadIcon
+} from '@material-ui/icons';
+import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDropDown";
 import moment from "moment";
 
-import {fetcher, ITEM_UPDATE, ALL_ITEMS, ADD_STOCK, getUser} from "../../_services/fetcher";
+import {fetcher, ITEM_UPDATE, ALL_ITEMS, ADD_STOCK, getUser} from "../../_utils/fetcher";
 import PageTitle from "../../components/PageTitle";
 import {Typography} from "../../components/Wrappers";
 
@@ -23,13 +25,19 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Notification from "../../components/Notification";
 import Widget from "../../components/Widget";
-import {textFieldStyle} from "../../_services/inlineStyles";
+import {textFieldStyle} from "../../_utils/inlineStyles";
 
 const columnsR = [
     {name: 'Name', selector: 'name', sortable: true, grow: 4,},
-    {name: 'Price', selector: 'price', right: false, sortable: true, hide: 'sm', grow: 2},
+    {
+        name: 'Price', selector: 'price', right: false, sortable: true, hide: 'sm', grow: 2,
+        cell: (row) => (row.price).toFixed(2)
+    },
     {name: 'Category', selector: 'category.name', sortable: true,},
-    {name: 'In Stock', selector: 'quantity', sortable: true, width: '70px',},
+    {
+        name: 'In Stock', selector: 'quantity', sortable: true, width: '70px',
+        cell: (row) => row.quantity === null ? '-' : row.quantity
+    },
     {
         name: 'Picture', selector: 'name', width: '50px', cell: (d) =>
             // <Avatar>
@@ -44,12 +52,16 @@ const columnsR = [
     },
     {
         name: 'Has Stock', selector: 'has_stock', hide: 'sm', sortable: true, width: '50px', cell: (da) => {
-            return <Checkbox id="standard-secondary"
-                             label="Has Stock" color="secondary"
-                             defaultChecked={da.has_stock}/>
+            return <Checkbox
+                id="standard-secondary"
+                label="Has Stock" color="secondary"
+                checked={da.has_stock}/>
         }
     },
-    {name: 'Min Stock', selector: 'min_stock_level', sortable: true, width: '70px',},
+    {
+        name: 'Min Stock', selector: 'min_stock_level', sortable: true, width: '70px',
+        cell: (row) => row.min_stock_level === null ? '-' : row.min_stock_level
+    },
     {name: 'Status', selector: 'status', sortable: true,},
     {
         name: 'Last Update',
@@ -70,7 +82,6 @@ const columnsR = [
         // format: d => moment((d)).format("ll")//.format("dd.mm.yyyy hh:MM:ss")
     },
 ];
-
 
 const contextActions = memoize((deleteHandler) => (
     <IconButton onClick={deleteHandler}>
@@ -105,14 +116,17 @@ class Inventory extends Component {
             // setResetPaginationToggle: false,
             filteredItems: []
         };
-        this.fetchItems();
     };
+
+    componentDidMount() {
+        this.fetchItems();
+    }
 
     actions = () => [
         this.subHeaderComponentMemo(1),
-        <IconButton color="primary" key={2}>
-            <Add/>
-        </IconButton>
+        // <IconButton color="primary" key={2}>
+        //     <Add/>
+        // </IconButton>
     ];
 
     setFilterText = (text) => {
@@ -140,7 +154,7 @@ class Inventory extends Component {
                 style: textFieldStyle.resize,
             }}/>
             <IconButton color="secondary" onClick={onClear}>
-                <Close />
+                <Close/>
             </IconButton>
             {/*<ClearButton onClick={onClear}>X</ClearButton>*/}
         </>);
@@ -202,9 +216,6 @@ class Inventory extends Component {
                         this.handleAddStock(data, e);
                     }}>
 
-                        {/*<Grid container spacing={3} direction="row"*/}
-                        {/*      justify="center" alignItems="center">*/}
-                        {/*    <Grid container item xs={12} spacing={2}>*/}
                         <Widget title={data.name} disableWidgetMenu>
                             <Grid container spacing={3} justify="center"
                                   className={classes.dashedBorder2}>
@@ -223,7 +234,7 @@ class Inventory extends Component {
                                         }}
                                         fullWidth label="In Stock"
                                         color="secondary" type='number'
-                                        value={data.quantity} name='qty_in_stock'
+                                        value={data.quantity === null ? '' : data.quantity} name='qty_in_stock'
                                         variant="standard" disabled={true}/>
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
@@ -243,8 +254,6 @@ class Inventory extends Component {
                                 </Grid>
                             </Grid>
                         </Widget>
-                        {/*    </Grid>*/}
-                        {/*</Grid>*/}
                     </form>
                 </Grid>
 
@@ -283,7 +292,7 @@ class Inventory extends Component {
                                 <Grid item xs={12} sm={6}>
                                     <FormControl fullWidth>
                                         <InputLabel>Category</InputLabel>
-                                        <GetCategoriesDropDown
+                                        <GetItemCategoriesDropDown
                                             category_id={data.category.id}
                                             changeHandler={(e) => {
                                                 this.handleChangeDropDown(e, data)
@@ -323,9 +332,9 @@ class Inventory extends Component {
                                         style={{margin: 0, style: textFieldStyle.resize,}}>
                                         <InputLabel>Status</InputLabel>
                                         <Select style={textFieldStyle.resize}
-                                            id="standard-secondary" label="Status"
-                                            color="primary" onChange={this.handleChange}
-                                            defaultValue={data.status} name='status'>
+                                                id="standard-secondary" label="Status"
+                                                color="primary" onChange={this.handleChange}
+                                                defaultValue={data.status} name='status'>
                                             <MenuItem
                                                 style={textFieldStyle.resize}
                                                 value={'enabled'}>Enabled</MenuItem>
@@ -362,8 +371,8 @@ class Inventory extends Component {
         }
 
         let item = {};
-        item.id = data.id;
-        item.name = e.target.item_name.value.trim();
+        item.id = data !== null ? data.id : 0;
+        item.name = e.target.item_name.value.charAt(0).toUpperCase() + e.target.item_name.value.trim().substring(1);
         item.pic = e.target.item_pic.value.trim();
         item.price = parseFloat(e.target.item_price.value);
         item.category_id = parseInt(e.target.item_category.value);
@@ -394,15 +403,26 @@ class Inventory extends Component {
         this.updateItem(item);
     };
 
-    updateItem = (item) => {
+    updateItem = async (item) => {
         // console.log(item)
         try {
-            let res = fetcher({
+            let res = await fetcher({
                 query: ITEM_UPDATE,
                 variables: item
             });
 // /*
             //---------------- not really needed ------------------// APA should help me on this
+
+            // console.log(res);
+
+            if(res && res.errors && res.errors.length < 2 ){
+                alert(res.errors[0].message);
+                return;
+            }
+            // else if (res && res.errors && res.errors.length >1){
+            //     return;
+            // }
+
 
             if (res) {
 
@@ -427,10 +447,11 @@ class Inventory extends Component {
                         items[i].id = item.id;
                         items[i].pic = item.pic;
                         items[i].name = item.name;
-                        items[i].price = item.price.toFixed(2);
+                        items[i].price = item.price;
                         items[i].category.id = item.category_id;
                         items[i].has_stock = item.has_stock;
-                        items[i].min_stock_level = item.min_stock_level;
+                        items[i].min_stock_level = !(item.min_stock_level > -1) ? null : item.min_stock_level;
+
                         items[i].status = item.status;
                         break;
                     }
@@ -461,11 +482,6 @@ class Inventory extends Component {
                 query: ALL_ITEMS,
             });
             let items = res.data.getAllItems;
-            items.forEach(item => {
-                item.price = item.price.toFixed(2);
-                item.quantity = item.quantity === null ? '-' : item.quantity;
-                // item.min_stock_level = item.min_stock_level === null ? 0 : item.min_stock_level;
-            });
             this.setState({items, filteredItems: items});
         } catch (err) {
             console.log(err);
@@ -518,7 +534,13 @@ class Inventory extends Component {
                 query: ADD_STOCK,
                 variables: {id: item.id, add_to_stock: item.qty_to_add, user_id}
             });
-            // debugger;
+            // console.log(res);
+
+            if(res && res.errors){
+                alert(res.errors[0].message);
+                return;
+            }
+
             if (res) {
 
                 let items = [...this.state.items];
@@ -551,15 +573,6 @@ class Inventory extends Component {
         }
     };
 
-    // stockAddedReset = (val) => {
-    //     if (!val) {
-    //         console.log(val);
-    //         return 0;
-    //     } else if (this.state.sth_changed) {
-    //         return 0;
-    //     }
-    //     return val;
-    // };
 
     render() {
         return (

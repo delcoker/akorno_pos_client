@@ -10,25 +10,34 @@ import {
     Select, MenuItem, TextField, Button, Grid,
 } from "@material-ui/core";
 import DataTable from "react-data-table-component";
-import {Add, ArrowDownward, Close, Delete,
-    Save as SaveIcon} from '@material-ui/icons';
-import GetCategoriesDropDown from "./compnonents/GetCategoriesDropDown";
+import {
+    Add, ArrowDownward, Close, Delete,
+    Save as SaveIcon
+} from '@material-ui/icons';
+import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDropDown";
 import moment from "moment";
 
-import {fetcher, ITEM_UPDATE, ALL_ITEMS, ADD_STOCK, getUser} from "../../_services/fetcher";
+import {fetcher, ITEM_UPDATE, ALL_ITEMS,} from "../../_utils/fetcher";
 import PageTitle from "../../components/PageTitle";
-import {textFieldStyle} from "../../_services/inlineStyles";
+import {textFieldStyle} from "../../_utils/inlineStyles";
 
 import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Notification from "../../components/Notification";
 import Widget from "../../components/Widget";
+import FormDialog from "./compnonents/FormDialog";
 
 const columnsR = [
     {name: 'Name', selector: 'name', sortable: true, grow: 4,},
-    {name: 'Price', selector: 'price', right: false, sortable: true, hide: 'sm', grow: 2},
+    {
+        name: 'Price', selector: 'price', right: false, sortable: true, hide: 'sm', grow: 2,
+        cell: (row) => (row.price).toFixed(2)
+    },
     {name: 'Category', selector: 'category.name', sortable: true,},
-    {name: 'In Stock', selector: 'quantity', sortable: true, width: '70px',},
+    {
+        name: 'In Stock', selector: 'quantity', sortable: true, width: '70px',
+        cell: (row) => row.quantity === null ? '-' : row.quantity
+    },
     {
         name: 'Picture', selector: 'name', width: '50px', cell: (d) =>
             // <Avatar>
@@ -43,12 +52,16 @@ const columnsR = [
     },
     {
         name: 'Has Stock', selector: 'has_stock', hide: 'sm', sortable: true, width: '50px', cell: (da) => {
-            return <Checkbox id="standard-secondary"
-                             label="Has Stock" color="secondary"
-                             defaultChecked={da.has_stock}/>
+            return <Checkbox
+                id="standard-secondary"
+                label="Has Stock" color="secondary"
+                checked={da.has_stock}/>
         }
     },
-    {name: 'Min Stock', selector: 'min_stock_level', sortable: true, width: '70px',},
+    {
+        name: 'Min Stock', selector: 'min_stock_level', sortable: true, width: '70px',
+        cell: (row) => row.min_stock_level === null ? '-' : row.min_stock_level
+    },
     {name: 'Status', selector: 'status', sortable: true,},
     {
         name: 'Last Update',
@@ -101,14 +114,15 @@ class Items extends Component {
             stock_add_value: 0,
             // resetPaginationToggle: false,
             // setResetPaginationToggle: false,
-            filteredItems: []
+            filteredItems: [],
+            open: false
         };
         this.fetchItems();
     };
 
     actions = () => [
         this.subHeaderComponentMemo(1),
-        <IconButton color="primary" key={2}>
+        <IconButton color="primary" key={2} onClick={this.handleClickOpen}>
             <Add/>
         </IconButton>
     ];
@@ -140,9 +154,32 @@ class Items extends Component {
             }}
             />
             <IconButton color="secondary" onClick={onClear}>
-                <Close />
+                <Close/>
             </IconButton>
         </>);
+
+    // save new item
+    handleClickOpen = () => {
+        // console.log('open new item dialog');
+        this.setState({open: true});
+    };
+
+    handleClose = () => {
+        this.setState({open: false});
+    };
+
+    saveNewItem = async (e) => {
+        // console.log(e.target.item_name.value);
+
+        let item = this.getItemStats(null, e);
+        let item_id = await this.updateOrCreateItem(item); //actually create new item;
+        // console.log(item_id);
+
+
+        if (item_id > -1) this.handleClose();
+    };
+    // save new item done
+
 
 //------------------------ // this will really slow down program ----------------------------------------
     handleChangeDropDown = (event, data) => {
@@ -229,7 +266,7 @@ class Items extends Component {
                                 <Grid item xs={12} sm={6}>
                                     <FormControl fullWidth>
                                         <InputLabel>Category</InputLabel>
-                                        <GetCategoriesDropDown
+                                        <GetItemCategoriesDropDown
                                             category_id={data.category.id}
                                             changeHandler={(e) => {
                                                 this.handleChangeDropDown(e, data)
@@ -348,16 +385,10 @@ class Items extends Component {
         </>
     };
 
-    saveItem = (data, e) => {
-
-        if (!this.state.sth_changed) {
-            console.log('NO changes');
-            return;
-        }
-
+    getItemStats = (data, e) => {
         let item = {};
-        item.id = data.id;
-        item.name = e.target.item_name.value.trim();
+        item.id = data !== null ? data.id : 0;
+        item.name = e.target.item_name.value.charAt(0).toUpperCase() + e.target.item_name.value.trim().substring(1);
         item.pic = e.target.item_pic.value.trim();
         item.price = parseFloat(e.target.item_price.value);
         item.category_id = parseInt(e.target.item_category.value);
@@ -380,26 +411,50 @@ class Items extends Component {
             return;
         }
 
+        return item;
+    };
+
+    saveItem = (data, e) => {
+        // console.log("data", data);
+
+        if (!this.state.sth_changed) {
+            console.log('NO changes');
+            return;
+        }
+
+        let item = this.getItemStats(data, e);
+
         // if (item.has_stock && item.min_stock_level < 1) {
         //     alert('This number can not be less 1.');
         //     return;
         // }
 
-        this.updateItem(item);
+        this.updateOrCreateItem(item, 1); // if it's an update up is 1
     };
 
-    updateItem = (item) => {
+    updateOrCreateItem = async (item, up) => {
         // console.log(item)
+        let updatedOrAdded = 'failed';
         try {
-            let res = fetcher({
+            let res = await fetcher({
                 query: ITEM_UPDATE,
                 variables: item
             });
-// /*
             //---------------- not really needed ------------------// APA should help me on this
 
-            if (res) {
+            // console.log(res);
 
+            if (res && res.errors && res.errors.length === 1) {
+                alert(res.errors[0].message);
+                return;
+            }
+            // } else if (res && res.errors && res.errors.length > 1) {
+            //     return;
+            // }
+
+
+            if (up === 1) { // item updated
+                updatedOrAdded = 'updated';
                 let items = [...this.state.items];
 
                 // const newItemsState = this.state.items.map((i) => {
@@ -415,27 +470,46 @@ class Items extends Component {
                 //     return i;
                 // });
 
+                // console.log(item);
+
                 for (let i = 0; i < items.length; i++) {
                     if (items[i].id === item.id) {
                         items[i] = JSON.parse(JSON.stringify(items[i]));
                         items[i].id = item.id;
                         items[i].pic = item.pic;
                         items[i].name = item.name;
-                        items[i].price = item.price.toFixed(2);
+                        items[i].price = item.price;
                         items[i].category.id = item.category_id;
                         items[i].has_stock = item.has_stock;
-                        items[i].min_stock_level = item.min_stock_level;
+                        items[i].min_stock_level = !(item.min_stock_level > -1) ? null : item.min_stock_level;
                         items[i].status = item.status;
                         break;
                     }
                 }
 
                 this.setState({items, filteredItems: items, sth_changed: false})
+            } else {
+                updatedOrAdded = 'added';
+                let items = [...this.state.items];
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].name === item.name) {
+                        alert("An item with this name already exist");
+                        item.id = -1; // and item already exist
+                        return item.id;
+                    }
+                }
+
+                const newItem = res.data.updateItem;
+                // console.log(newItem);
+
+                items = [...this.state.items, newItem];
+
+                this.setState({items, filteredItems: items, sth_changed: false})
             }
 
             const componentProps = {
                 type: "shipped",
-                message: item.name + ' updated.',
+                message: `${item.name} ${updatedOrAdded}.`,
                 variant: "contained",
                 color: "success",
             };
@@ -444,9 +518,12 @@ class Items extends Component {
                 {...componentProps}
                 className={classes.notificationComponent}
             />, toastOptions);
+
         } catch (err) {
             console.log(err);
         }
+        // console.log(item.id);
+        return item.id;
     };
 
     fetchItems = async () => {
@@ -455,11 +532,6 @@ class Items extends Component {
                 query: ALL_ITEMS,
             });
             let items = res.data.getAllItems;
-            items.forEach(item => {
-                item.price = item.price.toFixed(2);
-                item.quantity = item.quantity === null ? '-' : item.quantity;
-                // item.min_stock_level = item.min_stock_level === null ? 0 : item.min_stock_level;
-            });
             this.setState({items, filteredItems: items});
         } catch (err) {
             console.log(err);
@@ -470,95 +542,16 @@ class Items extends Component {
         console.log('handleRowSelectedChange', data)
     };
 
-    handleAddStock = async ({id}, e) => {
-
-        let item = {};
-        item.id = id;
-        item.qty_to_add = parseInt(e.target.qty_to_add.value.trim());
-        item.has_stock = e.target.has_stock.checked;
-        // console.log(item);
-
-        if (!(item.has_stock)) {
-            alert('This item stock is not being tracked. Select Has Stock and Hit SAVE to start tracking');
-            return;
-        }
-        let user_id = (await getUser(localStorage.getItem('token'))).user_id;
-
-        if (!(item.qty_to_add > 0 && user_id)) {
-
-            const componentProps = {
-                type: "shipped",
-                message: 'Quantity to add cannot be zero or less (login exxp).',
-                variant: "contained",
-                color: "info",
-            };
-
-            // alert('The number can not be less zero.');
-            toast(<Notification
-                {...componentProps}
-                className={classes.notificationComponent}
-            />, toastOptions);
-            return;
-        }
-
-        if (!(
-            window.confirm(`Are you sure you want add this stock?`)
-        )) {
-            return;
-        }
-
-        try {
-            let res = await fetcher({
-                query: ADD_STOCK,
-                variables: {id: item.id, add_to_stock: item.qty_to_add, user_id}
-            });
-            // debugger;
-            if (res) {
-
-                let items = [...this.state.items];
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].id === item.id) {
-                        items[i].quantity = res.data.updateStock[1];
-                        break;
-                    }
-                }
-                this.setState({items, filteredItems: items, stock_add_value: 0})
-            }
-            // this.stockAddedReset();
-
-            const componentProps = {
-                type: "shipped",
-                message: item.qty_to_add + ' added',
-                variant: "contained",
-                color: "success",
-            };
-
-            toast(<Notification
-                {...componentProps}
-                className={classes.notificationComponent}
-            />, toastOptions);
-
-            //---------------- not really needed------------------//
-
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    // stockAddedReset = (val) => {
-    //     if (!val) {
-    //         console.log(val);
-    //         return 0;
-    //     } else if (this.state.sth_changed) {
-    //         return 0;
-    //     }
-    //     return val;
-    // };
 
     render() {
         return (
             <>
+                <FormDialog open={this.state.open} onClose={this.handleClose}
+                            handleSave={this.handleSave}
+                            saveNewItem={this.saveNewItem}/>
+
                 <ToastContainer/>
+                {/**/}
                 {/*<Grid container spacing={1} >*/}
                 <PageTitle title="Items"/>
                 <DataTable

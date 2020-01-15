@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { MenuItem, Select, FormControl, InputLabel } from "@material-ui/core";
-import { fetcher, USERS } from "../../../_services/fetcher";
-import { textFieldStyle } from "../../../_services/inlineStyles";
+import { fetcher, USERS } from "../../_utils/fetcher";
+import { textFieldStyle } from "../../_utils/inlineStyles";
 
 
 class GetUsersDropDown extends Component {
@@ -33,6 +33,7 @@ class GetUsersDropDown extends Component {
                 // console.log('user',user)
                 return (
                     <MenuItem
+                        onClick={this.props.handleDropDownHTML}
                         style={textFieldStyle.resize}
                         key={user.user_id} value={user.user_id}>
                         {user.first_name + " " + user.last_name}
@@ -58,7 +59,7 @@ class GetUsersDropDown extends Component {
                 >
                     <MenuItem
                         style={textFieldStyle.resize}
-                        key={-1} value={-1}>
+                        key={-1} value={-1} onClick={this.props.handleDropDownHTML}>
                         {"Everyone"}
                     </MenuItem>
                     {this.renderUsers()}

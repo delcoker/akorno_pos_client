@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {FormControl, MenuItem, Select} from "@material-ui/core";
-import {CATEGORIES, fetcher} from "../../../_services/fetcher";
+import {MenuItem, Select} from "@material-ui/core";
+import {GET_CATEGORIES, fetcher} from "../../_utils/fetcher";
 
 const textFieldStyle = {
     resize: {
@@ -8,19 +8,19 @@ const textFieldStyle = {
     },
 };
 
-class GetCategoriesDropDown extends Component {
+class GetItemCategoriesDropDown extends Component {
     constructor(props) {
         super(props);
         this.state = {
             itemCategories: []
-        }
+        };
         this.fetchItemCategories();
     }
 
     fetchItemCategories = async () => {
         try {
             let res = await fetcher({
-                query: CATEGORIES,
+                query: GET_CATEGORIES,
             });
             let itemCategories = res.data.getItemCategories;
             this.setState({itemCategories});
@@ -61,4 +61,4 @@ class GetCategoriesDropDown extends Component {
     }
 }
 
-export default GetCategoriesDropDown;
+export default GetItemCategoriesDropDown;

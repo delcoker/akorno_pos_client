@@ -3,10 +3,10 @@ import {Drawer, IconButton, List} from "@material-ui/core";
 import {
     Dashboard as DashboardIcon,
     /*AttachMoney as SalesIcon,*/
-    NotificationsNone as NotificationsIcon,
-    FormatSize as TypographyIcon,
+    // NotificationsNone as NotificationsIcon,
+    // FormatSize as TypographyIcon,
     FilterNone as UIElementsIcon,
-    BorderAll as TableIcon,
+    // BorderAll as TableIcon,
     QuestionAnswer as SupportIcon,
     LibraryBooks as LibraryIcon,
     HelpOutline as FAQIcon, ArrowBack as ArrowBackIcon,
@@ -30,32 +30,33 @@ import {
 } from "../../context/LayoutContext";
 
 // modular page import
-import sales from '../../pages/sales';
-import reports from '../../pages/reports';
-import items from '../../pages/items';
-import inventory from '../../pages/inventory';
-import {renderSideBarRoutes} from "../../_services/routes";
+// import sales from '../../pages/sales';
+// import reports from '../../pages/reports';
+// import items from '../../pages/items';
+// import inventory from '../../pages/inventory';
+// import users from '../../pages/users';
+import {renderSideBarRoutes} from "../../_utils/routes";
 
 
 const structure = [
     {id: 0, label: "Dashboard", link: "/app/dashboard", icon: <DashboardIcon/>},
     ...renderSideBarRoutes(),
-    // {id: 1, label: sales.label, link: sales.route, icon: <sales.icon/>},
-    // {id: 2, label: reports.label, link: reports.route, icon: <reports.icon/>},
+    // {id: 10, label: inventory.label, link: inventory.route, icon: inventory.icon},
+    // {id: 11, label: users.label, link: users.route, icon: users.icon},
     // {id: 3, label: items.label, link: items.route, icon: <items.icon/>},
-    {
-        id: 11,
-        label: "Typography",
-        link: "/app/typography",
-        icon: <TypographyIcon/>,
-    },
-    {id: 21, label: "Tables", link: "/app/tables", icon: <TableIcon/>},
-    {
-        id: 31,
-        label: "Notifications",
-        link: "/app/notifications",
-        icon: <NotificationsIcon/>,
-    },
+    // {
+    //     id: 11,
+    //     label: "Typography",
+    //     link: "/app/typography",
+    //     icon: <TypographyIcon/>,
+    // },
+    // {id: 21, label: "Tables", link: "/app/tables", icon: <TableIcon/>},
+    // {
+    //     id: 31,
+    //     label: "Notifications",
+    //     link: "/app/notifications",
+    //     icon: <NotificationsIcon/>,
+    // },
     {
         id: 41,
         label: "UI Elements",

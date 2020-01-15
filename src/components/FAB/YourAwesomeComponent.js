@@ -23,14 +23,22 @@ export class YourAwesomeComponent extends Component {
         this.tot = 0;
         this.amount_paying = 0;
         this.change = 0;
+
+        // this.yacTotal=this.props.slTotal;
+        // this.yacAmtPaying=this.props.slAmtPaying;
+        // this.yacChange = this.props.slChange;
+        //
+        // console.log(this.yacTotal, this.yacAmtPaying, this.yacChange);
     }
 
     handlePayingValueChange = (e) => {
-        this.amount_paying = parseFloat(e.target.value);
-        // console.log(this.amount_paying );
-        this.change = (this.amount_paying - this.props.total).toFixed(2);
-
-        this.props.handlePayingPar(this.change, this.amount_paying);
+        const amount_paying = parseFloat(e.target.value);
+        // // console.log(this.amount_paying );
+        // const change = (this.amount_paying - this.props.total).toFixed(2);
+        //
+        // this.props.handlePayingPar(this.change, this.amount_paying); // send to parent
+        // console.log("here", this.yacTotal);
+        this.props.handlePayingChangeNii(amount_paying);
     };
 
     handleClick = (e) => {
@@ -41,15 +49,16 @@ export class YourAwesomeComponent extends Component {
         // target.setSelectionRange(0, extensionStarts);
     };
 
-    calculateChange = () =>{
-        this.change = (this.amount_paying - this.props.total).toFixed(2);
-        this.amount_paying = 0;
+    calculateChange = () => {
+        const { totalNii, payingNii } = this.props;
 
-        return this.change;
+        return (payingNii - totalNii).toFixed(2);
     };
 
 
     render() {
+        const { totalNii, payingNii, changeNii } = this.props;
+
         return (
 
             <Container styles={containerStyle}>
@@ -76,7 +85,7 @@ export class YourAwesomeComponent extends Component {
                             }}
                             type='number'
                             color='primary'
-                            value={this.props.total.toFixed(2)}
+                            value={totalNii}
                             disabled
                         />
 
@@ -93,7 +102,7 @@ export class YourAwesomeComponent extends Component {
                             autoFocus={true}
                             color='secondary'
                             type='number'
-                            value={this.props.amt_paying}
+                            value={payingNii}
                             onClick={this.handleClick}
                             // helperText={"Amount received from customer"}
                             onChange={this.handlePayingValueChange}

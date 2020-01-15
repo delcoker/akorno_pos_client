@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Select, MenuItem} from '@material-ui/core';
-import { textFieldStyle } from "../../_services/inlineStyles";
+import { textFieldStyle } from "../../_utils/inlineStyles";
 
 class LoginDropDown extends Component {
     renderUsers = () => {

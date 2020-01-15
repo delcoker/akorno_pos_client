@@ -5,40 +5,16 @@ import {Grid} from "@material-ui/core";
 import Widget from "../../components/Widget";
 import PageTitle from "../../components/PageTitle";
 
-import {fetcher, GET_REPORT, getUser} from "../../_services/fetcher";
+import {fetcher, GET_REPORT, getUser} from "../../_utils/fetcher";
 import {MuiPickersUtilsProvider, KeyboardDateTimePicker} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 
-import {withStyles} from "@material-ui/core/styles";
-import GetUsersDropDown from "./compnonents/GetUsersDropDown";
+import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
 import DataTable from "react-data-table-component";
 import IconButton from "@material-ui/core/IconButton";
 import {Print} from "@material-ui/icons";
-import {textFieldStyle} from "../../_services/inlineStyles";
-
-const useStyles = (theme => ({
-    dashedBorder: {
-        border: "1px dashed",
-        borderColor: theme.palette.primary.main,
-        padding: theme.spacing(2),
-        paddingTop: theme.spacing(4),
-        paddingBottom: theme.spacing(4),
-        marginTop: theme.spacing(1),
-    },
-    text: {
-        marginBottom: theme.spacing(2),
-    },
-    notification: {
-        display: "flex",
-        alignItems: "center",
-        background: "transparent",
-        boxShadow: "none",
-        overflow: "visible",
-    },
-    progress: {
-        visibility: "hidden",
-    },
-}));
+import {textFieldStyle} from "../../_utils/inlineStyles";
+import useStyles from './styles'
 
 const columnsR = [
     {name: "Item", selector: "item_name", sortable: true},
@@ -122,6 +98,7 @@ class Reports extends Component {
                     transactionPoint
                 }
             });
+            // console.log(res);
             let transactions = res.data.getDailyReport;
 
             this.setState({transactions});
@@ -173,8 +150,8 @@ class Reports extends Component {
             throw new Error("Could not get user.\nTransaction not saved");
 
         let company = "AKORNO CATERING SERVICES" + "<br> ";
-        let vendor = 1;
-        let transaction_point = null;
+        // let vendor = 1;
+        // let transaction_point = null;
         let cashier_name = (user.first_name + " " + user.last_name).substr(
             -company.length
         );
@@ -340,7 +317,7 @@ class Reports extends Component {
                                 highlightOnHover
                                 pointerOnHover
                                 striped
-                                // sortIcon={arrowDownward}
+                                customStyles={dataTableFont}
                                 // onRowClicked={this.handleRowClicked}
                                 // contextActions={contextActions(this.deleteSelectedRows)}
                                 // pagination
@@ -362,7 +339,15 @@ class Reports extends Component {
     }
 }
 
+const dataTableFont = {
+    cells: {
+        style: {
+            fontSize: '17px', // override the cell padding for data cells
+            // paddingRight: '8px',
+        },
+    },
+};
 // export default withStyles(useStyles, {withTheme: true})(MyLoginPage);
-export default withStyles(useStyles, {withTheme: true})(Reports);
+export default useStyles(Reports);
 
 

@@ -1,5 +1,5 @@
 import React from "react";
-import {getUser} from "../_services/fetcher";
+import {getUser} from "../_utils/fetcher";
 
 var LayoutStateContext = React.createContext();
 var LayoutDispatchContext = React.createContext();

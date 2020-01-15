@@ -2,9 +2,9 @@ import {createApolloFetch} from "apollo-fetch";
 import gql from "graphql-tag";
 
 export const fetcher = createApolloFetch({
-    uri: 'http://192.168.1.21:4000/graphql', //lisa's
+    // uri: 'http://192.168.1.21:4000/graphql', //lisa's
     // uri: 'http://192.168.0.39:4000/graphql', //apa's
-    // uri: 'http://localhost:4000/graphql',
+    uri: 'http://localhost:4000/graphql',
 });
 
 export const LOGIN_QUERY = gql`
@@ -115,7 +115,22 @@ export const ITEM_UPDATE = gql`
             id:$id, name:$name, price:$price, pic: $pic,
             category_id:$category_id, has_stock:$has_stock
             quantity: $quantity, available:$available, status: $status,
-            min_stock_level: $min_stock_level)
+            min_stock_level: $min_stock_level){
+            id
+            name
+            price
+            pic
+            category{
+                id
+                name
+            }
+            min_stock_level
+            has_stock
+            quantity
+            status
+            createdAt
+            updatedAt
+        }
     }
 `;
 
@@ -128,7 +143,7 @@ export const ADD_STOCK = gql`
 
 // Reports.js
 export const GET_REPORT = gql`
-    query TransactionsQuery($user_id: Int!, $startDate: String, $endDate: String){
+    query TransactionsQuery($user_id: Int!, $startDate: String!, $endDate: String!){
         getDailyReport(user_id: $user_id, startDate: $startDate, endDate: $endDate){
             user_id
             vendor_id
@@ -138,6 +153,34 @@ export const GET_REPORT = gql`
             item_price
             inv
             transaction_point
+        }
+    }
+`;
+
+export const GET_SHIFT = gql`
+    query ShiftQuery($user_id: Int, $startDate: String!, $endDate: String!, $status:String, $transactionPoint:Int){
+        getShift(user_id: $user_id, startDate: $startDate, endDate: $endDate, status: $status, transactionPoint: $transactionPoint){
+            id
+            user{
+                first_name
+                last_name
+            }
+            status
+            createdAt
+            updatedAt
+            shift_details{
+                item{
+                    id
+                    name
+                    quantity
+                    category{
+                        name
+                    }
+                }
+                qty_start
+                qty_during_shift
+                qty_end
+            }
         }
     }
 `;
@@ -154,12 +197,50 @@ export const SAVE_TRANSACTIONS = gql`
     }
 `;
 
+//Users.js
+export const CREATE_USER = gql`
+    mutation CreateUser($first_name: String!, $last_name:String!, $other_names:String, $email: String!, $password:String, $status: Status, $vendor_id: Int!, $isAdmin:Boolean, $telephone:String, $pic:String, $postal_address:String){
+        createUser(first_name: $first_name, last_name: $last_name, other_names: $other_names,
+            email: $email, password: $password, status:$status,vendor_id: $vendor_id,
+            isAdmin:$isAdmin, telephone:$telephone, pic:$pic, postal_address:$postal_address){
+            user_id
+            first_name
+            last_name
+            email{
+                email
+            }
+        }
+    }
+`;
+
+export const NO_ADMIN_RESET_PASSWORD = gql`
+    mutation ResetPasswordNoAdmin($user_id: Int!){
+        resetPasswordNoAdmin(user_id: $user_id)
+    }
+`;
+
+export const ADMIN_RESET_PASSWORD = gql`
+    mutation ResetPasswordAdmin($user_id: Int!){
+        resetPasswordAdmin(user_id: $user_id)
+    }
+`;
+
+export const USER_UPDATE = gql`
+    mutation UpdateUser($first_name: String!, $last_name:String!, $other_names:String, $status: Status, $vendor_id: Int!, $isAdmin:Boolean, $telephone:String, $pic:String, $postal_address:String, $user_id: Int!){
+        updateUser(first_name: $first_name, last_name: $last_name, other_names: $other_names,
+            status:$status,vendor_id: $vendor_id, user_id: $user_id,
+            isAdmin:$isAdmin, telephone:$telephone, pic:$pic, postal_address:$postal_address)
+
+    }
+`;
+
 export const LOGGED_USER = gql`
     query UserQuery{
         me{
             user_id
             first_name
             last_name
+            isAdmin
         }
     }
 `;
@@ -177,6 +258,76 @@ export const USERS = gql`
     }
 `;
 
+export const ALL_USERS = gql`
+    query UsersQuery{
+        allUsersNoAdminDis {
+            user_id
+            first_name
+            last_name
+            other_names
+            telephone
+            pic
+            status
+            email {
+                email
+            }
+            postal_address
+            vendor{
+                name
+                email
+                telephone
+                postal_address
+                website_url
+            }
+            isAdmin
+            createdAt
+            updatedAt
+        }
+    }
+`;
+export const GET_CATEGORIES = gql`
+    query ItemCategoryQuery{
+        getItemCategories{
+            id
+            name
+            status
+        }
+    }
+`;
+
+export const CHECK_FOR_ANY_ACTIVE_SHIFT = gql`
+    query CheckAnyShiftQuery{
+        isOneShiftActive{
+            id
+            user{
+                first_name
+                last_name
+            }
+        }
+    }
+`;
+
+export const CHECK_USER_SESSION = gql`
+    query CheckShiftStartedQuery($user_id: Int!){
+        userShiftStarted(user_id: $user_id)
+    }
+`;
+
+export const START_SHIFT = gql`
+    mutation CreateShiftQuery($user_id: Int!){
+        createShift(user_id: $user_id)
+    }
+`;
+
+export const END_SHIFT = gql`
+    mutation EndShiftQuery($user_id: Int!){
+        endShift(user_id: $user_id)
+    }
+`;
+
+
+// methods
+
 export const getUser = (token) => {
     // console.log('tokenpppppppppppppppppppppppppppppppppppppppppp', token);
     fetcher.use(({request, options}, next) => {
@@ -192,12 +343,16 @@ export const getUser = (token) => {
     // return u
 };
 
-export const CATEGORIES = gql`
-    query ItemCategoryQuery{
-        getItemCategories{
-            id
-            name
-            status
-        }
+export const isAnyShiftActive = async () => {
+    try {
+        let a = (await fetcher({
+            query: CHECK_FOR_ANY_ACTIVE_SHIFT,
+            // variables: {user_id: user_id}
+        }));
+        // console.log(a);
+        if (!a) return null;
+        return a.data.isOneShiftActive;
+    } catch (e) {
+        console.log(e);
     }
-`;
+};

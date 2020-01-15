@@ -11,9 +11,11 @@ import {IconButton} from "@material-ui/core";
 import Checkbox from "@material-ui/core/Checkbox";
 
 import {
+    CHECK_FOR_ANY_ACTIVE_SHIFT,
+    CHECK_USER_SESSION,
     convertArrayOfObjectsToPrint, fetcher,
-    getUser, SAVE_TRANSACTIONS
-} from "../../../_services/fetcher";
+    getUser, isAnyShiftActive, SAVE_TRANSACTIONS, START_SHIFT
+} from "../../../_utils/fetcher";
 import {YourAwesomeComponent} from "../../../components/FAB/YourAwesomeComponent";
 import {toast, ToastContainer} from "react-toastify";
 import Notification from "../../../components/Notification";
@@ -74,7 +76,8 @@ class SaleList extends Component {
         // console.log(props);
         this.tot = this.props.mTotal;
         this.amount_paying = 0;
-        this.change = 0;
+        this.change = this.props.mChange;
+
 
         this.state = {
             tot: this.props.mTotal,
@@ -86,18 +89,24 @@ class SaleList extends Component {
             amount_paying: this.amount_paying
 
         };
+
+        this.totalSList = this.props.mTotalSales;
+        this.amountPayingSList = this.props.mAmountPayingSales;
+        this.changeSList = this.props.mChangeSales;
+
+        // console.log(this.totalSList)
     }
 
     handleChange = table => {
         let ch = this.state.amount - this.props.mTotal;
-        console.log('Selected Rows: ', table.selectedRows);
+        this.change = ch;
+        console.log('Selected Rows: ', table.selectedRows, ch);
         // You can use setState or dispatch with something like Redux so we can use the retrieved data
         this.setState({
             selectedRows: table.selectedRows,
             data: this.props.mData,
             change: ch
         });
-
     };
 
     handleClearRows = () => {
@@ -137,7 +146,72 @@ class SaleList extends Component {
         event.target.select();
     };
 
+    // use this to run multiple sessions
+    checkUserSession = async (user_id) => {
+        try {
+            return await (await fetcher({
+                query: CHECK_USER_SESSION,
+                variables: {user_id: user_id}
+            })).data.userShiftStarted;
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+
+    startShift = async (user_id) => {
+        try {
+            return await (await fetcher({
+                query: START_SHIFT,
+                variables: {user_id: user_id}
+            })).data.createShift;
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
     printey = async () => {
+        // get cashier at time of sale
+        const user = await getUser(localStorage.getItem("token"));
+
+        if (!user.user_id) {
+
+            throw new Error("Could not get user.\nTransaction not saved");
+        }
+
+        //check if user has started a shift
+        const session_started = await this.checkUserSession(user.user_id);
+        // console.log(session_started);
+        if (!session_started) {
+
+            if (window.confirm("You haven't started a SHIFT so you cannot make this sale.\n" +
+                "Would you like to start one now")) {
+
+                let active_shift = await isAnyShiftActive();
+
+                if (active_shift !== null) {
+                    alert(`${active_shift.user.first_name} ${active_shift.user.last_name} is already on a shift`);
+                    return;
+                }
+                //
+
+                if (await this.startShift(user.user_id)) {
+
+                    // alert a shift has started
+                    alert("Shift Started");
+                    //
+                } else {
+                    alert("Shift not started.\nYou CANNOT make a sale.");
+                    return;
+                }
+            } else {
+                alert("You did not start a shift.\nYou CANNOT make a sale.");
+                return;
+            }
+        }
+        //
+
+
         this.change = (this.state.amount_paying - this.props.mTotal);
 
         if (!this.props.mData || this.props.mData.length < 1 ||
@@ -176,13 +250,6 @@ class SaleList extends Component {
             return;
         }
 
-        // get cashier at time of sale
-        let user = await getUser(localStorage.getItem("token"));
-
-        if (!user.user_id) {
-
-            throw new Error("Could not get user.\nTransaction not saved");
-        }
 
         let company = "AKORNO CATERING SERVICES <br>";
         let vendor = 1;
@@ -213,9 +280,7 @@ class SaleList extends Component {
             columnDelimiter +
             columnDelimiter +
             columnDelimiter +
-            "<strong>" +
-            this.change.toFixed(2) +
-            "</strong>" +
+            "<strong>" + this.change.toFixed(2) + "</strong>" +
             lineDelimiter +
             "050-248-0435";
 
@@ -233,9 +298,9 @@ class SaleList extends Component {
 
         if (
             window.confirm(`Are you sure you want to print:
-        Total     :     ${this.props.mTotal.toFixed(2)}
-        Paying  :     ${this.state.amount_paying.toFixed(2)}
-        Change:     ${this.change.toFixed(2)}`)
+                Total     :     ${this.props.mTotal.toFixed(2)}
+                Paying  :     ${this.state.amount_paying.toFixed(2)}
+                Change:     ${this.change.toFixed(2)}`)
         ) {
             let ids = [],
                 qty = [];
@@ -277,7 +342,13 @@ class SaleList extends Component {
     };
 
     handlePayingParent = (change, amount_paying) => {
+        // console.log(change,amount_paying);
+
+        this.change = change;
+        this.amount_paying = amount_paying;
         this.setState({amount_paying, change});
+
+        // this.props.mChangeHandlerSales(change,amount_paying);
 
     };
 
@@ -310,7 +381,8 @@ class SaleList extends Component {
         return (
             <>
                 <ToastContainer/>
-                <iframe id="contents_to_print" style={{height: "0px", width: "0px", position: "absolute"}}/>
+                <iframe title={"Print Cart"} id="contents_to_print"
+                        style={{height: "0px", width: "0px", position: "absolute"}}/>
 
                 <DataTable
                     title="Cart"
@@ -332,17 +404,22 @@ class SaleList extends Component {
                     fixedHeader
                     paginationPerPage={30}
                     // fixedHeaderScrollHeight="500px"
-                    Clicked
+                    // Clicked
                     customStyles={cust}
                 />
 
 
                 <YourAwesomeComponent
-                    total={this.props.mTotal}
+                    total={this.props.mTotalSales}
                     printey={this.printey}
                     handlePayingPar={this.handlePayingParent}
                     amt_paying={this.state.amount_paying}
-                    change = {this.state.change}
+                    // change={this.state.change}
+                    // changeFromPar={this.props.mChangeHandlerSales}
+
+                    slTotal={this.props.mTotalSales}
+                    slAmtPaying={this.props.mAmountPayingSales}
+                    slChange={this.props.mChangeSales}
                 />
 
             </>

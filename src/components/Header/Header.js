@@ -5,6 +5,7 @@ import {
     MailOutline as MailIcon,
     Menu as MenuIcon,
     NotificationsNone as NotificationsIcon,
+    PanTool,
     Person as AccountIcon,
     Search as SearchIcon,
     Send as SendIcon,
@@ -18,11 +19,12 @@ import Notification from "../Notification/Notification";
 import UserAvatar from "../UserAvatar/UserAvatar";
 // context
 import {toggleSidebar, useLayoutDispatch, useLayoutState,} from "../../context/LayoutContext";
-import {signOut, useUserDispatch} from "../../context/UserContext";
+import {shiftOut, signOut, useUserDispatch} from "../../context/UserContext";
 
 import Img from "react-image";
 import Avatar from "@material-ui/core/Avatar";
-import {getUser} from "../../_services/fetcher";
+import {getUser, isAnyShiftActive} from "../../_utils/fetcher";
+// import {getUser} from "../../_utils/fetcher";
 
 const messages = [
     {
@@ -55,17 +57,6 @@ const messages = [
     },
 ];
 
-// doesn't work
-const getter = async () => {
-    return await getUser(localStorage.getItem('token'));
-};
-
-const user = {
-    username: localStorage.getItem('username'), //getter(),
-    company: "Akorno",
-};
-
-// console.log(user);
 
 const notifications = [
     {id: 0, color: "warning", message: "Check out this awesome ticket"},
@@ -90,6 +81,11 @@ const notifications = [
 ];
 
 export default function Header(props) {
+    const user = {
+        username: localStorage.getItem('username'), //getter(),
+        company: "Akorno",
+    };
+
     var classes = useStyles();
 
     // global
@@ -137,7 +133,7 @@ export default function Header(props) {
                     )}
                 </IconButton>
                 <Typography variant="h6" weight="medium" className={classes.logotype}>
-                    {user.company} POS/IMS/SMS
+                    {user.company} POS / IMS / SMS
                 </Typography>
                 <div className={classes.grow}/>
                 <Button component={Link} /*href="https://flatlogic.com/templates/react-material-admin-full"*/
@@ -315,32 +311,77 @@ export default function Header(props) {
                             classes.profileMenuItem,
                             classes.headerMenuItem,
                         )}>
-                        <AccountIcon className={classes.profileMenuIcon}/> Profile
+                        <PanTool className={classes.profileMenuIcon}/>
+                        <Typography
+                            className={classes.profileMenuLink}
+                            color="primary"
+                            onClick={async () => {
+                                if (!window.confirm("Are you sure you want to shift out?")) {
+                                    return;
+                                }
+                                let user = await getUser(localStorage.getItem('token'));
+
+                                let a = await shiftOut(user);
+                                if (a) {
+                                    alert("Shifited out")
+                                } else {
+                                    let active_shift = await isAnyShiftActive();
+
+                                    if (active_shift !== null) {
+                                        alert(`${active_shift.user.first_name} ${active_shift.user.last_name} is currently on a shift`);
+                                        return;
+                                    }
+                                    alert("You are not on a shift\n" );
+                                }
+                                ;
+                            }}
+                        >
+                            Shift Out
+                        </Typography>
                     </MenuItem>
                     <MenuItem
                         className={classNames(
                             classes.profileMenuItem,
                             classes.headerMenuItem,
-                        )}
-                    >
-                        <AccountIcon className={classes.profileMenuIcon}/> Tasks
-                    </MenuItem>
-                    <MenuItem className={classNames(
-                        classes.profileMenuItem,
-                        classes.headerMenuItem,
-                    )}
-                    >
-                        <AccountIcon className={classes.profileMenuIcon}/> Messages
-                    </MenuItem>
-                    <div className={classes.profileMenuUser}>
+                        )}>
+                        <AccountIcon className={classes.profileMenuIcon}/>
                         <Typography
                             className={classes.profileMenuLink}
-                            color="primary"
+                            color="secondary"
                             onClick={() => signOut(userDispatch, props.history)}
                         >
-                            Sign Out
+                            Log Out
                         </Typography>
-                    </div>
+                    </MenuItem>
+                    {/*<MenuItem*/}
+                    {/*    className={classNames(*/}
+                    {/*        classes.profileMenuItem,*/}
+                    {/*        classes.headerMenuItem,*/}
+                    {/*    )}*/}
+                    {/*>*/}
+                    {/*    <AccountIcon className={classes.profileMenuIcon}/> Tasks*/}
+                    {/*</MenuItem>*/}
+                    {/*<MenuItem className={classNames(*/}
+                    {/*    classes.profileMenuItem,*/}
+                    {/*    classes.headerMenuItem,*/}
+                    {/*)}>*/}
+                    {/*    <AccountIcon className={classes.profileMenuIcon}/> Messages*/}
+                    {/*</MenuItem>*/}
+                    {/*<MenuItem*/}
+                    {/*    className={classNames(*/}
+                    {/*        classes.profileMenuItem,*/}
+                    {/*        classes.headerMenuItem,*/}
+                    {/*    )}>*/}
+                    {/*    <div className={classes.profileMenuUser}>*/}
+                    {/*        <Typography*/}
+                    {/*            className={classes.profileMenuLink}*/}
+                    {/*            color="primary"*/}
+                    {/*            onClick={() => signOut(userDispatch, props.history)}*/}
+                    {/*        >*/}
+                    {/*            Sign Out*/}
+                    {/*        </Typography>*/}
+                    {/*    </div>*/}
+                    {/*</MenuItem>*/}
                 </Menu>
             </Toolbar>
         </AppBar>

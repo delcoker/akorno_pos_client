@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 // import {userService} from '../../_services/user.service';
 import LoginDropDown from "./LoginDropDown";
-import {fetcher, LOGIN_QUERY, LOGIN_SEED, LOGGED_USER, USERS} from "../../_services/fetcher";
+import {fetcher, LOGIN_QUERY, LOGIN_SEED, LOGGED_USER, USERS} from "../../_utils/fetcher";
 import {
     Avatar, Button, CssBaseline, TextField, FormControlLabel,
     Checkbox, Link, Grid, Box, Typography, Container
@@ -9,8 +9,8 @@ import {
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import {withStyles} from "@material-ui/core/styles";
 import {loginUser, /*useUserDispatch*/} from "../../context/UserContext";
-import {textFieldStyle} from "../../_services/inlineStyles";
-import {userService} from "../../_services/user.service";
+import {textFieldStyle} from "../../_utils/inlineStyles";
+import {userService} from "../../_utils/user.service";
 
 const Copyright = () =>
     (<Typography variant="body2" color="textSecondary" align="center">
@@ -72,13 +72,13 @@ class MyLoginPage extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDropdownChange = this.handleDropdownChange.bind(this);
-
-        this.fetchUsers()//.then(r => console.log('r'));
+//.then(r => console.log('r'));
 
     }
 
     componentDidMount() {
         // this.userDispatch = this.context;
+        this.fetchUsers()
     }
 
     createDummyUsers = async (pass) => {
@@ -144,6 +144,7 @@ class MyLoginPage extends Component {
                     this.props.history,
                     this.state.isLoading,
                     this.state.error,
+                    res.data.me.isAdmin
                 );
 
                 // this.props.history.push("/");
