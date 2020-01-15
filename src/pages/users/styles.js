@@ -23,6 +23,13 @@ export default withStyles(theme => ({
         marginBottom: theme.spacing(2),
     },
 
+    root: {
+        width: '100%',
+        '& > * + *': {
+            marginTop: theme.spacing(2),
+        },
+    },
+
     // toast not working
     layoutContainer: {
         height: 200,

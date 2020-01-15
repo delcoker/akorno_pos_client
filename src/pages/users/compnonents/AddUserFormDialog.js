@@ -43,11 +43,6 @@ export default function FormDialog(props) {
 
     const classes = useStyles();
 
-    // const [open, setOpen] = React.useState(false);
-
-    const Transition = React.forwardRef(function Transition(props, ref) {
-        return <Slide direction="up" ref={ref} {...props} />;
-    });
 
     const handleChangeDropDown = () => {
         console.log("this")
@@ -61,88 +56,84 @@ export default function FormDialog(props) {
             <Dialog open={props.open} onClose={props.onClose} aria-labelledby="form-dialog-title"
                     maxWidth={'md'} //saveNewItem={props.saveNewItem}
                     keepMounted onExit={props.onClose}>
-                <DialogTitle id="form-dialog-title">Add New Item</DialogTitle>
+                <DialogTitle id="form-dialog-title">Add New User</DialogTitle>
                 <DialogContent>
-                    {/*<Grid container spacing={3} direction="row"*/}
-                    {/*      justify="center" alignItems="center">*/}
 
-                    {/*    <Grid item xs={7}>*/}
-
-
-                    <form className={classes.form} noValidate autoComplete="off" onSubmit={(e) => {
+                    <form noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
-                        props.saveNewItem(e); /*this.handleClose();*/
+                        props.saveNewUser(e); /*this.handleClose();*/
                     }}>
-                        {/*{console.log(classes.textFieldStyle)}*/}
-                        {/*{console.log(textFieldStyle.resize)}*/}
 
-                        <Widget disableWidgetMenu>
+                        <Widget title={'User Details'} disableWidgetMenu>
                             <Grid container spacing={3} justify="space-around"
-                                // className={classes.dashedBorder}
-                            >
-                                <Grid item xs={12} sm={8}>
+                                  className={classes.dashedBorder}>
+                                <Grid item xs={12} sm={3}>
                                     <TextField
                                         InputProps={{
                                             style: textFieldStyle.resize,
                                         }}
-                                        required label="Name" color="primary" fullWidth
-                                        autoComplete="i_name" name='item_name'
-                                        // defaultValue={data.name}
+                                        required
+                                        label="First Name" color="primary" fullWidth
+                                        autoComplete="i_name" name='first_name'
+                                        // defaultValue={data.first_name}
+                                        // onChange={this.handleChange}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={3}>
+                                    <TextField
+                                        InputProps={{
+                                            style: textFieldStyle.resize,
+                                        }}
+                                        // required
+                                        label="Other Names" color="primary" fullWidth
+                                        autoComplete="i_name" name='other_names'
+                                        // defaultValue={data.other_names}
                                         // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={4}>
                                     <TextField
-                                        id="standard-secondar" label="Price"
-                                        inputProps={{step: "0.50", min: "0.00", style: textFieldStyle.resize}}
-                                        color="primary" type='number'
-                                        fullWidth autoComplete="i_price" required
-                                        defaultValue={parseFloat(1).toFixed(2)} name='item_price'
-                                        // onChange={this.handleChange}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <FormControl fullWidth>
-                                        <InputLabel>Category</InputLabel>
-                                        <GetItemCategoriesDropDown
-                                            category_id={1}
-                                            changeHandler={(e) => {
-                                                handleChangeDropDown(e)
-                                            }}/>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        InputProps={{
-                                            style: textFieldStyle.resize,
-                                        }}
-                                        fullWidth id="standard-second" label="Picture"
+                                        label="Last Name"
+                                        inputProps={{style: textFieldStyle.resize}}
                                         color="primary"
+                                        fullWidth autoComplete="name" required
+                                        // defaultValue={(data.last_name)}
+                                        name='last_name'
                                         // onChange={this.handleChange}
-                                        // defaultValue={data.pic}
-                                        name='item_pic'
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={3}>
+                                <Grid item xs={12} sm={2}>
                                     <FormControlLabel
                                         control={<Checkbox
                                             id="standard-secondary"
-                                            label="Has Stock" color="primary"
-                                            name='has_stock'
+                                            label="Is Admin" color="primary"
+                                            name='is_admin' required
                                             // onChange={this.handleChange}
-                                            // defaultChecked={data.has_stock}
-                                        />}
-                                        label="Has Stock"
+                                            defaultChecked={false}/>}
+                                        label="Is Admin"
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        label="Email"
+                                        inputProps={{style: textFieldStyle.resize}}
+                                        color="primary"
+                                        fullWidth autoComplete="email" required
+                                        // defaultValue={(data.email.email)}
+                                        name='email'
+                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
                                     <TextField
-                                        id="standard-second" label="Min Stock"
+                                        label="Telephone" type={'tel'}
+                                        inputProps={{style: textFieldStyle.resize}}
                                         color="primary"
-                                        inputProps={{step: "1", min: "0", style: textFieldStyle.resize}}
+                                        fullWidth autoComplete="tel" required
+                                        // defaultValue={(data.telephone)}
+                                        name='telephone'
                                         // onChange={this.handleChange}
-                                        // defaultValue={1}
-                                        name='min_stock' type='number'/>
+                                    />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
                                     <FormControl
@@ -153,7 +144,7 @@ export default function FormDialog(props) {
                                                 id="standard-secondary" label="Status"
                                                 color="primary"
                                             // onChange={this.handleChange}
-                                                defaultValue={'enabled'} name='status'>
+                                                defaultValue={"enabled"} name='status'>
                                             <MenuItem
                                                 style={textFieldStyle.resize}
                                                 value={'enabled'}>Enabled</MenuItem>
@@ -164,11 +155,34 @@ export default function FormDialog(props) {
                                         </Select>
                                     </FormControl>
                                 </Grid>
+                                <Grid item xs={12} sm={5}>
+                                    <TextField
+                                        label="Address" multiline={true}
+                                        rows={1} rowsMax={4}
+                                        inputProps={{style: textFieldStyle.resize}}
+                                        color="primary"
+                                        fullWidth autoComplete="address"
+                                        // defaultValue={(data.postal_address)}
+                                        name='postal_address'
+                                        // onChange={this.handleChange}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={4}>
+                                    <TextField
+                                        label="Picture"
+                                        inputProps={{style: textFieldStyle.resize}}
+                                        color="primary"
+                                        fullWidth autoComplete="i_price" //required
+                                        // defaultValue={(data.pic)}
+                                        name='picture'
+                                        // onChange={this.handleChange}
+                                    />
+                                </Grid>
                                 <Grid item xs={12} sm={3}>
                                     <Button fullWidth type='submit'
                                             style={textFieldStyle.resize}
                                             color='primary' variant="contained"
-                                            startIcon={<SaveIcon/>}>Save</Button>
+                                            startIcon={<SaveIcon/>}>Add</Button>
                                 </Grid>
                             </Grid>
 
@@ -177,7 +191,6 @@ export default function FormDialog(props) {
                         {/*</Grid>*/}
                     </form>
 
-                    {/*</Grid>*/}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.onClose} color="primary">

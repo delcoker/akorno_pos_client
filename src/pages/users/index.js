@@ -1,13 +1,13 @@
 import {
-    StoreMallDirectory as InventoryIcon,
+    SupervisedUserCircle as UsersIcon,
 } from '@material-ui/icons';
 
-import InventoryPage from "./Inventory";
+import UsersPage from "./Users";
 import React from "react";
 
 export default {
-    page: InventoryPage,
-    icon: <InventoryIcon/>,
-    label: 'Inventory',
-    route: "/app/inventory"
+    page: UsersPage,
+    icon: <UsersIcon/>,
+    label: 'Users',
+    route: "/app/users"
 };
