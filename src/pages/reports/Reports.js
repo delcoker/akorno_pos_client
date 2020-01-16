@@ -49,7 +49,6 @@ class Reports extends Component {
         // let user = getUser(localStorage.getItem('token'))
         // if (!user.user_id) throw new Error("Could not get user.\nCould not run report");
 
-        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.state.user_id);
         // console.log(this.state.user)
     }
 
@@ -58,6 +57,8 @@ class Reports extends Component {
         // console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhh", user)
         // this.user_id = this.user ? this.user.user_id : 0;
         this.setState({user_id: user.user_id});
+
+        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.state.user_id);
     }
 
     handleStartDateChange = date => {
@@ -100,11 +101,27 @@ class Reports extends Component {
             });
             // console.log(res);
             let transactions = res.data.getDailyReport;
+            // sort alphabetically
+            transactions.sort(this.compare);
 
             this.setState({transactions});
         } catch (err) {
             console.log(err);
         }
+    };
+
+    compare = (a, b) => { // source: https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
+        // Use toUpperCase() to ignore character casing
+        const item_nameA = a.item_name.toUpperCase();
+        const item_nameB = b.item_name.toUpperCase();
+
+        let comparison = 0;
+        if (item_nameA > item_nameB) {
+            comparison = 1;
+        } else if (item_nameA < item_nameB) {
+            comparison = -1;
+        }
+        return comparison;
     };
 
     handleRowSelectedChange = (data, value, d, e) => {
@@ -119,7 +136,7 @@ class Reports extends Component {
     };
 
     convertArrayOfObjectsToPrint = (header, array, footer) => {
-        array.sort((a, b) => (a.item > b.item ? 1 : -1));
+        // array.sort((a, b) => (a.item > b.item ? 1 : -1));
 
         const itemNameLength = 13;
 
@@ -311,7 +328,7 @@ class Reports extends Component {
                                 // selectableRowsComponent={Checkbox}
                                 // selectableRowsComponentProps={{ inkDisabled: true }}
                                 // onRowSelected={this.handleChange}
-                                defaultSortField={"item_name"}
+                                // defaultSortField={"item_name"}
                                 // clearSelectedRows={this.state.toggledClearRows}
                                 expandableRows={false}
                                 highlightOnHover

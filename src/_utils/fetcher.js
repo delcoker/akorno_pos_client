@@ -213,9 +213,15 @@ export const CREATE_USER = gql`
     }
 `;
 
-export const NO_ADMIN_RESET_PASSWORD = gql`
-    mutation ResetPasswordNoAdmin($user_id: Int!){
-        resetPasswordNoAdmin(user_id: $user_id)
+export const CHANGE_PASSWORD = gql`
+    mutation ChangePassword($user_id: Int!, $old: String!, $newP:String!, $conf:String!){
+        changePassword(user_id: $user_id, old: $old, newP:$newP, conf:$conf)
+    }
+`;
+
+export const VALID_PASSWORD = gql`
+    mutation ValidPass($id: Int!, $pass: String!){
+        validPass(id: $id, pass: $pass)
     }
 `;
 

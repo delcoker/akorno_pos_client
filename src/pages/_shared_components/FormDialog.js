@@ -8,17 +8,27 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 export default function FormDialog(props) {
+    const [open, setOpen] = React.useState(false);
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     return (
         <div>
-            {/*<Button variant="outlined" color="primary" onClick={handleClickOpen}>*/}
-            {/*    Open form dialog*/}
-            {/*</Button>*/}
-            <Dialog open={props.open} onClose={props.close} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title">Add New Thiiiiiiiiiiiing</DialogTitle>
+            <Button variant="outlined" color="primary" onClick={props.close}>
+                Open form dialog
+            </Button>
+            <Dialog open={props.open} onClose={handleClose} aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Add A New Item
+                        To subscribe to this website, please enter your email address here. We will send updates
+                        occasionally.
                     </DialogContentText>
                     <TextField
                         autoFocus
@@ -30,10 +40,10 @@ export default function FormDialog(props) {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={props.close} color="primary">
+                    <Button onClick={handleClose} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={props.close} color="primary">
+                    <Button onClick={handleClose} color="primary">
                         Subscribe
                     </Button>
                 </DialogActions>

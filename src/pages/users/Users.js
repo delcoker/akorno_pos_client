@@ -19,8 +19,6 @@ import moment from "moment";
 
 import {
     fetcher,
-    ADD_STOCK,
-    getUser,
     ALL_USERS,
     CREATE_USER,
     USER_UPDATE,
@@ -627,7 +625,8 @@ class Users extends Component {
                 &&
                 <CustomizedSnackbars severity={'success'} message={'worked'}/>
                 }
-                <AddUserFormDialog open={this.state.open} onClose={this.handleClose}
+                <AddUserFormDialog open={this.state.open}
+                                   onClose={this.handleClose}
                                    handleSave={this.handleSave}
                                    saveNewUser={this.saveNewUser}/>
                 <ToastContainer/>

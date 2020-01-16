@@ -79,11 +79,6 @@ class Shifts extends Component {
             endDate: new Date(),
             user_id: 0
         };
-        // console.log(user_id, startDate, endDate)
-        // let user = getUser(localStorage.getItem('token'))
-        // if (!user.user_id) throw new Error("Could not get user.\nCould not run report");
-
-        // console.log(this.state.user)
     }
 
     async componentDidMount() {
@@ -156,6 +151,7 @@ class Shifts extends Component {
             }
             // sort alphabetically
             shifts.sort(this.compare);
+            // console.log(shifts);
 
             this.setState({shifts});
         } catch (err) {
@@ -202,28 +198,30 @@ class Shifts extends Component {
     };
 
     convertArrayOfObjectsToPrint = (header, array, footer) => {
-        array.sort((a, b) => (a.item > b.item ? 1 : -1));
 
-        const itemNameLength = 13;
+        const itemNameLength = 10;
+        const cashierCropLength = 5;
 
         let result = header + lineDelimiter + lineDelimiter;
-        result += '<table border="1px"><tr><th align="left">Item</th><th>Ty</th><th>Qty</th><th>Total</th><th>Inv</th></tr>';
+        result += '<table border="1px"><tr><th align="left">Item</th><th>St</th><th>Top</th><th>End</th><th>Sld</th><th>Lft</th><th>Cash</th></tr>';
 
         for (let i = 0; i < array.length; i++) {
             // console.log(array[i].item_name);
             let start = array[i].item_name.substr(0, itemNameLength);
-            result += "<tr><td>" + start + /*spaceDelimiter.repeat(10 - start.substr(0, itemNameLength).length) +*/ "</td><td>" + typeDelimiter + array[i].item_category.substring(0, 1) + "</td><td>" + array[i].qty_sold + '</td><td align="right">' + (array[i].item_price * array[i].qty_sold).toFixed(2) + "</td><td>" + array[i].inv + "</td></tr>";
+            let cashierCrop = array[i].user_name.substr(0, cashierCropLength);
+
+            result += "<tr><td>" + start + "</td><td>" + array[i].qty_start + "</td><td>" + (array[i].qty_during ? array[i].qty_during : 0) + "</td><td>" + array[i].qty_end + "</td><td>" + (array[i].qty_start + (array[i].qty_during ? array[i].qty_during : 0) - (array[i].qty_end ? array[i].qty_end : 0)) + "</td><td>" + array[i].qty_left + '</td><td>' + cashierCrop + "</td></tr>";
         }
         result += "</table>";
-        // console.log(result)
+        // console.log(result);
         result += footer;
 
         return result;
     };
 
-    runReport = async () => {
+    runShiftReport = async () => {
         // console.log("here", this.state.transactions);
-        if (!this.state.transactions || this.state.transactions.length < 1)
+        if (!this.state.shifts || this.state.shifts.length < 1)
             return;
 
         // get cashier at time of sale
@@ -267,7 +265,7 @@ class Shifts extends Component {
 
         let content = this.convertArrayOfObjectsToPrint(
             head,
-            this.state.transactions,
+            this.state.shifts,
             foot
         );
         if (content == null) return;
@@ -379,7 +377,7 @@ class Shifts extends Component {
                                                             height: "100px",
                                                             width: "100px"
                                                         }}
-                                                        onClick={this.runReport}
+                                                        onClick={this.runShiftReport}
                                             >
                                                 <Print color="secondary"
                                                        fontSize='large'/>

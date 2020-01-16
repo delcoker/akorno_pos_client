@@ -6,20 +6,13 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {
-    Checkbox,
-    FormControl,
-    FormControlLabel,
-    Grid,
-    InputLabel,
-    makeStyles,
-    MenuItem,
-    Select
+    Grid, makeStyles
 } from "@material-ui/core";
-import Widget from "../../../components/Widget";
-import {textFieldStyle} from "../../../_utils/inlineStyles";
-import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
+import Widget from "../../components/Widget";
+import {textFieldStyle, textFieldStyle30} from "../../_utils/inlineStyles";
 import {Save as SaveIcon} from "@material-ui/icons";
 import Slide from "@material-ui/core/Slide";
+import {CHANGE_PASSWORD, fetcher, getUser} from "../../_utils/fetcher";
 
 
 const useStyles = makeStyles(theme => ({
@@ -39,136 +32,135 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-export default function FormDialog(props) {
+export default function ResetPasswordFormDialog(props) {
 
     const classes = useStyles();
-
-    // const [open, setOpen] = React.useState(false);
 
     const Transition = React.forwardRef(function Transition(props, ref) {
         return <Slide direction="up" ref={ref} {...props} />;
     });
 
-    const handleChangeDropDown = () => {
-        console.log("this")
+    // const checkOldPassword = async (pass) => {
+    //     const user = await getUser(localStorage.getItem('token'));
+    //
+    //     try {
+    //         let res = await fetcher({
+    //             query: NO_ADMIN_RESET_PASSWORD,
+    //             variables: {user_id: user.user_id, pass}
+    //         });
+    //         console.log(res);
+    //         // if (res)
+    //     } catch (e) {
+    //         console.log(e);
+    //     }
+    //     return res.data.validPass;
+    // };
+
+    const resetPassword = async (e) => {
+        const old = e.target.old_pass.value;
+        const newP = e.target.new_pass.value;
+        const conf = e.target.confirm.value;
+
+        // console.log('old, newP, confirm', old, newP, conf);
+
+        if (newP.length < 4) {
+            alert("Your password need to be 4 or more characters");
+            return;
+        }
+        if (newP !== conf) {
+            alert("Your new password and confirm password do not match");
+            return;
+        }
+
+        // check if old password is right
+        const user = await getUser(localStorage.getItem('token'));
+
+        try {
+            let res = await fetcher({
+                query: CHANGE_PASSWORD,
+                variables: {user_id: user.user_id, old, newP, conf}
+            });
+            // console.log(res);
+
+            if (res && res.errors) {
+                alert(res.errors.message);
+                return;
+            }
+
+            (res.data.changePassword) ? alert("Password changed") : alert("Password NOT changed.")
+        } catch (e) {
+            console.log(e);
+        }
+        props.onClose();
     };
 
     return (
         <div>
-            {/*<Button variant="outlined" color="primary" onClick={handleClickOpen}>*/}
-            {/*    Open form dialog*/}
-            {/*</Button>*/}
-            <Dialog open={props.open} onClose={props.onClose} aria-labelledby="form-dialog-title"
-                    maxWidth={'md'} //saveNewItem={props.saveNewItem}
-                    keepMounted onExit={props.onClose}>
-                <DialogTitle id="form-dialog-title">Add New Item</DialogTitle>
+
+            <Dialog open={props.open} onClose={props.onClose}
+                    aria-labelledby="form-dialog-title"
+                    maxWidth={'md'}
+                    keepMounted
+                    onExit={props.onClose}>
+                <DialogTitle id="form-dialog-title">Change Password</DialogTitle>
                 <DialogContent>
-                    {/*<Grid container spacing={3} direction="row"*/}
-                    {/*      justify="center" alignItems="center">*/}
-
-                    {/*    <Grid item xs={7}>*/}
-
-
-                    <form className={classes.form} noValidate autoComplete="off" onSubmit={(e) => {
-                        e.preventDefault();
-                        props.saveNewItem(e); /*this.handleClose();*/
-                    }}>
-                        {/*{console.log(classes.textFieldStyle)}*/}
-                        {/*{console.log(textFieldStyle.resize)}*/}
-
+                    <form className={classes.form} noValidate
+                          autoComplete="off"
+                          onSubmit={(e) => {
+                              e.preventDefault();
+                              resetPassword(e);
+                          }}>
                         <Widget disableWidgetMenu>
                             <Grid container spacing={3} justify="space-around"
                                 // className={classes.dashedBorder}
                             >
-                                <Grid item xs={12} sm={8}>
+                                <Grid item xs={12} sm={12}>
                                     <TextField
                                         InputProps={{
-                                            style: textFieldStyle.resize,
+                                            style: textFieldStyle30.resize,
                                         }}
-                                        required label="Name" color="primary" fullWidth
-                                        autoComplete="i_name" name='item_name'
-                                        // defaultValue={data.name}
-                                        // onChange={this.handleChange}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={4}>
-                                    <TextField
-                                        id="standard-secondar" label="Price"
-                                        inputProps={{step: "0.50", min: "0.00", style: textFieldStyle.resize}}
-                                        color="primary" type='number'
-                                        fullWidth autoComplete="i_price" required
-                                        defaultValue={parseFloat(1).toFixed(2)} name='item_price'
-                                        // onChange={this.handleChange}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <FormControl fullWidth>
-                                        <InputLabel>Category</InputLabel>
-                                        <GetItemCategoriesDropDown
-                                            category_id={1}
-                                            changeHandler={(e) => {
-                                                handleChangeDropDown(e)
-                                            }}/>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        InputProps={{
-                                            style: textFieldStyle.resize,
-                                        }}
-                                        fullWidth id="standard-second" label="Picture"
+                                        fullWidth id="standard-second"
+                                        label="Old Password"
                                         color="primary"
+                                        type={'password'}
                                         // onChange={this.handleChange}
                                         // defaultValue={data.pic}
-                                        name='item_pic'
+                                        name='old_pass'
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <FormControlLabel
-                                        control={<Checkbox
-                                            id="standard-secondary"
-                                            label="Has Stock" color="primary"
-                                            name='has_stock'
-                                            // onChange={this.handleChange}
-                                            // defaultChecked={data.has_stock}
-                                        />}
-                                        label="Has Stock"
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
+                                <Grid item xs={12} sm={12}>
                                     <TextField
-                                        id="standard-second" label="Min Stock"
+                                        InputProps={{
+                                            style: textFieldStyle30.resize,
+                                        }}
+                                        fullWidth id="standard-second"
+                                        label="New Password"
                                         color="primary"
-                                        inputProps={{step: "1", min: "0", style: textFieldStyle.resize}}
+                                        type={'password'}
                                         // onChange={this.handleChange}
-                                        // defaultValue={1}
-                                        name='min_stock' type='number'/>
+                                        // defaultValue={data.pic}
+                                        name='new_pass'
+                                    />
                                 </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <FormControl
-                                        fullWidth
-                                        style={{margin: 0, style: textFieldStyle.resize,}}>
-                                        <InputLabel>Status</InputLabel>
-                                        <Select style={textFieldStyle.resize}
-                                                id="standard-secondary" label="Status"
-                                                color="primary"
-                                            // onChange={this.handleChange}
-                                                defaultValue={'enabled'} name='status'>
-                                            <MenuItem
-                                                style={textFieldStyle.resize}
-                                                value={'enabled'}>Enabled</MenuItem>
-                                            <MenuItem style={textFieldStyle.resize}
-                                                      value={'disabled'}>Disabled</MenuItem>
-                                            <MenuItem style={textFieldStyle.resize}
-                                                      value={'deleted'}>Deleted</MenuItem>
-                                        </Select>
-                                    </FormControl>
+                                <Grid item xs={12} sm={12}>
+                                    <TextField
+                                        InputProps={{
+                                            style: textFieldStyle30.resize,
+                                        }}
+                                        fullWidth id="standard-second"
+                                        label="Confirm"
+                                        color="secondary"
+                                        type={'password'}
+                                        // onChange={this.handleChange}
+                                        // defaultValue={data.pic}
+                                        name='confirm'
+                                    />
                                 </Grid>
-                                <Grid item xs={12} sm={3}>
+                                <Grid item xs={12} sm={6}>
                                     <Button fullWidth type='submit'
                                             style={textFieldStyle.resize}
-                                            color='primary' variant="contained"
-                                            startIcon={<SaveIcon/>}>Add</Button>
+                                            color='secondary' variant="contained"
+                                            startIcon={<SaveIcon/>}>Reset Password</Button>
                                 </Grid>
                             </Grid>
 

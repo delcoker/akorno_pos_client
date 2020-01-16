@@ -18,7 +18,7 @@ import {
 import Widget from "../../../components/Widget";
 import {textFieldStyle} from "../../../_utils/inlineStyles";
 import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
-import {Save as SaveIcon} from "@material-ui/icons";
+import {Cancel as ResetIcon} from "@material-ui/icons";
 import Slide from "@material-ui/core/Slide";
 
 
@@ -39,29 +39,22 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-export default function FormDialog(props) {
+export default function AddUserFormDialog(props) {
 
     const classes = useStyles();
 
-
-    const handleChangeDropDown = () => {
-        console.log("this")
-    };
-
     return (
         <div>
-            {/*<Button variant="outlined" color="primary" onClick={handleClickOpen}>*/}
-            {/*    Open form dialog*/}
-            {/*</Button>*/}
-            <Dialog open={props.open} onClose={props.onClose} aria-labelledby="form-dialog-title"
-                    maxWidth={'md'} //saveNewItem={props.saveNewItem}
+            <Dialog open={props.open} onClose={props.onClose}
+                    aria-labelledby="form-dialog-title"
+                    maxWidth={'md'}
                     keepMounted onExit={props.onClose}>
                 <DialogTitle id="form-dialog-title">Add New User</DialogTitle>
                 <DialogContent>
 
                     <form noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
-                        props.saveNewUser(e); /*this.handleClose();*/
+                        props.saveNewUser(e);
                     }}>
 
                         <Widget title={'User Details'} disableWidgetMenu>
@@ -182,7 +175,7 @@ export default function FormDialog(props) {
                                     <Button fullWidth type='submit'
                                             style={textFieldStyle.resize}
                                             color='primary' variant="contained"
-                                            startIcon={<SaveIcon/>}>Add</Button>
+                                            startIcon={<ResetIcon/>}>Add</Button>
                                 </Grid>
                             </Grid>
 
