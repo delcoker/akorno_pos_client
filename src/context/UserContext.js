@@ -1,5 +1,5 @@
 import React from "react";
-import {fetcher, END_SHIFT, getUser,} from "../_utils/fetcher";
+import {fetcher, END_SHIFT,} from "../_utils/fetcher";
 
 var UserStateContext = React.createContext();
 var UserDispatchContext = React.createContext();
@@ -70,7 +70,7 @@ export {UserProvider, useUserState, useUserDispatch, loginUser, signOut};
 
 // ###########################################################
 
-function loginUser(dispatch, login, password, history, setIsLoading, setError, isAdmin) {
+function loginUser(dispatch, login, password, history, setIsLoading, setError, user) {
     // setError(false);
     // setIsLoading(true);
 
@@ -87,7 +87,7 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError, i
             // localStorage.setItem('username', '1');
             // setError(null);
             // setIsLoading(false);
-            dispatch({type: 'LOGIN_SUCCESS', admin:isAdmin});
+            dispatch({type: 'LOGIN_SUCCESS', admin:user.isAdmin});
 
             history.push('/app/dashboard');
 

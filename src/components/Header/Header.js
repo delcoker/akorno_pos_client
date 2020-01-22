@@ -86,6 +86,7 @@ const notifications = [
 export default function Header(props) {
     const user = {
         username: localStorage.getItem('username'), //getter(),
+        pic: localStorage.getItem('pic'),
         company: "Akorno",
     };
 
@@ -222,11 +223,11 @@ export default function Header(props) {
                             <Avatar alt={user.username}>
                                 <Img width={'40px'}
                                      src={[
-                                         '/images/users/' + user.username + '.jpg',
-                                         '/images/users/' + user.username + '.gif',
-                                         '/images/users/' + user.username + '.png',
-                                         '/images/users/' + user.username + ".jpg",
-                                         '/images/users/' + user.username + '.jpeg',
+                                         '/images/users/' + user.pic + '.jpg',
+                                         '/images/users/' + user.pic + '.gif',
+                                         '/images/users/' + user.pic + '.png',
+                                         '/images/users/' + user.pic + ".jpg",
+                                         '/images/users/' + user.pic + '.jpeg',
                                          '/images/users/default.svg',
                                      ]}/>
                             </Avatar>
@@ -277,11 +278,10 @@ export default function Header(props) {
                                 </div>
                             </MenuItem>
                         ))}
-                        <Fab
-                            variant="extended"
-                            color="primary"
-                            aria-label="Add"
-                            className={classes.sendMessageButton}
+                        <Fab variant="extended"
+                             color="primary"
+                             aria-label="Add"
+                             className={classes.sendMessageButton}
                         >
                             Send New Message
                             <SendIcon className={classes.sendButtonIcon}/>
@@ -390,7 +390,7 @@ export default function Header(props) {
                                 className={classes.profileMenuLink}
                                 color="secondary"
                                 variant={'h5'}
-                                 >
+                            >
                                 Log Out
                             </Typography>
                         </MenuItem>

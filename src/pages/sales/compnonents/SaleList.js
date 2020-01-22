@@ -10,14 +10,9 @@ import {ArrowDownward, Delete} from "@material-ui/icons";
 import {IconButton} from "@material-ui/core";
 import Checkbox from "@material-ui/core/Checkbox";
 
-import {
-    CHECK_FOR_ANY_ACTIVE_SHIFT,
-    fetcher,
-    getUser, isAnyShiftActive, SAVE_TRANSACTIONS, START_SHIFT
-} from "../../../_utils/fetcher";
 import {YourAwesomeComponent} from "../../../components/FAB/YourAwesomeComponent";
-import {toast, ToastContainer} from "react-toastify";
-import Notification from "../../../components/Notification";
+import { ToastContainer} from "react-toastify";
+// import Notification from "../../../components/Notification";
 
 const cust = {
     cells: {
@@ -49,8 +44,8 @@ const columnsR = [
 ];
 
 // const spaceDelimiter = "&nbsp;";
-const columnDelimiter = "&emsp;";
-const lineDelimiter = "<br>";
+// const columnDelimiter = "&emsp;";
+// const lineDelimiter = "<br>";
 // const typeDelimiter = "-";
 
 const contextActions = memoize(deleteHandler => (
@@ -64,18 +59,18 @@ const contextActions = memoize(deleteHandler => (
 
 let arrowDownward = <ArrowDownward/>;
 
-let classes = null;
+// let classes = null;
 
 // Blatant "inspiration" from https://codepen.io/Jacqueline34/pen/pyVoWr
 
 class SaleList extends Component {
     constructor(props) {
         super(props);
-        classes = this.props;
+        // classes = this.props;
         // console.log(props);
-        this.tot = this.props.mTotal;
-        this.amount_paying = 0;
-        this.change = this.props.mChange;
+        // this.tot = this.props.mTotal;
+        // this.amount_paying = 0;
+        // this.change = this.props.mChange;
 
 
         this.state = {
@@ -96,9 +91,9 @@ class SaleList extends Component {
         });
     };
 
-    handleClearRows = () => {
-        this.setState({toggledClearRows: !this.state.toggledClearRows})
-    };
+    // handleClearRows = () => {
+    //     this.setState({toggledClearRows: !this.state.toggledClearRows})
+    // };
 
     handleRowClicked = row => {
         console.log(`${row.item} was clicked!`);

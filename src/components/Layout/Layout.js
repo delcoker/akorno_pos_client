@@ -18,11 +18,11 @@ import Icons from "../../pages/icons";
 import Charts from "../../pages/charts";
 // context
 import {useLayoutState} from "../../context/LayoutContext";
-import {useUserState} from "../../context/UserContext";
+// import {useUserState} from "../../context/UserContext";
 // import Reports from "../../pages/reports";
 // import Items from "../../pages/items";
-import Inventory from "../../pages/inventory";
-import Users from "../../pages/users";
+// import Inventory from "../../pages/inventory";
+// import Users from "../../pages/users";
 
 // import {useUserState} from "../../context/UserContext";
 
@@ -31,7 +31,7 @@ function Layout(props) {
 
     // global
     var layoutState = useLayoutState();
-    var {isAdmin} = useUserState();
+    // var {isAdmin} = useUserState();
     // console.log(isAdmin);
 
 
@@ -69,30 +69,30 @@ function Layout(props) {
     );
 
 
-    function AdminRoute({component, ...rest}) {
-        // console.log('privateRoute', 'isAuthenticated',useUserState(), rest);
-
-        return (
-            <Route
-                {...rest}
-                render={props => {
-                    return isAdmin ? (
-                        React.createElement(component, props)
-                    ) : (
-                        <Redirect
-                            to={{
-                                pathname: "/app/sales",
-                                state: {
-                                    from: props.location,
-                                },
-                            }}
-                        />
-                    )
-                }
-                }
-            />
-        );
-    }
+    // function AdminRoute({component, ...rest}) {
+    //     // console.log('privateRoute', 'isAuthenticated',useUserState(), rest);
+    //
+    //     return (
+    //         <Route
+    //             {...rest}
+    //             render={props => {
+    //                 return isAdmin ? (
+    //                     React.createElement(component, props)
+    //                 ) : (
+    //                     <Redirect
+    //                         to={{
+    //                             pathname: "/app/sales",
+    //                             state: {
+    //                                 from: props.location,
+    //                             },
+    //                         }}
+    //                     />
+    //                 )
+    //             }
+    //             }
+    //         />
+    //     );
+    // }
 }
 
 export default withRouter(Layout);

@@ -121,7 +121,7 @@ class MyLoginPage extends Component {
         // console.log(name,value,'fsfadf');
         this.setState({[name]: value});
 
-        if (value === '123') this.createDummyUsers(value).then(r => 'r');
+        if (value === '123') this.createDummyUsers(value);
     }
 
     tokenSuccess = (token) => {
@@ -135,6 +135,8 @@ class MyLoginPage extends Component {
             query: LOGGED_USER,
         }).then(res => {
                 localStorage.setItem('username', res.data.me.first_name + " " + res.data.me.last_name);
+                localStorage.setItem('pic', res.data.me.pic);
+
                 this.setState({loggedIn: true});
 
                 loginUser(
@@ -144,7 +146,7 @@ class MyLoginPage extends Component {
                     this.props.history,
                     this.state.isLoading,
                     this.state.error,
-                    res.data.me.isAdmin
+                    res.data.me
                 );
 
                 // this.props.history.push("/");

@@ -44,6 +44,7 @@ const structure = [
     // {id: 10, label: inventory.label, link: inventory.route, icon: inventory.icon},
     // {id: 11, label: users.label, link: users.route, icon: users.icon},
     // {id: 3, label: items.label, link: items.route, icon: <items.icon/>},
+
     // {id: 11,label: "Typography",link: "/app/typography",
     //     icon: <TypographyIcon/>,},
 

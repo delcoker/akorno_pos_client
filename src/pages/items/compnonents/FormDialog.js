@@ -19,7 +19,7 @@ import Widget from "../../../components/Widget";
 import {textFieldStyle} from "../../../_utils/inlineStyles";
 import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
 import {Save as SaveIcon} from "@material-ui/icons";
-import Slide from "@material-ui/core/Slide";
+// import Slide from "@material-ui/core/Slide";
 
 
 const useStyles = makeStyles(theme => ({
@@ -45,9 +45,9 @@ export default function FormDialog(props) {
 
     // const [open, setOpen] = React.useState(false);
 
-    const Transition = React.forwardRef(function Transition(props, ref) {
-        return <Slide direction="up" ref={ref} {...props} />;
-    });
+    // const Transition = React.forwardRef(function Transition(props, ref) {
+    //     return <Slide direction="up" ref={ref} {...props} />;
+    // });
 
     const handleChangeDropDown = () => {
         console.log("this")

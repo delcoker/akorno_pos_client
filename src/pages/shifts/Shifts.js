@@ -28,14 +28,17 @@ import moment from "moment";
 
 const columnsR = [
     {name: "Item", selector: "item_name", sortable: true, grow: 4,},
-    {name: "Start Shift", selector: "qty_start", sortable: true, grow: 1},
+    {name: "Received", selector: "qty_start", sortable: true, grow: 1},
     {
-        name: "Top Up", selector: "qty_during", sortable: true,
+        name: "Added", selector: "qty_during", sortable: true,
         cell: row => row.qty_during ? row.qty_during : 0, grow: 1
     },
-    {name: "End Shift", selector: "qty_end", sortable: true, grow: 1},
     {
-        name: "Total Sold",
+        name: "Total", selector: "qty_during", sortable: true,
+        cell: row => row.qty_during ? row.qty_during + row.qty_start: row.qty_start, grow: 1
+    },
+    {
+        name: "Sold",
         selector: "total",
         sortable: true,
         cell: row => {
@@ -43,6 +46,8 @@ const columnsR = [
             return `${(row.qty_start + (row.qty_during ? row.qty_during : 0) - (row.qty_end ? row.qty_end : 0))}`;
         }, grow: 1
     },
+    {name: "Left", selector: "qty_end", sortable: true, grow: 1},
+
     {name: "Left In Stock", selector: "qty_left", sortable: true, grow: 1},
     {
         name: 'Status', selector: 'status', sortable: true,
@@ -66,7 +71,6 @@ const columnsR = [
 ];
 
 const lineDelimiter = "<br>";
-const typeDelimiter = "-";
 
 class Shifts extends Component {
     constructor(props) {
@@ -83,12 +87,13 @@ class Shifts extends Component {
 
     async componentDidMount() {
 
-        this.fetchShifts(this.state.startDate, this.state.endDate, null, this.state.user_id);
-
         let user = await getUser(localStorage.getItem("token"));
+
+        this.setState({user_id: user.user_id});
+
+        this.fetchShifts(this.state.startDate, this.state.endDate, null, this.state.user_id);
         // console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhh", user)
         // this.user_id = this.user ? this.user.user_id : 0;
-        this.setState({user_id: user.user_id});
     }
 
     handleStartDateChange = date => {
@@ -106,7 +111,8 @@ class Shifts extends Component {
         this.setState({endDate: date});
 
         /////////// -------------------fix this #todo
-        let transactionPoint = null;
+        const transactionPoint = null;
+        // const vendor = 1;
         //////////// --------------------------------
 
         this.fetchShifts(this.state.startDate, date, transactionPoint, this.state.user_id);
@@ -203,14 +209,19 @@ class Shifts extends Component {
         const cashierCropLength = 5;
 
         let result = header + lineDelimiter + lineDelimiter;
-        result += '<table border="1px"><tr><th align="left">Item</th><th>St</th><th>Top</th><th>End</th><th>Sld</th><th>Lft</th><th>Cash</th></tr>';
+        result += `<table border="1px"><tr><th align="left">Item</th><th>St</th><th>Top</th><th>End</th><th>Sld</th><th>Lft</th><th>Cash</th></tr>`;
 
         for (let i = 0; i < array.length; i++) {
             // console.log(array[i].item_name);
             let start = array[i].item_name.substr(0, itemNameLength);
             let cashierCrop = array[i].user_name.substr(0, cashierCropLength);
 
-            result += "<tr><td>" + start + "</td><td>" + array[i].qty_start + "</td><td>" + (array[i].qty_during ? array[i].qty_during : 0) + "</td><td>" + array[i].qty_end + "</td><td>" + (array[i].qty_start + (array[i].qty_during ? array[i].qty_during : 0) - (array[i].qty_end ? array[i].qty_end : 0)) + "</td><td>" + array[i].qty_left + '</td><td>' + cashierCrop + "</td></tr>";
+            result += `<tr><td>${start}</td><td>${array[i].qty_start}</td>
+<td>${array[i].qty_during ? array[i].qty_during : 0}</td>
+<td>${array[i].qty_end}</td>
+<td>${array[i].qty_start + (array[i].qty_during ? array[i].qty_during : 0) - (array[i].qty_end ? array[i].qty_end : 0)}</td>
+<td>${array[i].qty_left}</td>
+<td>${cashierCrop}</td></tr>`;
         }
         result += "</table>";
         // console.log(result);
@@ -230,9 +241,9 @@ class Shifts extends Component {
         if (!user.user_id)
             throw new Error("Could not get user.\nTransaction not saved");
 
-        let company = "AKORNO CATERING SERVICES" + "<br> ";
-        let vendor = 1;
-        let transaction_point = null;
+        let company = "AKORNO CATERING SERVICES<br> ";
+        // let vendor = 1;
+        // let transaction_point = null;
         let cashier_name = (user.first_name + " " + user.last_name).substr(
             -company.length
         );
@@ -240,6 +251,7 @@ class Shifts extends Component {
         let report_on = this.state.user_id === -1 ? "Everyone" : cashier_name;
 
         let foot = lineDelimiter + "Report On:" + report_on;
+        foot += "<br/>" + moment((new Date())).format("llll");
         //     columnDelimiter +
         //     columnDelimiter +
         //     columnDelimiter +

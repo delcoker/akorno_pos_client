@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import DataTable from "react-data-table-component";
 import {
-    Add, ArrowDownward, Delete, Close,
+    ArrowDownward, Delete, Close,
     Save as SaveIcon, CloudUpload as CloudUploadIcon
 } from '@material-ui/icons';
 import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDropDown";

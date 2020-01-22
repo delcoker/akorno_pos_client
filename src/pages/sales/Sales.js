@@ -27,9 +27,10 @@ import {
 import {withStyles} from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import SaleList from "./compnonents/SaleList";
-import {YourAwesomeComponent} from "../../components/FAB/YourAwesomeComponent";
+// import {YourAwesomeComponent} from "../../components/FAB/YourAwesomeComponent";
 import {toast} from "react-toastify";
 import Notification from "../../components/Notification";
+import moment from "moment";
 
 const useStyles = (theme => ({
     dashedBorder: {
@@ -55,6 +56,8 @@ const useStyles = (theme => ({
     },
 }));
 
+let classes = null;
+let toastOptions = null;
 // var classes = useStyles();
 // var theme = useTheme();
 
@@ -66,6 +69,11 @@ const $ = require('jquery');
 class Sales extends Component {
     constructor(props) {
         super(props);
+        classes = this.props.classes;
+        toastOptions = {
+            className: classes.notification,
+            progressClassName: classes.progress,
+        };
         this.state = {
             items_list: new Map(),
             totalNii: 0,
@@ -73,11 +81,11 @@ class Sales extends Component {
             changeNii: 0,
             dataSet: []
         };
-        // this.mDataSetR = [];
+    }
 
+    componentDidMount() {
         this.fetchItems();
         this.addFindAnythingFilter();
-
     }
 
     addFindAnythingFilter() {
@@ -109,7 +117,6 @@ class Sales extends Component {
         const deleted_ids = ids ? ids : selectedRows.map(item => item.id);
         let temp = this.handleItemDelete2(deleted_ids);
         this.getClickedItemsAsArray(temp);
-
     };
 
     handleItemDelete2 = (indices) => {
@@ -130,11 +137,8 @@ class Sales extends Component {
         return map;
     };
 
-
     // when a card is clicked
     handleCardClickChild = (dataFromChild, qty) => {
-
-        // console.log(dataFromChild, qty);
 
         const map = new Map(this.state.items_list);
 
@@ -146,7 +150,23 @@ class Sales extends Component {
             }
         }
 
+        if ((dataFromChild.has_stock && qty > dataFromChild.quantity)) {
+            const componentProps = {
+                type: "report",
+                message: 'You have run out of stock for ' + dataFromChild.name,
+                variant: "contained",
+                color: "secondary",
+            };
+
+            toast(<Notification
+                className={classes.notificationComponent}
+                {...componentProps} />, toastOptions);
+            return;
+        }
+
         map.set(dataFromChild, qty);
+
+        // console.log(dataFromChild, qty);
 
         this.getClickedItemsAsArray(map);
 
@@ -175,13 +195,6 @@ class Sales extends Component {
             }
             tot += value * key.price;
 
-            // console.log(this.state);
-
-            // this.setState({
-            //     totalNii: tot,
-            //     changeNii: this.state.payingNii - tot,
-            //     dataSet: mDataSet
-            // });
         });
         // console.log(mDataSet);
         this.setState({
@@ -243,21 +256,22 @@ class Sales extends Component {
                             <div className={classes.visitsNumberContainer}>
                                 <Typography size="md" weight="medium">
                                     {item.name}
-
                                 </Typography>
                             </div>
                             <Grid container direction="column"
                                   justify="space-between" alignItems="flex-start">
                                 {i_qty
                                 && <Grid item>
-                                    <Typography color="text" colorBrightness="secondary">
+                                    <Typography color="text"
+                                                colorBrightness="secondary">
                                         Stock {i_qty}
                                     </Typography>
 
                                 </Grid>
                                 }
                                 <Grid item>
-                                    <Typography color="text" colorBrightness="secondary">
+                                    <Typography color="text"
+                                                colorBrightness="secondary">
                                         {item.category.name}
                                     </Typography>
                                 </Grid>
@@ -344,46 +358,39 @@ class Sales extends Component {
 
         this.setState({changeNii: chan});
 
-        if (!this.state.dataSet || this.state.dataSet.length < 1 ||
-            chan < 0) {
-
-            const notification = {
-                display: "flex",
-                alignItems: "center",
-                background: "transparent",
-                boxShadow: "none",
-                overflow: "visible",
-            };
-
-            const progress = {
-                visibility: "hidden",
-            };
-
-            const toastOptions = {
-                className: notification,
-                progressClassName: progress
-            };
+        if (!this.state.dataSet || this.state.dataSet.length < 1) {
 
             const componentProps = {
-                type: "shipped",
-                message: 'Less than 0?',
+                type: "defence",
+                message: 'You have selected no items.',
                 variant: "contained",
-                color: "success",
+                color: "info",
             };
 
-            // console.log('toastOptions', toastOptions);
             toast(<Notification
-                {...componentProps}
-                // className={classes.notificationComponent}
-            />, toastOptions);
+                className={classes.notificationComponent}
+                {...componentProps} />, toastOptions);
+            return;
+        }
+        if (chan < 0) {
 
+            const componentProps = {
+                type: "report",
+                message: 'Change is less than 0?',
+                variant: "contained",
+                color: "secondary",
+            };
+
+            toast(<Notification
+                className={classes.notificationComponent}
+                {...componentProps} />, toastOptions);
             return;
         }
 
         const columnDelimiter = "&emsp;";
         const lineDelimiter = "<br>";
 
-        let company = "AKORNO CATERING SERVICES <br>";
+        let company = "AKORNO CATERING SERVICES" + lineDelimiter;
         let vendor = 1;
         let transaction_point = null;
         let cashier_name =
@@ -393,31 +400,28 @@ class Sales extends Component {
 
 
         let foot =
-            lineDelimiter +
-            "Total:" +
-            columnDelimiter + columnDelimiter +
-            columnDelimiter + columnDelimiter +
-            this.state.totalNii.toFixed(2) +
-            lineDelimiter +
-            "Paid :" +
-            columnDelimiter + columnDelimiter +
-            columnDelimiter + columnDelimiter +
-            this.state.payingNii.toFixed(2) +
-            lineDelimiter +
-            "Change:" +
-            columnDelimiter + columnDelimiter +
-            columnDelimiter +
-            "<strong>" + this.state.changeNii.toFixed(2) + "</strong>" +
-            lineDelimiter +
-            "050-248-0435";
+            `${lineDelimiter}Total:${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.totalNii.toFixed(2)}${lineDelimiter}Paid :${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.payingNii.toFixed(2)}${lineDelimiter}Change:${columnDelimiter}${columnDelimiter}${columnDelimiter}<strong>${this.state.changeNii.toFixed(2)}</strong>${lineDelimiter}050-248-0435`;
+
+        foot += "<br/>" + moment((new Date())).format("llll");
 
         let content = convertArrayOfObjectsToPrint(
             head,
             this.state.dataSet,
             foot
         );
-        if (content == null) return;
+        if (content == null) {
+            const componentProps = {
+                type: "feedback",
+                message: 'There are no items',
+                variant: "contained",
+                color: "info",
+            };
 
+            toast(<Notification
+                className={classes.notificationComponent}
+                {...componentProps} />, toastOptions);
+            return;
+        }
         let pri = document.getElementById("contents_to_print").contentWindow;
         pri.document.open();
         pri.document.write(content);
@@ -446,7 +450,16 @@ class Sales extends Component {
             );
 
             if (res === 0) {
-                alert("One of the items will go below the quantity left");
+                const componentProps = {
+                    type: "feedback",
+                    message: 'One of the items will go below the quantity left',
+                    variant: "contained",
+                    color: "info",
+                };
+
+                toast(<Notification
+                    className={classes.notificationComponent}
+                    {...componentProps} />, toastOptions);
                 return;
             }
 
@@ -455,12 +468,24 @@ class Sales extends Component {
             pri.focus();
             pri.print();
 
-            this.deleteAllRows( ids);
+            this.deleteAllRows(ids);
+
+            const componentProps = {
+                type: "shipped",
+                message: 'Success',
+                variant: "contained",
+                color: "success",
+            };
+
+            toast(<Notification
+                className={classes.notificationComponent}
+                {...componentProps} />, toastOptions);
+
             this.setState({payingNii: 0, changeNii: 0});
         }
     };
 
-    deleteAllRows =  (ids) => {
+    deleteAllRows = (ids) => {
         this.del_handleDel(ids);
 
         this.setState(state => ({toggleCleared: !state.toggleCleared}));

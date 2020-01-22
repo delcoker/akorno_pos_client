@@ -11,7 +11,7 @@ import {
 import Widget from "../../components/Widget";
 import {textFieldStyle, textFieldStyle30} from "../../_utils/inlineStyles";
 import {Save as SaveIcon} from "@material-ui/icons";
-import Slide from "@material-ui/core/Slide";
+// import Slide from "@material-ui/core/Slide";
 import {CHANGE_PASSWORD, fetcher, getUser} from "../../_utils/fetcher";
 
 
@@ -36,9 +36,9 @@ export default function ResetPasswordFormDialog(props) {
 
     const classes = useStyles();
 
-    const Transition = React.forwardRef(function Transition(props, ref) {
-        return <Slide direction="up" ref={ref} {...props} />;
-    });
+    // const Transition = React.forwardRef(function Transition(props, ref) {
+    //     return <Slide direction="up" ref={ref} {...props} />;
+    // });
 
     // const checkOldPassword = async (pass) => {
     //     const user = await getUser(localStorage.getItem('token'));

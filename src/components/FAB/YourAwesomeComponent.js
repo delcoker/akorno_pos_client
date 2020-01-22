@@ -20,8 +20,8 @@ export class YourAwesomeComponent extends Component {
     constructor(props) {
         super(props);
         // console.log(props);
-        this.tot = 0;
-        this.amount_paying = 0;
+        // this.tot = 0;
+        // this.amount_paying = 0;
         this.change = 0;
 
         // this.yacTotal=this.props.slTotal;
@@ -57,7 +57,7 @@ export class YourAwesomeComponent extends Component {
 
 
     render() {
-        const { totalNii, payingNii, changeNii } = this.props;
+        const { totalNii, payingNii } = this.props;
 
         return (
 
@@ -136,5 +136,3 @@ export class YourAwesomeComponent extends Component {
         )
     }
 }
-
-export default YourAwesomeComponent;

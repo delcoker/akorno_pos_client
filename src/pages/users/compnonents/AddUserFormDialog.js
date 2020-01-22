@@ -17,9 +17,9 @@ import {
 } from "@material-ui/core";
 import Widget from "../../../components/Widget";
 import {textFieldStyle} from "../../../_utils/inlineStyles";
-import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
+// import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
 import {Cancel as ResetIcon} from "@material-ui/icons";
-import Slide from "@material-ui/core/Slide";
+// import Slide from "@material-ui/core/Slide";
 
 
 const useStyles = makeStyles(theme => ({

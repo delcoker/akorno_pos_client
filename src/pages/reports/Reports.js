@@ -15,6 +15,7 @@ import IconButton from "@material-ui/core/IconButton";
 import {Print} from "@material-ui/icons";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import useStyles from './styles'
+import moment from "moment";
 
 const columnsR = [
     {name: "Item", selector: "item_name", sortable: true},
@@ -146,7 +147,11 @@ class Reports extends Component {
         for (let i = 0; i < array.length; i++) {
             // console.log(array[i].item_name);
             let start = array[i].item_name.substr(0, itemNameLength);
-            result += "<tr><td>" + start + /*spaceDelimiter.repeat(10 - start.substr(0, itemNameLength).length) +*/ "</td><td>" + typeDelimiter + array[i].item_category.substring(0, 1) + "</td><td>" + array[i].qty_sold + '</td><td align="right">' + (array[i].item_price * array[i].qty_sold).toFixed(2) + "</td><td>" + array[i].inv + "</td></tr>";
+            result += `<tr><td>${start}</td>
+                 <td>${typeDelimiter}${array[i].item_category.substring(0, 1)}</td>
+                <td>${array[i].qty_sold}</td>
+                <td align="right">${(array[i].item_price * array[i].qty_sold).toFixed(2)}</td>
+                <td>${array[i].inv ? array[i].inv : '-'} </td></tr>`;
         }
         result += "</table>";
         // console.log(result)
@@ -166,7 +171,7 @@ class Reports extends Component {
         if (!user.user_id)
             throw new Error("Could not get user.\nTransaction not saved");
 
-        let company = "AKORNO CATERING SERVICES" + "<br> ";
+        let company = "AKORNO CATERING SERVICES<br> ";
         // let vendor = 1;
         // let transaction_point = null;
         let cashier_name = (user.first_name + " " + user.last_name).substr(
@@ -176,6 +181,7 @@ class Reports extends Component {
         let report_on = this.state.user_id === -1 ? "Everyone" : cashier_name;
 
         let foot = lineDelimiter + "Report On:" + report_on;
+        foot += "<br/>" + moment((new Date())).format("llll");
         //     columnDelimiter +
         //     columnDelimiter +
         //     columnDelimiter +
@@ -254,7 +260,8 @@ class Reports extends Component {
                         <Grid item xs={12}>
                             <Widget disableWidgetMenu>
                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                    <Grid container spacing={3} justify="space-around">
+                                    <Grid container spacing={3}
+                                          justify="space-around">
                                         <Grid item lg={4} md={4} sm={6} xs={12}>
                                             <KeyboardDateTimePicker
                                                 // disableToolbar
