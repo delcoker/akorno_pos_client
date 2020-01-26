@@ -631,7 +631,7 @@ class Users extends Component {
                                    saveNewUser={this.saveNewUser}/>
                 <ToastContainer/>
                 {/*<Grid container spacing={1} >*/}
-                <PageTitle title='Users'/>
+                {/*<PageTitle title='Users'/>*/}
                 <DataTable
                     // style={{width: '100%'}}
                     // title="Items"

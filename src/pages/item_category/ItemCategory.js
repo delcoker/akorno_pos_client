@@ -17,8 +17,14 @@ import {
 import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDropDown";
 import moment from "moment";
 
-import {fetcher, ITEM_UPDATE, ALL_ITEMS,} from "../../_utils/fetcher";
-import PageTitle from "../../components/PageTitle";
+import {
+    fetcher,
+    ITEM_UPDATE,
+    ALL_ITEMS,
+    GET_CATEGORIES,
+    CATEGORY_ADD,
+    ITEM_CATEGORY_UPDATE,
+} from "../../_utils/fetcher";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 
 import {toast, ToastContainer} from 'react-toastify';
@@ -29,58 +35,58 @@ import FormDialog from "./compnonents/FormDialog";
 
 const columnsR = [
     {name: 'Name', selector: 'name', sortable: true, grow: 4,},
-    {
-        name: 'Price', selector: 'price', right: false, sortable: true, hide: 'sm', grow: 2,
-        cell: (row) => (row.price).toFixed(2)
-    },
-    {name: 'Category', selector: 'category.name', sortable: true,},
-    {
-        name: 'In Stock', selector: 'quantity', sortable: true, width: '70px',
-        cell: (row) => row.quantity === null ? '-' : row.quantity
-    },
-    {
-        name: 'Picture', selector: 'name', width: '50px', cell: (d) =>
-            // <Avatar>
-            <Img width="40px" alt={d.pic}
-                 src={[`/images/${d.pic}.svg`,
-                     `/images/${d.pic}.png`,
-                     `/images/${d.pic}.gif`,
-                     `/images/${d.pic}.jpg`,
-                     `/images/${d.pic}.jpeg`,
-                 ]}/>
-        // < /Avatar>
-    },
-    {
-        name: 'Track Stock', selector: 'has_stock', hide: 'sm', sortable: true, width: '50px', cell: (da) => {
-            return <Checkbox
-                id="standard-secondary"
-                label="Has Stock" color="secondary"
-                checked={da.has_stock}/>
-        }
-    },
-    {
-        name: 'Min Stock', selector: 'min_stock_level', sortable: true, width: '70px',
-        cell: (row) => row.min_stock_level === null ? '-' : row.min_stock_level
-    },
+    // {
+    //     name: 'Price', selector: 'price', right: false, sortable: true, hide: 'sm', grow: 2,
+    //     cell: (row) => (row.price).toFixed(2)
+    // },
+    // {name: 'Category', selector: 'category.name', sortable: true,},
+    // {
+    //     name: 'In Stock', selector: 'quantity', sortable: true, width: '70px',
+    //     cell: (row) => row.quantity === null ? '-' : row.quantity
+    // },
+    // {
+    //     name: 'Picture', selector: 'name', width: '50px', cell: (d) =>
+    //         // <Avatar>
+    //         <Img width="40px" alt={d.pic}
+    //              src={[`/images/${d.pic}.svg`,
+    //                  `/images/${d.pic}.png`,
+    //                  `/images/${d.pic}.gif`,
+    //                  `/images/${d.pic}.jpg`,
+    //                  `/images/${d.pic}.jpeg`,
+    //              ]}/>
+    //     // < /Avatar>
+    // },
+    // {
+    //     name: 'Track Stock', selector: 'has_stock', hide: 'sm', sortable: true, width: '50px', cell: (da) => {
+    //         return <Checkbox
+    //             id="standard-secondary"
+    //             label="Has Stock" color="secondary"
+    //             checked={da.has_stock}/>
+    //     }
+    // },
+    // {
+    //     name: 'Min Stock', selector: 'min_stock_level', sortable: true, width: '70px',
+    //     cell: (row) => row.min_stock_level === null ? '-' : row.min_stock_level
+    // },
     {name: 'Status', selector: 'status', sortable: true,},
     {
         name: 'Last Update',
         selector: 'updatedAt',
         sortable: true,
-        grow: 5,
+        grow: 4,
         format: d => moment(parseInt(d.updatedAt)).format("dd-Do-MM-YY"),
     },
-    // {
-    //     name: 'Created At',
-    //     selector: 'createdAt',
-    //     sortable: true,
-    //     grow: 5,
-    //     format: d => moment(parseInt(d.createdAt)).format("dd-Do-MM-YY"),
-    //     // format: d => moment(d.airstamp).format('LLL'),
-    //     // format: d => moment(parseInt(d)).format("L")
-    //     // format: d => (new Date((d))).toString()//.format("dd.mm.yyyy hh:MM:ss")
-    //     // format: d => moment((d)).format("ll")//.format("dd.mm.yyyy hh:MM:ss")
-    // },
+    {
+        name: 'Created At',
+        selector: 'createdAt',
+        sortable: true,
+        grow: 5,
+        format: d => moment(parseInt(d.createdAt)).format("dd-Do-MM-YY"),
+        // format: d => moment(d.airstamp).format('LLL'),
+        // format: d => moment(parseInt(d)).format("L")
+        // format: d => (new Date((d))).toString()//.format("dd.mm.yyyy hh:MM:ss")
+        // format: d => moment((d)).format("ll")//.format("dd.mm.yyyy hh:MM:ss")
+    },
 ];
 
 const contextActions = memoize((deleteHandler) => (
@@ -95,7 +101,7 @@ let classes = null;
 
 let toastOptions = null;
 
-class Items extends Component {
+class ItemCategory extends Component {
     constructor(props) {
         super(props);
         classes = this.props.classes;
@@ -171,11 +177,12 @@ class Items extends Component {
         // console.log(e.target.item_name.value);
 
         let item = this.getItemStats(null, e);
-        let item_id = await this.updateOrCreateItem(item); //actually create new item;
+        this.saveItem(item);
+        // let item_id = await this.updateOrCreateItem(item); //actually create new item;
         // console.log(item_id);
 
 
-        if (item_id > -1) this.handleClose();
+        // if (item_id > -1) this.handleClose();
     };
     // save new item done
 
@@ -223,6 +230,89 @@ class Items extends Component {
 
     deleteSelected = data => console.log(data);
 
+    getItemStats = (data, e) => {
+
+        // console.log('data === null' ,data === null , data);
+
+        let item = {};
+        item.id =  data.id === null ? 0 : data.id;
+        item.name = e.target.category_name.value.charAt(0).toUpperCase() + e.target.category_name.value.trim().substring(1);
+        item.status = e.target.status.value;
+
+        if (item.name === null || item.name.length < 1) {
+            alert('This category name can not be empty.');
+            return;
+        }
+        return item;
+    };
+
+    saveItem = async (item, e) => {
+
+        // if (!this.state.sth_changed) {
+        //     console.log('NO changes');
+        //     return;
+        // }
+
+        try {
+            let res = await fetcher({
+                query: CATEGORY_ADD,
+                variables: item
+            });
+
+            // console.log(res);
+
+            if (res && res.errors && res.errors.length === 1) {
+                alert(res.errors[0].message);
+                return;
+            }
+
+            alert('category saved')
+
+            // } else if (res && res.errors && res.errors.length > 1) {
+            //     return;
+            // }
+
+            //---------------- not really needed ------------------// APA should help me on this
+        } catch (e) {
+
+        }
+    };
+
+    updateItem = async (data, e) => {
+
+        const item = this.getItemStats(data, e);
+
+        if (!this.state.sth_changed) {
+            console.log('NO changes');
+            return;
+        }
+
+        console.log(item);
+
+        try {
+            let res = await fetcher({
+                query: ITEM_CATEGORY_UPDATE,
+                variables: item
+            });
+
+            if (res && res.errors) {
+                alert(res.errors[0].message);
+                return;
+            }
+
+            alert('category updated');
+
+            // } else if (res && res.errors && res.errors.length > 1) {
+            //     return;
+            // }
+
+            //---------------- not really needed ------------------// APA should help me on this
+        } catch (e) {
+
+        }
+    };
+
+
     SampleExpandedComponent = ({data}) => {
         // const {classes} = this.props;
         return <>
@@ -234,7 +324,7 @@ class Items extends Component {
 
                     <form noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
-                        this.saveItem(data, e); /*this.handleClose();*/
+                        this.updateItem(data, e); /*this.handleClose();*/
                     }}>
                         {/*{console.log(classes.textFieldStyle)}*/}
                         {/*{console.log(textFieldStyle.resize)}*/}
@@ -242,60 +332,14 @@ class Items extends Component {
                         <Widget title={'Item Details'} disableWidgetMenu>
                             <Grid container spacing={3} justify="space-around"
                                   className={classes.dashedBorder}>
-                                <Grid item xs={12} sm={8}>
+                                <Grid item xs={12} sm={6}>
                                     <TextField
                                         InputProps={{
                                             style: textFieldStyle.resize,
                                         }}
                                         required label="Name" color="primary" fullWidth
-                                        autoComplete="i_name" name='item_name'
+                                        autoComplete="i_name" name='category_name'
                                         defaultValue={data.name} onChange={this.handleChange}/>
-                                </Grid>
-                                <Grid item xs={12} sm={4}>
-                                    <TextField
-                                        id="standard-secondar" label="Price"
-                                        inputProps={{step: "0.50", min: "-5.00", style: textFieldStyle.resize}}
-                                        color="primary" type='number'
-                                        fullWidth autoComplete="i_price" required
-                                        defaultValue={parseFloat(data.price).toFixed(2)} name='item_price'
-                                        onChange={this.handleChange}/>
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <FormControl fullWidth>
-                                        <InputLabel>Category</InputLabel>
-                                        <GetItemCategoriesDropDown
-                                            category_id={data.category.id}
-                                            changeHandler={(e) => {
-                                                this.handleChangeDropDown(e, data)
-                                            }}/>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        InputProps={{
-                                            style: textFieldStyle.resize,
-                                        }}
-                                        fullWidth id="standard-second" label="Picture"
-                                        color="primary" onChange={this.handleChange}
-                                        defaultValue={data.pic} name='item_pic'/>
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <FormControlLabel
-                                        control={<Checkbox
-                                            id="standard-secondary"
-                                            label="Track Stock" color="primary"
-                                            name='has_stock' onChange={this.handleChange}
-                                            defaultChecked={data.has_stock}/>}
-                                        label="Track Stock"
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <TextField
-                                        id="standard-second" label="Min Stock"
-                                        color="primary"
-                                        inputProps={{step: "1", min: "0", style: textFieldStyle.resize}}
-                                        onChange={this.handleChange}
-                                        defaultValue={data.min_stock_level} name='min_stock' type='number'/>
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
                                     <FormControl
@@ -382,52 +426,6 @@ class Items extends Component {
         </>
     };
 
-    getItemStats = (data, e) => {
-        let item = {};
-        item.id = data !== null ? data.id : 0;
-        item.name = e.target.item_name.value.charAt(0).toUpperCase() + e.target.item_name.value.trim().substring(1);
-        item.pic = e.target.item_pic.value.trim();
-        item.price = parseFloat(e.target.item_price.value);
-        item.category_id = parseInt(e.target.item_category.value);
-        item.has_stock = e.target.has_stock.checked;
-        item.status = e.target.status.value;
-        item.min_stock_level = parseInt(e.target.min_stock.value);
-
-        if (/*item.name === '' || */ item.name === null || item.name.length < 1) {
-            alert('This item name can not be empty.');
-            return;
-        }
-
-        if (item.price === null || item.price < -10) {
-            alert('The item price can not less than 0.50.');
-            return;
-        }
-
-        if (item.has_stock && item.min_stock_level < 1) {
-            alert('This minimum stock cannot be less 1.');
-            return;
-        }
-
-        return item;
-    };
-
-    saveItem = (data, e) => {
-        // console.log("data", data);
-
-        if (!this.state.sth_changed) {
-            console.log('NO changes');
-            return;
-        }
-
-        let item = this.getItemStats(data, e);
-
-        // if (item.has_stock && item.min_stock_level < 1) {
-        //     alert('This number can not be less 1.');
-        //     return;
-        // }
-
-        this.updateOrCreateItem(item, 1); // if it's an update up is 1
-    };
 
     updateOrCreateItem = async (item, up) => {
         // console.log(item)
@@ -526,9 +524,9 @@ class Items extends Component {
     fetchItems = async () => {
         try {
             let res = await fetcher({
-                query: ALL_ITEMS,
+                query: GET_CATEGORIES,
             });
-            let items = res.data.getAllItems;
+            let items = res.data.getItemCategories;
             this.setState({items, filteredItems: items});
         } catch (err) {
             console.log(err);
@@ -552,17 +550,17 @@ class Items extends Component {
                 {/*<PageTitle title="Items"/>*/}
                 <DataTable
                     // style={{width: '100%'}}
-                    // title="Items"
+                    // title="Item Category"
                     actions={this.actions()}
                     columns={columnsR}
                     data={this.state.filteredItems}
                     selectableRows // add for checkbox selection
                     // onRowSelected={this.handleRowSelectedChange}
                     defaultSortField={'item'}
-                    expandableRows
                     highlightOnHover
                     pointerOnHover
                     striped
+                    expandableRows
                     expandableRowsComponent={<this.SampleExpandedComponent/>}
                     selectableRowsComponent={Checkbox}
                     sortIcon={arrowDownward}
@@ -595,4 +593,4 @@ const cust = {
 };
 
 // export default Items;
-export default useStyles(Items);
+export default useStyles(ItemCategory);

@@ -14,6 +14,10 @@ class GetItemCategoriesDropDown extends Component {
         this.state = {
             itemCategories: []
         };
+
+    }
+
+    componentDidMount() {
         this.fetchItemCategories();
     }
 
@@ -53,7 +57,10 @@ class GetItemCategoriesDropDown extends Component {
                 color="secondary" /*defaultValue={data.category.id}*/
                 name='item_category'
                 value={this.props.category_id}
-                onChange={this.props.changeHandler}>
+                renderdalue={1}
+                onChange={this.props.changeHandler}
+                // fromHere={(e)=>this.props.here}
+            >
                 {/*onChange={(event, name) => {this.props.changeHandler(event); /*console.log(name)*!/}>*/}
                 {this.renderItemCategories()}
             </Select>

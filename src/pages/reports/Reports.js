@@ -34,6 +34,7 @@ const columnsR = [
 
 const lineDelimiter = "<br>";
 const typeDelimiter = "-";
+const company_name = "AKORNO SERVICES LTD.";
 
 class Reports extends Component {
     constructor(props) {
@@ -44,7 +45,8 @@ class Reports extends Component {
             transactions: [],
             startDate: new Date().setHours(5), // set as six am
             endDate: new Date(),
-            user_id: 0
+            user_id: 0,
+            total: 0
         };
         // console.log(user_id, startDate, endDate)
         // let user = getUser(localStorage.getItem('token'))
@@ -102,10 +104,20 @@ class Reports extends Component {
             });
             // console.log(res);
             let transactions = res.data.getDailyReport;
+            // console.log(transactions);
+            let total = 0;
+            for (let ite of transactions){
+                // console.log(ite);
+                total += ite.qty_sold * ite.item_price;
+            }
+
+
             // sort alphabetically
             transactions.sort(this.compare);
 
-            this.setState({transactions});
+            // console.log(total);
+
+            this.setState({transactions, total});
         } catch (err) {
             console.log(err);
         }
@@ -139,21 +151,30 @@ class Reports extends Component {
     convertArrayOfObjectsToPrint = (header, array, footer) => {
         // array.sort((a, b) => (a.item > b.item ? 1 : -1));
 
-        const itemNameLength = 13;
+        const itemNameLength = 15;
 
         let result = header + lineDelimiter + lineDelimiter;
         result += '<table border="1px"><tr><th align="left">Item</th><th>Ty</th><th>Qty</th><th>Total</th><th>Inv</th></tr>';
 
+        // let total_sales = 0;
+
         for (let i = 0; i < array.length; i++) {
             // console.log(array[i].item_name);
+            let total = (array[i].item_price * array[i].qty_sold).toFixed(2);
+            // total_sales += parseFloat(total);
+
             let start = array[i].item_name.substr(0, itemNameLength);
             result += `<tr><td>${start}</td>
                  <td>${typeDelimiter}${array[i].item_category.substring(0, 1)}</td>
                 <td>${array[i].qty_sold}</td>
-                <td align="right">${(array[i].item_price * array[i].qty_sold).toFixed(2)}</td>
-                <td>${array[i].inv ? array[i].inv : '-'} </td></tr>`;
+                <td align="right">${total}</td>
+                <td>${array[i].inv ? array[i].inv : '-'} </td>
+                </tr>`;
         }
-        result += "</table>";
+        result += "<tr><td></td><td></td>" +
+            "<td></td><td></td><td></td></tr><tr>" +
+            "<td>Total</td><td></td><td>" +
+            "</td><td>" + this.state.total.toFixed(2) + "</td><td></td></tr></table>";
         // console.log(result)
         result += footer;
 
@@ -171,17 +192,19 @@ class Reports extends Component {
         if (!user.user_id)
             throw new Error("Could not get user.\nTransaction not saved");
 
-        let company = "AKORNO CATERING SERVICES<br> ";
+        let company = company_name + lineDelimiter;
         // let vendor = 1;
         // let transaction_point = null;
         let cashier_name = (user.first_name + " " + user.last_name).substr(
             -company.length
         );
-        let head = company + "Run By: " + lineDelimiter + cashier_name;
         let report_on = this.state.user_id === -1 ? "Everyone" : cashier_name;
+        let head = company + "Run By: " + cashier_name + lineDelimiter + "Report On:" + report_on;
+        head += lineDelimiter + "Start: " + moment((this.state.startDate)).format("llll");
+        head += lineDelimiter + "End  : " + moment((this.state.endDate)).format("llll");
 
-        let foot = lineDelimiter + "Report On:" + report_on;
-        foot += "<br/>" + moment((new Date())).format("llll");
+        let foot = "";// lineDelimiter + "Report On:" + report_on;
+        foot += lineDelimiter + moment((new Date())).format("llll");
         //     columnDelimiter +
         //     columnDelimiter +
         //     columnDelimiter +
@@ -252,7 +275,8 @@ class Reports extends Component {
         // const {classes, theme} = this.props;
         return (
             <>
-                <PageTitle title="Reports"/>
+                {/*<PageTitle title="Reports"/>*/}
+                {localStorage.setItem('page','Reports')}
 
                 <Grid container spacing={1}>
 
@@ -328,7 +352,7 @@ class Reports extends Component {
                     <Grid container item spacing={1} xs={12}>
                         <Grid item xs={12}>
                             <DataTable
-                                title="Report"
+                                title={"Total: GH₵ " + this.state.total.toFixed(2)}
                                 columns={columnsR}
                                 data={this.state.transactions}
                                 // selectableRows // add for checkbox selection

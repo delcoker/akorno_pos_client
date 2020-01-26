@@ -134,7 +134,7 @@ class MyLoginPage extends Component {
         fetcher({
             query: LOGGED_USER,
         }).then(res => {
-                localStorage.setItem('username', res.data.me.first_name + " " + res.data.me.last_name);
+                localStorage.setItem('username', res.data.me.first_name + " " + res.data.me.last_name.charAt(0)+'.');
                 localStorage.setItem('pic', res.data.me.pic);
 
                 this.setState({loggedIn: true});

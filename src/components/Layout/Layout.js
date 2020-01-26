@@ -27,33 +27,39 @@ import {useLayoutState} from "../../context/LayoutContext";
 // import {useUserState} from "../../context/UserContext";
 
 function Layout(props) {
-    var classes = useStyles();
 
+    const [pageTitle, setPageTitle] = React.useState('No Title');
+
+    var classes = useStyles();
     // global
     var layoutState = useLayoutState();
     // var {isAdmin} = useUserState();
     // console.log(isAdmin);
 
-
+    // const pageNam = (name) =>{
+    //     setPageTitle(name);
+    // };
 
     return (
         <div className={classes.root}>
             <>
-                <Header history={props.history}/>
+                <Header history={props.history} title={pageTitle}/>
                 <Sidebar/>
                 <div className={classnames(classes.content, {
                     [classes.contentShift]: layoutState.isSidebarOpened,
                 })}>
                     <div className={classes.fakeToolbar}/>
                     <Switch>
-                        <Route path="/app/dashboard" component={Dashboard}/>
+                        <Route path="/app/dashboard" render={(props) =>
+                            <Dashboard {...props}
+                                       pageNamFunc={setPageTitle}/>}
+                        />
 
                         {/*<SalesRoute path={LandingPage.Sales.route} component={LandingPage.Sales.page}/>*/}
-                        {renderPageRoutes(PagesIndex)}
+                        {renderPageRoutes(setPageTitle)}
 
                         {/*<AdminRoute path={Inventory.route} component={Inventory.page}/>*/}
                         {/*<AdminRoute path={Users.route} component={Users.page}/>*/}
-
 
                         <Route path="/app/typography" component={Typography}/>
                         <Route path="/app/tables" component={Tables}/>

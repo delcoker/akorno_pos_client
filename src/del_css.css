@@ -1,0 +1,8 @@
+.grid_container {
+    height: calc(100% - 500px);
+}
+
+.grid_column {
+    height: 100%;
+    overflow-y: auto;
+}

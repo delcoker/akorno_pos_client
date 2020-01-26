@@ -2,16 +2,15 @@ import React, {Component} from "react";
 import DataTable from "react-data-table-component";
 
 import memoize from 'memoize-one';
-
-// import MaterialDatatable from "material-datatable"; // ES6
-// const MaterialDatatable = require('material-datatable'); // ES5
-
-import {ArrowDownward, Delete} from "@material-ui/icons";
+import {Add, ArrowDownward, Delete, Remove} from "@material-ui/icons";
 import {IconButton} from "@material-ui/core";
 import Checkbox from "@material-ui/core/Checkbox";
 
 import {YourAwesomeComponent} from "../../../components/FAB/YourAwesomeComponent";
-import { ToastContainer} from "react-toastify";
+import {ToastContainer} from "react-toastify";
+
+// import MaterialDatatable from "material-datatable"; // ES6
+// const MaterialDatatable = require('material-datatable'); // ES5
 // import Notification from "../../../components/Notification";
 
 const cust = {
@@ -24,22 +23,45 @@ const cust = {
 };
 
 const columnsR = [
-    {name: "Item", selector: "item", sortable: true},
+    {name: "Item", selector: "item", sortable: true, maxWidth:'120px'},
     {
         name: "Price",
         selector: "price",
         wrap: true,
-        left: true,
-        width: "80px"
+        right: true,
+        maxWidth: "80px"
     },
-    {name: "Type", selector: "type", wrap: true, width: "70px"},
-    {name: "Qty", selector: "qty", wrap: true, width: "55px"},
+    {name: "Typ", selector: "type", width: "55px"}, // max wi
+    {
+        name: "Qty", selector: "qty", maxWidth: "70px", center: true, compact: true,
+
+        cell: (row) => {
+
+            const addIcon = <IconButton size={"medium"} onClick={console.log('here')} onKeyPress={()=>console.log("+ being pressed")}>
+                <Add color="secondary"/>
+            </IconButton>;
+
+            const minusIcon = <IconButton size={"medium"} onKeyPress={()=>console.log("- being pressed")}>
+                <Remove color="secondary"/>
+            </IconButton>;
+
+            return <table>
+                <tbody>
+                <tr>
+                    <td>{addIcon}</td>
+                    <td>{row.qty}</td>
+                    <td>{minusIcon}</td>
+                </tr>
+                </tbody>
+            </table>;
+        }
+    },
     {
         name: "SubT",
         selector: "subtotal",
         wrap: true,
         right: true,
-        width: "90px"
+        maxWidth: "90px"
     }
 ];
 
@@ -66,13 +88,6 @@ let arrowDownward = <ArrowDownward/>;
 class SaleList extends Component {
     constructor(props) {
         super(props);
-        // classes = this.props;
-        // console.log(props);
-        // this.tot = this.props.mTotal;
-        // this.amount_paying = 0;
-        // this.change = this.props.mChange;
-
-
         this.state = {
             toggledClearRows: false,
             selectedRows: [],
@@ -96,12 +111,23 @@ class SaleList extends Component {
     // };
 
     handleRowClicked = row => {
+
+        // this.props.del_handleDelete(row, null, 1); // if there's a one, delete one item
+
         console.log(`${row.item} was clicked!`);
     };
 
-    deleteSelectedRows =  () => {
+    deleteSelectedRows = () => {
         const {selectedRows} = this.state;
         this.props.del_handleDelete(null, selectedRows);
+
+        this.setState(state => ({toggleCleared: !state.toggleCleared}));
+    };
+
+    deleteSelectedRow = (row) => {
+        this.props.del_handleDelete([row.id], null);
+
+        // console.log("oooooooooooooooooooomg");
 
         this.setState(state => ({toggleCleared: !state.toggleCleared}));
     };
@@ -113,8 +139,9 @@ class SaleList extends Component {
         return (
             <>
                 <ToastContainer/>
-                <iframe title={"Print Cart"} id="contents_to_print"
-                        style={{height: "0px", width: "0px", position: "absolute"}}/>
+                <iframe
+                    title={"Print Cart"} id="contents_to_print"
+                    style={{height: "0px", width: "0px", position: "absolute"}}/>
 
                 <DataTable
                     title="Cart"
@@ -132,12 +159,11 @@ class SaleList extends Component {
                     sortIcon={arrowDownward}
                     onRowClicked={this.handleRowClicked}
                     contextActions={contextActions(this.deleteSelectedRows)}
-                    pagination
+                    // pagination
                     fixedHeader
-                    paginationPerPage={30}
-                    // fixedHeaderScrollHeight="500px"
-                    // Clicked
+                    paginationPerPage={10}
                     customStyles={cust}
+                    onRowDoubleClicked={this.deleteSelectedRow}
                 />
 
 

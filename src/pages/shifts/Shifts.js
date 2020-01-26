@@ -35,7 +35,7 @@ const columnsR = [
     },
     {
         name: "Total", selector: "qty_during", sortable: true,
-        cell: row => row.qty_during ? row.qty_during + row.qty_start: row.qty_start, grow: 1
+        cell: row => row.qty_during ? row.qty_during + row.qty_start : row.qty_start, grow: 1
     },
     {
         name: "Sold",
@@ -81,7 +81,8 @@ class Shifts extends Component {
             shifts: [],
             startDate: new Date().setHours(5), // set as six am
             endDate: new Date(),
-            user_id: 0
+            user_id: 0,
+            total: 0,
         };
     }
 
@@ -217,10 +218,10 @@ class Shifts extends Component {
             let cashierCrop = array[i].user_name.substr(0, cashierCropLength);
 
             result += `<tr><td>${start}</td><td>${array[i].qty_start}</td>
-<td>${array[i].qty_during ? array[i].qty_during : 0}</td>
-<td>${array[i].qty_end}</td>
-<td>${array[i].qty_start + (array[i].qty_during ? array[i].qty_during : 0) - (array[i].qty_end ? array[i].qty_end : 0)}</td>
-<td>${array[i].qty_left}</td>
+                    <td>${array[i].qty_during ? array[i].qty_during : 0}</td>
+                    <td>${array[i].qty_end}</td>
+                    <td>${array[i].qty_start + (array[i].qty_during ? array[i].qty_during : 0) - (array[i].qty_end ? array[i].qty_end : 0)}</td>
+                    <td>${array[i].qty_left}</td>
 <td>${cashierCrop}</td></tr>`;
         }
         result += "</table>";
@@ -252,28 +253,6 @@ class Shifts extends Component {
 
         let foot = lineDelimiter + "Report On:" + report_on;
         foot += "<br/>" + moment((new Date())).format("llll");
-        //     columnDelimiter +
-        //     columnDelimiter +
-        //     columnDelimiter +
-        //     columnDelimiter +
-        //     this.props.mTotal.toFixed(2) +
-        //     lineDelimiter +
-        //     "Paid :" +
-        //     columnDelimiter +
-        //     columnDelimiter +
-        //     columnDelimiter +
-        //     columnDelimiter +
-        //     this.state.amount.toFixed(2) +
-        //     lineDelimiter +
-        //     "Change:" +
-        //     columnDelimiter +
-        //     columnDelimiter +
-        //     columnDelimiter +
-        //     "<strong>" +
-        //     this.state.change.toFixed(2) +
-        //     "</strong>" +
-        //     lineDelimiter +
-        //     "050-248-0435";
 
         let content = this.convertArrayOfObjectsToPrint(
             head,
@@ -327,7 +306,7 @@ class Shifts extends Component {
         // const {classes, theme} = this.props;
         return (
             <>
-                <PageTitle title="Shifts"/>
+                {/*<PageTitle title=""/>*/}
 
                 <Grid container spacing={1}>
 

@@ -68,19 +68,19 @@ const columnsR = [
         selector: 'updatedAt',
         sortable: true,
         grow: 5,
-        format: d => moment(parseInt(d.updatedAt)).format("lll"),
+        format: d => moment(parseInt(d.updatedAt)).format("dd-Do-MM-YY"),
     },
-    {
-        name: 'Created At',
-        selector: 'createdAt',
-        sortable: true,
-        grow: 5,
-        format: d => moment(parseInt(d.createdAt)).format("lll"),
-        // format: d => moment(d.airstamp).format('LLL'),
-        // format: d => moment(parseInt(d)).format("L")
-        // format: d => (new Date((d))).toString()//.format("dd.mm.yyyy hh:MM:ss")
-        // format: d => moment((d)).format("ll")//.format("dd.mm.yyyy hh:MM:ss")
-    },
+    // {
+    //     name: 'Created At',
+    //     selector: 'createdAt',
+    //     sortable: true,
+    //     grow: 5,
+    //     format: d => moment(parseInt(d.createdAt)).format("lll"),
+    //     // format: d => moment(d.airstamp).format('LLL'),
+    //     // format: d => moment(parseInt(d)).format("L")
+    //     // format: d => (new Date((d))).toString()//.format("dd.mm.yyyy hh:MM:ss")
+    //     // format: d => moment((d)).format("ll")//.format("dd.mm.yyyy hh:MM:ss")
+    // },
 ];
 
 const contextActions = memoize((deleteHandler) => (
@@ -283,7 +283,7 @@ class Inventory extends Component {
                                 <Grid item xs={12} sm={4}>
                                     <TextField
                                         id="standard-secondar" label="Price"
-                                        inputProps={{step: "0.50", min: "0.00", style: textFieldStyle.resize}}
+                                        inputProps={{step: "0.50", min: "-5.00", style: textFieldStyle.resize}}
                                         color="primary" type='number'
                                         fullWidth autoComplete="i_price" required
                                         defaultValue={parseFloat(data.price).toFixed(2)} name='item_price'
@@ -385,7 +385,7 @@ class Inventory extends Component {
             return;
         }
 
-        if (item.price === null || item.price < 0.5) {
+        if (item.price === null || item.price < -5) {
             alert('The item price can not less than 0.50.');
             return;
         }
@@ -579,7 +579,7 @@ class Inventory extends Component {
             <>
                 <ToastContainer/>
                 {/*<Grid container spacing={1} >*/}
-                <PageTitle title='Inventory'/>
+                {/*<PageTitle title='Inventory'/>*/}
                 <DataTable
                     // style={{width: '100%'}}
                     // title="Items"

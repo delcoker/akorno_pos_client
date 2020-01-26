@@ -63,6 +63,8 @@ let toastOptions = null;
 
 const $ = require('jquery');
 
+const company_name = "AKORNO SERVICES LTD.";
+
 // let API_KEY = "AIzaSyDXAm8fyR9alMVpg_Gq0-JfO6Yw_Kq7wQg";
 // let ENGINE_ID = "012568330619765078995:hgynjoenxeu";
 
@@ -112,11 +114,44 @@ class Sales extends Component {
         }
     };
 
-    del_handleDel = (ids, selectedRows) => {
+    del_handleDel = (ids, selectedRows, qty_to_del) => {
+
+        if (qty_to_del) {
+            console.log(ids, qty_to_del);
+            this.removeOne(ids, -qty_to_del); // id will be the actual row
+            return;
+        }
 
         const deleted_ids = ids ? ids : selectedRows.map(item => item.id);
         let temp = this.handleItemDelete2(deleted_ids);
         this.getClickedItemsAsArray(temp);
+    };
+
+    removeOne = (row, qty) => {
+        const map = new Map(this.state.items_list);
+
+        for (let [k, v] of map) {
+            if (k.id === row.id) { // means it's contained in list
+                qty += v;
+                console.log('qty_to_delete', qty);
+                map.delete(k);
+                break;
+            }
+        }
+
+
+        if (qty > 0) {
+            map.set(row, qty);
+        }
+
+        console.log(map);
+
+        this.getClickedItemsAsArray(map);
+
+        this.setState({
+            items_list: map,
+            // dataSet: dat
+        });
     };
 
     handleItemDelete2 = (indices) => {
@@ -200,6 +235,7 @@ class Sales extends Component {
         this.setState({
             totalNii: tot,
             changeNii: this.state.payingNii - tot,
+            payingNii: tot,
             dataSet: mDataSet
         });
         // return mDataSet;
@@ -229,62 +265,8 @@ class Sales extends Component {
         // console.log(`../../images/${item_name}`);
         return `images/${item_name}`;
     };
-
-    renderItems = () => {
-        const {classes} = this.props;
-        const qty = 1;
-        if (this.state.items && this.state.items.length > 0) {
-            return this.state.items.map((item, i) => {
-                let i_qty = item.has_stock ? " : " + item.quantity : '';
-                return (
-                    <Grid item lg={3} md={4} sm={6} xs={12} className='filterable'
-                          key={i} onClick={() => this.handleCardClickChild(item, qty)}>
-                        <Widget
-                            title={item.price.toFixed(2)}
-                            item_name=
-                                {<Img width={'43px'}
-                                      src={[
-                                          (this.getItemImage(item.pic) + '.svg'),
-                                          this.getItemImage(item.pic) + '.gif',
-                                          this.getItemImage(item.pic) + '.png',
-                                          this.getItemImage(item.pic) + ".jpg",
-                                          this.getItemImage(item.pic) + '.jpeg',
-                                          logo]}
-                                />}
-                            upperTitle bodyClass={classes.fullHeightBody}
-                            className={classes.card}>
-                            <div className={classes.visitsNumberContainer}>
-                                <Typography size="md" weight="medium">
-                                    {item.name}
-                                </Typography>
-                            </div>
-                            <Grid container direction="column"
-                                  justify="space-between" alignItems="flex-start">
-                                {i_qty
-                                && <Grid item>
-                                    <Typography color="text"
-                                                colorBrightness="secondary">
-                                        Stock {i_qty}
-                                    </Typography>
-
-                                </Grid>
-                                }
-                                <Grid item>
-                                    <Typography color="text"
-                                                colorBrightness="secondary">
-                                        {item.category.name}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-                        </Widget>
-                    </Grid>
-                )
-            });
-        }
-    };
-
     handlePayingChangeNii = (paying) => {
-        const change = (paying - this.state.totalNii).toFixed(2);
+        const change = (paying - this.state.totalNii);
 
         this.setState({
             payingNii: paying,
@@ -390,7 +372,7 @@ class Sales extends Component {
         const columnDelimiter = "&emsp;";
         const lineDelimiter = "<br>";
 
-        let company = "AKORNO CATERING SERVICES" + lineDelimiter;
+        let company = company_name + lineDelimiter;
         let vendor = 1;
         let transaction_point = null;
         let cashier_name =
@@ -493,11 +475,16 @@ class Sales extends Component {
 
     saveTransactions = async (ids, qty, vendor_id, transaction_point_id, user_id) => {
         // console.log('user_id', user_id);
+        // console.log('user_id', ids,)// qty, vendor_id, transaction_point_id, user_id);
+        // console.log('qty', qty,)// qty, vendor_id, transaction_point_id, user_id);
+        // console.log('ven', vendor_id,)// qty, vendor_id, transaction_point_id, user_id);
+        // console.log('transa', parseFloat(this.state.totalNii))// qty, vendor_id, transaction_point_id, user_id);
+        // console.log('user_id', user_id,)// qty, vendor_id, transaction_point_id, user_id);
         try {
             let res = await fetcher({
                 query: SAVE_TRANSACTIONS,
                 variables: {
-                    total_amount: this.state.totalNii,
+                    total_amount: parseFloat(this.state.totalNii),
                     qtys: qty,
                     vendor_id,
                     transaction_point_id,
@@ -512,29 +499,83 @@ class Sales extends Component {
         }
     };
 
+    renderItems = () => {
+        const {classes} = this.props;
+        const qty = 1;
+        if (this.state.items && this.state.items.length > 0) {
+            return this.state.items.map((item, i) => {
+                let i_qty = item.has_stock ? " : " + item.quantity : '';
+                return (
+                    <Grid item lg={4} md={4} sm={6} xs={12} className='filterable'
+                          key={i} onClick={() => this.handleCardClickChild(item, qty)}
+                    >
+                        <Widget
+                            title={item.price.toFixed(2)}
+                            item_name=
+                                {<Img width={'43px'}
+                                      src={[
+                                          (this.getItemImage(item.pic) + '.svg'),
+                                          this.getItemImage(item.pic) + '.gif',
+                                          this.getItemImage(item.pic) + '.png',
+                                          this.getItemImage(item.pic) + ".jpg",
+                                          this.getItemImage(item.pic) + '.jpeg',
+                                          logo]}
+                                />}
+                            upperTitle bodyClass={classes.fullHeightBody}
+                            className={classes.card}>
+                            <div className={classes.visitsNumberContainer}>
+                                <Typography size="md" weight="medium">
+                                    {item.name}
+                                </Typography>
+                            </div>
+                            <Grid container direction="column"
+                                  justify="space-between" alignItems="flex-start">
+                                {i_qty
+                                && <Grid item>
+                                    <Typography
+                                        color="text"
+                                        colorBrightness="secondary">
+                                        Stock {i_qty}
+                                    </Typography>
+
+                                </Grid>
+                                }
+                                <Grid item>
+                                    <Typography color="text"
+                                                colorBrightness="secondary">
+                                        {item.category.name}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Widget>
+                    </Grid>
+                )
+            });
+        }
+    };
 
     render() {
         // console.log(this.state);
         return (
             <>
-                <PageTitle title="Sales"/>
+                {/*<PageTitle title="Sales"/>*/}
                 <h2>Find Anything</h2>
 
-                <Grid container item spacing={1} sm={6} xs={12}>
+                <Grid container item spacing={1} sm={7} xs={12}>
                     <TextField id="myInput" placeholder="Search" type='text' color='primary'
                                autoComplete='' fullWidth variant={"outlined"}
-                               helperText={'Type in here to find what you want'}/>
-
+                               // helperText={'Type in here to find what you want'}
+                    />
                 </Grid>
                 <br/>
+                {/*<Grid container spacing={1} id="myContainer" className={'grid_container'}>*/}
                 <Grid container spacing={1} id="myContainer">
-
-
-                    <Grid container item spacing={1} sm={6} xs={12}>
+                    {/*<Grid container item spacing={2} sm={7} xs={12} className="grid_column">*/}
+                    <Grid container item spacing={2} sm={7} xs={12} >
                         {this.renderItems()}
                     </Grid>
 
-                    <Grid container item spacing={1} sm={6} xs={12}>
+                    <Grid container item spacing={1} sm={5} xs={12}>
                         <Grid item xs={12}>
                             <SaleList
                                 mData={this.state.dataSet}
@@ -549,9 +590,8 @@ class Sales extends Component {
                         </Grid>
 
                     </Grid>
+
                 </Grid>
-
-
             </>
         );
     }

@@ -45,6 +45,10 @@ export default function Dashboard(props) {
   var classes = useStyles();
   var theme = useTheme();
 
+  // console.log(props.pageName);
+
+  props.pageNamFunc("Dashboard");
+
   // local
   var [mainChartState, setMainChartState] = useState("monthly");
 

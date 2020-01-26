@@ -6,16 +6,13 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {
-    Checkbox, FormControl, FormControlLabel,
-    Grid, InputLabel, makeStyles, MenuItem, Select
+    FormControl, Grid, InputLabel, makeStyles, MenuItem, Select
 } from "@material-ui/core";
 import Widget from "../../../components/Widget";
 import {textFieldStyle} from "../../../_utils/inlineStyles";
 // import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
 import {Save as SaveIcon} from "@material-ui/icons";
 import {fetcher, GET_CATEGORIES} from "../../../_utils/fetcher";
-// import Slide from "@material-ui/core/Slide";
-
 
 const useStyles = makeStyles(theme => ({
     form: {
@@ -50,27 +47,6 @@ export default function FormDialog(props) {
         }
     };
 
-
-    const renderItemCategories = () => {
-        // console.log(itemCategories);
-        if (itemCategories && itemCategories.length > 0) {
-            return (
-                itemCategories.map((itemCategory, i) => {
-                    return (
-                        <MenuItem
-                            style={textFieldStyle.resize}
-                            key={itemCategory.id}
-                            value={itemCategory.id}
-                        >
-                            {itemCategory.name}
-                        </MenuItem>
-                    );
-                })
-            )
-        }
-        return null;
-    };
-
     useEffect(() => {
         fetchItemCategories();
     }, []);
@@ -81,80 +57,27 @@ export default function FormDialog(props) {
             <Dialog open={props.open} onClose={props.onClose} aria-labelledby="form-dialog-title"
                     maxWidth={'md'} //saveNewItem={props.saveNewItem}
                     keepMounted onExit={props.onClose}>
-                <DialogTitle id="form-dialog-title">Add New Item</DialogTitle>
+                <DialogTitle id="form-dialog-title">Add New Category</DialogTitle>
                 <DialogContent>
 
                     <form className={classes.form} noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
-                        props.saveNewItem(e); /*this.handleClose();*/
+                        props.saveNewItem(e);
                     }}>
 
                         <Widget disableWidgetMenu>
-                            <Grid container spacing={3} justify="space-around">
-                                <Grid item xs={12} sm={8}>
+                            <Grid container spacing={1} justify="space-around">
+                                <Grid item xs={12} sm={6}>
                                     <TextField
                                         InputProps={{
                                             style: textFieldStyle.resize,
                                         }}
                                         required label="Name" color="primary" fullWidth
-                                        autoComplete="i_name" name='item_name'
-                                        // defaultValue={data.name}
+                                        autoComplete="c_name" name='category_name'
                                         // onChange={this.handleChange}
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={4}>
-                                    <TextField
-                                        id="standard-secondar" label="Price"
-                                        inputProps={{step: "0.50", min: "-5.00", style: textFieldStyle.resize}}
-                                        color="primary" type='number'
-                                        fullWidth autoComplete="i_price" required
-                                        defaultValue={parseFloat(1).toFixed(2)} name='item_price'
-                                        // onChange={this.handleChange}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <FormControl fullWidth>
-                                        <InputLabel>Category</InputLabel>
 
-                                        <Select
-                                            style={textFieldStyle.resize}
-                                            color="secondary"
-                                            name='item_category'
-                                            defaultValue={3}
-                                        >
-                                            {renderItemCategories()}
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        InputProps={{
-                                            style: textFieldStyle.resize,
-                                        }}
-                                        fullWidth id="standard-second" label="Picture"
-                                        color="primary"
-                                        // onChange={this.handleChange}
-                                        // defaultValue={data.pic}
-                                        name='item_pic'
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <FormControlLabel
-                                        control={<Checkbox
-                                            id="standard-secondary"
-                                            label="Has Stock" color="primary"
-                                            name='has_stock'
-                                        />}
-                                        label="Has Stock"
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <TextField
-                                        id="standard-second" label="Min Stock"
-                                        color="primary"
-                                        inputProps={{step: "1", min: "0", style: textFieldStyle.resize}}
-                                        name='min_stock' type='number'/>
-                                </Grid>
                                 <Grid item xs={12} sm={3}>
                                     <FormControl
                                         fullWidth
@@ -182,13 +105,8 @@ export default function FormDialog(props) {
                                             startIcon={<SaveIcon/>}>Add</Button>
                                 </Grid>
                             </Grid>
-
                         </Widget>
-                        {/*    </Grid>*/}
-                        {/*</Grid>*/}
                     </form>
-
-                    {/*</Grid>*/}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.onClose} color="primary">

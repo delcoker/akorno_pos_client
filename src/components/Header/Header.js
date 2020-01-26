@@ -155,30 +155,34 @@ export default function Header(props) {
                     <Typography variant="h6" weight="medium" className={classes.logotype}>
                         {user.company} POS / IMS / SMS
                     </Typography>
+                    <Typography variant="h4" weight="light" className={classes.logotype} color="secondary">
+                        {/*{localStorage.getItem('page')}*/}
+                        <i>{props.title.toUpperCase()}</i>
+                    </Typography>
                     <div className={classes.grow}/>
                     <Button component={Link} /*href="https://flatlogic.com/templates/react-material-admin-full"*/
                             variant={"outlined"} color={"secondary"} style={{marginRight: 24}}>{user.username}</Button>
-                    <div
-                        className={classNames(classes.search, {
-                            [classes.searchFocused]: isSearchOpen,
-                        })}
-                    >
-                        <div
-                            className={classNames(classes.searchIcon, {
-                                [classes.searchIconOpened]: isSearchOpen,
-                            })}
-                            onClick={() => setSearchOpen(!isSearchOpen)}
-                        >
-                            <SearchIcon classes={{root: classes.headerIcon}}/>
-                        </div>
-                        <InputBase
-                            placeholder="Search…"
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                        />
-                    </div>
+                    {/*<div*/}
+                    {/*    className={classNames(classes.search, {*/}
+                    {/*        [classes.searchFocused]: isSearchOpen,*/}
+                    {/*    })}*/}
+                    {/*>*/}
+                    {/*    <div*/}
+                    {/*        className={classNames(classes.searchIcon, {*/}
+                    {/*            [classes.searchIconOpened]: isSearchOpen,*/}
+                    {/*        })}*/}
+                    {/*        onClick={() => setSearchOpen(!isSearchOpen)}*/}
+                    {/*    >*/}
+                    {/*        <SearchIcon classes={{root: classes.headerIcon}}/>*/}
+                    {/*    </div>*/}
+                    {/*    <InputBase*/}
+                    {/*        placeholder="Search…"*/}
+                    {/*        classes={{*/}
+                    {/*            root: classes.inputRoot,*/}
+                    {/*            input: classes.inputInput,*/}
+                    {/*        }}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
                     <IconButton
                         color="inherit"
                         aria-haspopup="true"
