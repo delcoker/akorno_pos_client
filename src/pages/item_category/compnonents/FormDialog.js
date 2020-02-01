@@ -31,25 +31,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function FormDialog(props) {
-    const [itemCategories, setItemCategories] = React.useState([]);
-
     const classes = useStyles();
 
-    const fetchItemCategories = async () => {
-        try {
-            let res = await fetcher({
-                query: GET_CATEGORIES,
-            });
-            let itemCategories = res.data.getItemCategories;
-            setItemCategories(itemCategories);
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    useEffect(() => {
-        fetchItemCategories();
-    }, []);
 
     return (
         <div>

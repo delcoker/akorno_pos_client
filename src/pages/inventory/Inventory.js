@@ -6,8 +6,7 @@ import useStyles from './styles'
 import memoize from 'memoize-one';
 import {
     Checkbox, IconButton, FormControl, InputLabel,
-    FormControlLabel,
-    Select, MenuItem, TextField, Button, Grid,
+    FormControlLabel, Select, MenuItem, TextField, Button, Grid,
 } from "@material-ui/core";
 import DataTable from "react-data-table-component";
 import {
@@ -18,7 +17,7 @@ import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDr
 import moment from "moment";
 
 import {fetcher, ITEM_UPDATE, ALL_ITEMS, ADD_STOCK, getUser} from "../../_utils/fetcher";
-import PageTitle from "../../components/PageTitle";
+// import PageTitle from "../../components/PageTitle";
 import {Typography} from "../../components/Wrappers";
 
 import {ToastContainer, toast} from 'react-toastify';
@@ -283,7 +282,7 @@ class Inventory extends Component {
                                 <Grid item xs={12} sm={4}>
                                     <TextField
                                         id="standard-secondar" label="Price"
-                                        inputProps={{step: "0.50", min: "-5.00", style: textFieldStyle.resize}}
+                                        inputProps={{step: "0.50", min: "-10.00", style: textFieldStyle.resize}}
                                         color="primary" type='number'
                                         fullWidth autoComplete="i_price" required
                                         defaultValue={parseFloat(data.price).toFixed(2)} name='item_price'

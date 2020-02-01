@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
-import Img from 'react-image';
+// import Img from 'react-image';
 // import styled from 'styled-components';
 import useStyles from './styles'
 
 import memoize from 'memoize-one';
 import {
     Checkbox, IconButton, FormControl, InputLabel,
-    FormControlLabel,
     Select, MenuItem, TextField, Button, Grid,
 } from "@material-ui/core";
 import DataTable from "react-data-table-component";
@@ -14,13 +13,13 @@ import {
     Add, ArrowDownward, Close, Delete,
     Save as SaveIcon
 } from '@material-ui/icons';
-import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDropDown";
+// import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDropDown";
 import moment from "moment";
 
 import {
     fetcher,
     ITEM_UPDATE,
-    ALL_ITEMS,
+    // ALL_ITEMS,
     GET_CATEGORIES,
     CATEGORY_ADD,
     ITEM_CATEGORY_UPDATE,
@@ -74,14 +73,14 @@ const columnsR = [
         selector: 'updatedAt',
         sortable: true,
         grow: 4,
-        format: d => moment(parseInt(d.updatedAt)).format("dd-Do-MM-YY"),
+        format: d => moment(parseInt(d.updatedAt)).format("llll"),
     },
     {
         name: 'Created At',
         selector: 'createdAt',
         sortable: true,
         grow: 5,
-        format: d => moment(parseInt(d.createdAt)).format("dd-Do-MM-YY"),
+        format: d => moment(parseInt(d.createdAt)).format("llll"),
         // format: d => moment(d.airstamp).format('LLL'),
         // format: d => moment(parseInt(d)).format("L")
         // format: d => (new Date((d))).toString()//.format("dd.mm.yyyy hh:MM:ss")

@@ -256,14 +256,14 @@ class MyLoginPage extends Component {
                             }}
                         />
 
-                        <FormControlLabel
-                            control={<Checkbox
-                                value={registerAgree}
-                                color="secondary"/>}
-                            required name="registerAgree"
-                            label="I agree with the terms and policy"
-                            onChange={this.handleChange}
-                        />
+                        {/*<FormControlLabel*/}
+                        {/*    control={<Checkbox*/}
+                        {/*        value={registerAgree}*/}
+                        {/*        color="secondary"/>}*/}
+                        {/*    required name="registerAgree"*/}
+                        {/*    label="I agree with the terms and policy"*/}
+                        {/*    onChange={this.handleChange}*/}
+                        {/*/>*/}
                         <Button
                             style={textFieldStyle.resize}
                             type="submit"
@@ -272,7 +272,7 @@ class MyLoginPage extends Component {
                             color="primary"
                             className={classes.submit}
                             disabled={
-                                !registerAgree || registerPassword.length === 0 || registerEmail.length === 0
+                                registerPassword.length === 0 || registerEmail.length === 0
                             }
                         >
                             Log In

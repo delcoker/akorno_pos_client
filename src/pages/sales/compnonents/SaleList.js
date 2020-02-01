@@ -2,11 +2,11 @@ import React, {Component} from "react";
 import DataTable from "react-data-table-component";
 
 import memoize from 'memoize-one';
-import {Add, ArrowDownward, Delete, Remove} from "@material-ui/icons";
+import {Add, ArrowDownward, Close, Delete, HighlightOff, Remove} from "@material-ui/icons";
 import {IconButton} from "@material-ui/core";
 import Checkbox from "@material-ui/core/Checkbox";
 
-import {YourAwesomeComponent} from "../../../components/FAB/YourAwesomeComponent";
+import {YourAwesomeComponent} from "./YourAwesomeComponent";
 import {ToastContainer} from "react-toastify";
 
 // import MaterialDatatable from "material-datatable"; // ES6
@@ -16,33 +16,34 @@ import {ToastContainer} from "react-toastify";
 const cust = {
     cells: {
         style: {
-            fontSize: '17px', // override the cell padding for data cells
+            fontSize: '16px', // override the cell padding for data cells
             // paddingRight: '8px',
         },
     },
 };
 
-const columnsR = [
-    {name: "Item", selector: "item", sortable: true, maxWidth:'120px'},
+const columnsR = deleteItem => [
+    {name: "Item", selector: "item", sortable: true, maxWidth: '110px', compact: true,},
     {
         name: "Price",
         selector: "price",
-        wrap: true,
+        // wrap: true,
         right: true,
-        maxWidth: "80px"
+        maxWidth: "100px"
     },
-    {name: "Typ", selector: "type", width: "55px"}, // max wi
+    // {name: "Typ", selector: "type", width: "55px"}, // max wi
     {
-        name: "Qty", selector: "qty", maxWidth: "70px", center: true, compact: true,
+        name: "Qty", selector: "qty", maxWidth: "120px", center: true, compact: true,
 
         cell: (row) => {
 
-            const addIcon = <IconButton size={"medium"} onClick={console.log('here')} onKeyPress={()=>console.log("+ being pressed")}>
+            const addIcon = <IconButton size={"medium"} onClick={event => console.log('here')}
+                                        onKeyPress={() => console.log("+ being pressed")}>
                 <Add color="secondary"/>
             </IconButton>;
 
-            const minusIcon = <IconButton size={"medium"} onKeyPress={()=>console.log("- being pressed")}>
-                <Remove color="secondary"/>
+            const minusIcon = <IconButton size={"medium"} onKeyPress={() => console.log("- being pressed")}>
+                <Remove color="primary"/>
             </IconButton>;
 
             return <table>
@@ -59,9 +60,27 @@ const columnsR = [
     {
         name: "SubT",
         selector: "subtotal",
-        wrap: true,
         right: true,
-        maxWidth: "90px"
+        compact: true,
+        maxWidth: "90px",
+        cell: (row) => {
+            // let a = e=>deleteItem(row.id);
+            const closeIcon = <IconButton size={"medium"} onClick={e => (deleteItem(row))}
+                                          // onKeyPress={() => console.log("- being pressed")}
+            >
+                <HighlightOff color="error"/>
+            </IconButton>;
+
+            return <table>
+                <tbody>
+                <tr>
+                    {/*<td>{addIcon}</td>*/}
+                    <td>{(row.qty * row.price).toFixed(2)}</td>
+                    <td>{closeIcon}</td>
+                </tr>
+                </tbody>
+            </table>;
+        }
     }
 ];
 
@@ -125,6 +144,9 @@ class SaleList extends Component {
     };
 
     deleteSelectedRow = (row) => {
+
+        // console.log(row);
+
         this.props.del_handleDelete([row.id], null);
 
         // console.log("oooooooooooooooooooomg");
@@ -145,7 +167,7 @@ class SaleList extends Component {
 
                 <DataTable
                     title="Cart"
-                    columns={columnsR}
+                    columns={columnsR(this.deleteSelectedRow)}
                     data={this.props.mData}
                     selectableRows={true}// add for checkbox selection
                     onSelectedRowsChange={this.handleChange}
@@ -161,9 +183,10 @@ class SaleList extends Component {
                     contextActions={contextActions(this.deleteSelectedRows)}
                     // pagination
                     fixedHeader
+                    fixedHeaderScrollHeight={'52vh'}
                     paginationPerPage={10}
                     customStyles={cust}
-                    onRowDoubleClicked={this.deleteSelectedRow}
+                    // onRowDoubleClicked={this.deleteSelectedRow}
                 />
 
 
@@ -174,6 +197,7 @@ class SaleList extends Component {
                     payingNii={this.props.payingNii}
                     changeNii={this.props.changeNii}
                     handlePayingChangeNii={this.props.handlePayingChangeNii}
+                    handleNumberClick={this.props.handleNumberClick}
                 />
 
             </>

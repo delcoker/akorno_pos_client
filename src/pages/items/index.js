@@ -8,7 +8,7 @@ export default {
     page: ItemPage,
     icon: <ItemIcon/>,
     label: 'Items',
-    route: "/app/items",
+    route: "/app/items/list",
     exact: true,
     children: [
         {label: "Item List", link: "/app/items/list", page: ItemPage},

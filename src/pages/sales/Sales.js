@@ -1,25 +1,29 @@
 import React, {Component} from "react";
 import {
-    Grid,
+    FormControl,
+    Grid, InputLabel, MenuItem, Select,
 } from "@material-ui/core";
 
 // styles
 // import useStyles from "./styles";
 // import {withStyles} from "@material-ui/core/styles"
 
+// import "../../del_css.css";
+
 import Img from 'react-image';
 
 import logo from '../../images/google.svg';
 // components
 import Widget from "../../components/Widget";
-import PageTitle from "../../components/PageTitle";
+// import PageTitle from "../../components/PageTitle";
 import {Typography} from "../../components/Wrappers";
+import $ from 'jquery' // const $ = require('jquery'); // commonJS
 
 import {
     CHECK_USER_SESSION,
     convertArrayOfObjectsToPrint,
     ENABLED_ITEMS,
-    fetcher,
+    fetcher, GET_STUDENT_DETAIL, GET_STUDENT_DETAILS,
     getUser,
     isAnyShiftActive, SAVE_TRANSACTIONS, START_SHIFT
 } from "../../_utils/fetcher";
@@ -31,6 +35,7 @@ import SaleList from "./compnonents/SaleList";
 import {toast} from "react-toastify";
 import Notification from "../../components/Notification";
 import moment from "moment";
+import {textFieldStyle} from "../../_utils/inlineStyles";
 
 const useStyles = (theme => ({
     dashedBorder: {
@@ -61,7 +66,6 @@ let toastOptions = null;
 // var classes = useStyles();
 // var theme = useTheme();
 
-const $ = require('jquery');
 
 const company_name = "AKORNO SERVICES LTD.";
 
@@ -81,8 +85,14 @@ class Sales extends Component {
             totalNii: 0,
             payingNii: 0,
             changeNii: 0,
-            dataSet: []
+            dataSet: [],
+            quantity_clicked: '',
+            payment_method: 'cash',
+            payment_detail: '',
+            student_details: {name: ''},
+            student_number_txt: "",
         };
+        this.myRef = React.createRef();
     }
 
     componentDidMount() {
@@ -101,6 +111,13 @@ class Sales extends Component {
         });
     };
 
+    handleNumberClicked = (e, num) => {
+        // console.log('num', num, 'num');
+        let numm = num === '' ? 0 : this.state.quantity_clicked + num;
+
+        this.setState({quantity_clicked: numm});
+    };
+
     fetchItems = async () => {
         try {
             let res = await fetcher({
@@ -116,8 +133,10 @@ class Sales extends Component {
 
     del_handleDel = (ids, selectedRows, qty_to_del) => {
 
+        // console.log (ids, selectedRows, qty_to_del);
+
         if (qty_to_del) {
-            console.log(ids, qty_to_del);
+            // console.log(ids, qty_to_del);
             this.removeOne(ids, -qty_to_del); // id will be the actual row
             return;
         }
@@ -175,20 +194,30 @@ class Sales extends Component {
     // when a card is clicked
     handleCardClickChild = (dataFromChild, qty) => {
 
+        // console.log(parseInt(this.state.quantity_clicked));
+
         const map = new Map(this.state.items_list);
 
-        for (let [k, v] of map) {
-            if (k.id === dataFromChild.id) { // means it's contained in list
-                qty += v;
-                map.delete(k);
-                break;
+        if (map.size > 0) { // if there is a list
+            for (let [k, v] of map) {
+                if (k.id === dataFromChild.id) { // means it's contained in list
+                    parseInt(this.state.quantity_clicked) > 0 ? qty = parseInt(this.state.quantity_clicked) : qty += v; // if number pad was used, get that value as qty
+                    map.delete(k);
+                    break;
+                } else {
+                    parseInt(this.state.quantity_clicked) > 0 ? qty = parseInt(this.state.quantity_clicked) : qty = 1;
+                    // map.delete(k);
+                }
             }
+        } else {
+            parseInt(this.state.quantity_clicked) > 0 ? qty = parseInt(this.state.quantity_clicked) : qty = 1;
+            // map.delete(k);
         }
 
         if ((dataFromChild.has_stock && qty > dataFromChild.quantity)) {
             const componentProps = {
                 type: "report",
-                message: 'You have run out of stock for ' + dataFromChild.name,
+                message: 'You will run out of stock for ' + dataFromChild.name,
                 variant: "contained",
                 color: "secondary",
             };
@@ -196,10 +225,18 @@ class Sales extends Component {
             toast(<Notification
                 className={classes.notificationComponent}
                 {...componentProps} />, toastOptions);
+
+            this.setState({quantity_clicked: ''});
+            return;
+        }
+
+        if (qty > 500 && !(window.confirm(`Quantity ${qty} is greater than 500. Continue?`))) {
+            this.setState({quantity_clicked: ''});
             return;
         }
 
         map.set(dataFromChild, qty);
+
 
         // console.log(dataFromChild, qty);
 
@@ -207,7 +244,7 @@ class Sales extends Component {
 
         this.setState({
             items_list: map,
-            // dataSet: dat
+            quantity_clicked: ''
         });
 
     };
@@ -265,6 +302,7 @@ class Sales extends Component {
         // console.log(`../../images/${item_name}`);
         return `images/${item_name}`;
     };
+
     handlePayingChangeNii = (paying) => {
         const change = (paying - this.state.totalNii);
 
@@ -297,7 +335,43 @@ class Sales extends Component {
         }
     };
 
+    handlePaymentMethodChange = (e) => {
+        const {value} = e.target;
+        this.setState({payment_method: value});
+        // this.handleStudentNumber(e);
+        if (this.state.student_number_txt > 6) {
+            this.setState({student_number_txt: this.state.student_number_txt.substring(0, 6)})
+        }
+    };
+
+    handleStudentNumber = async e => {
+        if (this.state.payment_method === "cash" || this.state.payment_method === "visa") return;
+        this.setState({student_number_txt :e.target.value});
+        console.log('student_id', this.state.student_number_txt);
+        if (this.state.student_number_txt.length < 7) return;
+        // try to get student details
+        try {
+            let res = await fetcher({
+                query: GET_STUDENT_DETAIL,
+                variables: {
+                    student_id:this.state.student_number_txt,
+                }
+            });
+
+            // console.log(res);
+            const student_details = res.data.getStudentDetail;
+
+            this.setState({student_details});
+
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     printey = async () => {
+        //
+
+
         // get cashier at time of sale
         const user = await getUser(localStorage.getItem("token"));
 
@@ -428,7 +502,7 @@ class Sales extends Component {
             let res = await this.saveTransactions(
                 ids, qty, vendor,
                 transaction_point,
-                user.user_id
+                user.user_id, this.state.payment_method,
             );
 
             if (res === 0) {
@@ -473,13 +547,13 @@ class Sales extends Component {
         this.setState(state => ({toggleCleared: !state.toggleCleared}));
     };
 
-    saveTransactions = async (ids, qty, vendor_id, transaction_point_id, user_id) => {
-        // console.log('user_id', user_id);
+    saveTransactions = async (ids, qty, vendor_id, transaction_point_id, user_id, payment_method, payment_detail) => {
+        console.log('user_id', user_id);
         // console.log('user_id', ids,)// qty, vendor_id, transaction_point_id, user_id);
         // console.log('qty', qty,)// qty, vendor_id, transaction_point_id, user_id);
         // console.log('ven', vendor_id,)// qty, vendor_id, transaction_point_id, user_id);
         // console.log('transa', parseFloat(this.state.totalNii))// qty, vendor_id, transaction_point_id, user_id);
-        // console.log('user_id', user_id,)// qty, vendor_id, transaction_point_id, user_id);
+        console.log('payment_method', payment_method,);// qty, vendor_id, transaction_point_id, user_id);
         try {
             let res = await fetcher({
                 query: SAVE_TRANSACTIONS,
@@ -489,7 +563,9 @@ class Sales extends Component {
                     vendor_id,
                     transaction_point_id,
                     item_ids: ids,
-                    user_id
+                    user_id,
+                    payment_method,
+                    payment_detail
                 }
             });
 
@@ -558,25 +634,83 @@ class Sales extends Component {
         // console.log(this.state);
         return (
             <>
-                {/*<PageTitle title="Sales"/>*/}
-                <h2>Find Anything</h2>
-
                 <Grid container item spacing={1} sm={7} xs={12}>
-                    <TextField id="myInput" placeholder="Search" type='text' color='primary'
-                               autoComplete='' fullWidth variant={"outlined"}
-                               // helperText={'Type in here to find what you want'}
-                    />
+                    <Grid item sm={3} xs={12}>
+                        <h2>Find Anything</h2>
+                        <TextField id="myInput" placeholder="Search" type='text' color='primary'
+                                   autoComplete='' fullWidth variant={"outlined"}
+                                   inputProps={{style: textFieldStyle.resize}}
+                                   name="search"
+                            // helperText={'Type in here to find what you want'}
+                        />
+                    </Grid>
+                    <Grid item sm={2} xs={12}>
+                        <h2>Method</h2>
+                        <FormControl
+                            fullWidth
+                            style={{margin: 0, style: textFieldStyle.resize,}}>
+                            <InputLabel>Status</InputLabel>
+                            <Select style={textFieldStyle.resize}
+                                    id="standard-secondary" label="Status"
+                                    color="primary" onChange={this.handlePaymentMethodChange}
+                                    defaultValue={'cash'} name='payment_method'>
+                                <MenuItem
+                                    style={textFieldStyle.resize}
+                                    value={'cash'}>Cash</MenuItem>
+                                <MenuItem style={textFieldStyle.resize}
+                                          value={'meal plan'}>Meal Plan</MenuItem>
+                                <MenuItem style={textFieldStyle.resize}
+                                          value={'visa'}>Visa</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid container item spacing={1} sm={7} xs={12}>
+
+                        <Grid container item sm={5} xs={12}>
+                            <h2>Student #</h2>
+                            <TextField placeholder="Student Number" type='text' color='secondary'
+                                       autoComplete='' fullWidth variant={"outlined"}
+                                       inputProps={{style: textFieldStyle.resize}}
+                                       label="Student Number" name="student_number"
+                                       value={this.state.student_number_txt}
+                                       onChange={this.handleStudentNumber}
+                                       ref={this.myRef}
+                            />
+
+                        </Grid>
+
+                        <Grid container item sm={7} xs={12}>
+                            <h2>Student Name</h2>
+                            <TextField label="Student Name" placeholder="Name"
+                                       type='text' color='primary'
+                                       fullWidth variant={"standard"}
+                                       inputProps={{style: textFieldStyle.resize}}
+                                // onChange={this.handleChange}
+
+                                       value={this.state.student_details ? this.state.student_details.name : ''}
+                                       name={'student_name'}
+                            />
+                        </Grid>
+                    </Grid>
                 </Grid>
                 <br/>
-                {/*<Grid container spacing={1} id="myContainer" className={'grid_container'}>*/}
-                <Grid container spacing={1} id="myContainer">
-                    {/*<Grid container item spacing={2} sm={7} xs={12} className="grid_column">*/}
-                    <Grid container item spacing={2} sm={7} xs={12} >
-                        {this.renderItems()}
-                    </Grid>
+                <div id="subContent">
+                    <Grid container className="flex-section">
+                        <Grid container item spacing={3} sm={7} xs={12} className={"flex-col-scroll"}>
+                            <Grid container item spacing={2} id="myContainer"
+                                // style={{backgroundColor: "pink"}}
+                            >
 
-                    <Grid container item spacing={1} sm={5} xs={12}>
-                        <Grid item xs={12}>
+                                {/*<Grid container item spacing={2} sm={7} xs={12}>*/}
+                                {this.renderItems()}
+                                {/*</Grid>*/}
+
+                            </Grid>
+                        </Grid>
+                        <Grid item sm={5} xs={12} className={"flex-col-scroll"}>
+                            {/*<Grid item xs={12}>*/}
+
+                            {/*<Grid item xs={12}>*/}
                             <SaleList
                                 mData={this.state.dataSet}
                                 totalNii={this.state.totalNii}
@@ -586,12 +720,15 @@ class Sales extends Component {
                                 handlePayingChangeNii={this.handlePayingChangeNii}
                                 printey={this.printey}
                                 del_handleDelete={this.del_handleDel}
+
+                                handleNumberClick={this.handleNumberClicked}
                             />
+                            {/*</Grid>*/}
+
+                            {/*</Grid>*/}
                         </Grid>
-
                     </Grid>
-
-                </Grid>
+                </div>
             </>
         );
     }

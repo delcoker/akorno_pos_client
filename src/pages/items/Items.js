@@ -18,7 +18,7 @@ import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDr
 import moment from "moment";
 
 import {fetcher, ITEM_UPDATE, ALL_ITEMS,} from "../../_utils/fetcher";
-import PageTitle from "../../components/PageTitle";
+// import PageTitle from "../../components/PageTitle";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 
 import {toast, ToastContainer} from 'react-toastify';
@@ -254,7 +254,7 @@ class Items extends Component {
                                 <Grid item xs={12} sm={4}>
                                     <TextField
                                         id="standard-secondar" label="Price"
-                                        inputProps={{step: "0.50", min: "-5.00", style: textFieldStyle.resize}}
+                                        inputProps={{step: "0.50", min: "-10.00", style: textFieldStyle.resize}}
                                         color="primary" type='number'
                                         fullWidth autoComplete="i_price" required
                                         defaultValue={parseFloat(data.price).toFixed(2)} name='item_price'

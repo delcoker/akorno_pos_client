@@ -9,7 +9,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
 import DataTable from "react-data-table-component";
 import IconButton from "@material-ui/core/IconButton";
-import {Lock, Print} from "@material-ui/icons";
+import {Add, Lock, Print, Save as SaveIcon} from "@material-ui/icons";
 import useStyles from './styles'
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import moment from "moment";
@@ -18,6 +18,7 @@ import memoizeOne from "memoize-one";
 import $ from 'jquery'
 import {toast, ToastContainer} from "react-toastify";
 import Notification from "../../components/Notification";
+import InputAdornment from "@material-ui/core/InputAdornment";
 
 // styles
 // import useStyles from "./styles";
@@ -25,56 +26,29 @@ import Notification from "../../components/Notification";
 // import PageTitle from "../../components/PageTitle";
 // import InputAdornment from "@material-ui/core/InputAdornment";
 
-const backG = 'rgba(63, 195, 128, 0.9)';
-const col = 'white';
-
-const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) => [ // cause infinte rerender i think using state
+const columnsR = memoizeOne((calculateLeftMPHandler, /**, after_mp**/) => [ // cause infinte rerender i think using state
     {name: "Item", selector: "item_name", sortable: true, grow: 4,},
-    {
-        name: "Received", selector: "qty_start", sortable: true, grow: 1,
-        style: {
-            backgroundColor: backG,
-            color: col
-        },
-    },
+    {name: "Received", selector: "qty_start", sortable: true, grow: 1},
     {
         name: "Added", selector: "qty_during", sortable: true,
-        cell: row => row.qty_during ? row.qty_during : 0, grow: 1,
-        style: {
-            backgroundColor: backG,
-            color: col
-        },
+        cell: row => row.qty_during ? row.qty_during : 0, grow: 1
     },
     {
         name: "Total", selector: "r_a", sortable: true,
         cell: row => row.qty_during ? row.qty_during + row.qty_start : row.qty_start, grow: 1
     },
-    {
-        name: "Qty Sold Start-End (Cash)", selector: "qty_start_minus_end", sortable: true, grow: 1,
-        style: {
-            backgroundColor: backG,
-            color: col
-        },
-    },
-    {name: "Qty Sold Everyone (Cash)", selector: "qty_sold_during_time", sortable: true, grow: 1},
-    {name: `Qty Sold (Cash-${username.substring(0, 4)})`, selector: "qty_sold_by_user", sortable: true, grow: 1},
+    {name: "Qty Sold (Cash)", selector: "qty_sold", sortable: true, grow: 1},
     {
         name: "Total GH₵",
         selector: "item_price * qty_sold",
         sortable: true,
         // right: true,
         cell: row => {
-            // const quantity_sold = (row.qty_start + (row.qty_during ? row.qty_during : 0) - (row.qty_end ? row.qty_end : 0));
-            return `${(row.item_price * row.qty_start_minus_end).toFixed(2)}`;
+            const quantity_sold = (row.qty_start + (row.qty_during ? row.qty_during : 0) - (row.qty_end ? row.qty_end : 0));
+            return `${(row.item_price * quantity_sold).toFixed(2)}`;
         }, grow: 1
     },
-    {
-        name: "Left", selector: "qty_end", sortable: true, grow: 1,
-        style: {
-            backgroundColor: backG,
-            color: col
-        },
-    },
+    {name: "Left", selector: "qty_end", sortable: true, grow: 1,},
     {
         name: "Qty Sold (MP)",
         selector: "mp",
@@ -84,7 +58,8 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
             return <TextField
                 id="mp" name={'meal_plan' + row.id} // label="Total ₵" placeholder="Total ₵"
                 inputProps={{style: textFieldStyle.resize, min: 0, max: row.qty_end}}
-                type='number' color='secondary'
+                type='number'
+                color='secondary'
                 defaultValue={0}
                 onChange={(e) => calculateLeftMPHandler(e, row)}
             />;
@@ -137,7 +112,7 @@ const lineDelimiter = "<br>";
 let classes = null;
 let toastOptions = null;
 
-class Shifts extends Component {
+class ShiftReconciliation extends Component {
     constructor(props) {
         super(props);
         this.user = null;
@@ -216,7 +191,7 @@ class Shifts extends Component {
             for (let shift of shiftsReceived) {
                 for (let shift_det of shift.shift_details) {
                     // console.log(shift_det);
-                    book_total += shift_det.item.price * (shift_det.qty_start + (shift_det.qty_during ? shift_det.qty_during : 0) - (shift_det.qty_end ? shift_det.qty_end : 0));
+                    book_total += shift_det.item.price * shift_det.qty_sold_during_shift_time_by_anyone;
 
                     shifts.push({
                         id: shift_det.id,
@@ -224,11 +199,9 @@ class Shifts extends Component {
                         item_price: shift_det.item.price,
                         qty_start: shift_det.qty_start,
                         qty_during: shift_det.qty_during,
-                        qty_sold_during_time: shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0, // should come from db transaction table
-
-                        qty_sold_by_user: shift_det.qty_sold_by_user ? shift_det.qty_sold_by_user : 0,
+                        qty_sold: shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0, // should come from db transaction table
+                        // qty_sold_by_user: shift_det.qty_sold_by_user,
                         qty_end: shift_det.qty_end,
-                        qty_start_minus_end: (shift_det.qty_start + (shift_det.qty_during ? shift_det.qty_during : 0) - (shift_det.qty_end ? shift_det.qty_end : 0)),
                         current_stock: shift_det.item.quantity,
                         user_name: `${shift.user.first_name} ${shift.user.last_name}`,
                         status: shift.status,
@@ -506,7 +479,7 @@ class Shifts extends Component {
                         <Grid item xs={12}>
                             <DataTable
                                 title={"Book Total: GH₵ " + this.state.book_total}
-                                columns={columnsR(this.calculateLeftWithMP, this.state.user_id > 0 && this.state.shifts[0] ? this.state.shifts[0].user_name : 'Everyone')}
+                                columns={columnsR(this.calculateLeftWithMP, this.ref)}
                                 data={this.state.shifts}
                                 actions={this.actions()}
                                 // selectableRows // add for checkbox selection
@@ -544,13 +517,13 @@ class Shifts extends Component {
 const dataTableFont = {
     cells: {
         style: {
-            fontSize: '16px', // override the cell padding for data cells
+            fontSize: '17px', // override the cell padding for data cells
             // paddingRight: '8px',
         },
     },
 };
 
 // export default withStyles(useStyles, {withTheme: true})(MyLoginPage);
-export default useStyles(Shifts);
+export default useStyles(ShiftReconciliation);
 
 

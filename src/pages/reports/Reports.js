@@ -106,7 +106,7 @@ class Reports extends Component {
             let transactions = res.data.getDailyReport;
             // console.log(transactions);
             let total = 0;
-            for (let ite of transactions){
+            for (let ite of transactions) {
                 // console.log(ite);
                 total += ite.qty_sold * ite.item_price;
             }
@@ -154,27 +154,27 @@ class Reports extends Component {
         const itemNameLength = 15;
 
         let result = header + lineDelimiter + lineDelimiter;
-        result += '<table border="1px"><tr><th align="left">Item</th><th>Ty</th><th>Qty</th><th>Total</th><th>Inv</th></tr>';
+        result += `<table style="font-size: 16px"><tr><th align="left">Item</th><th>Ty</th><th>Qty</th><th>Total</th><th>Inv</th></tr>`;
 
         // let total_sales = 0;
 
         for (let i = 0; i < array.length; i++) {
             // console.log(array[i].item_name);
-            let total = (array[i].item_price * array[i].qty_sold).toFixed(2);
+            let subtotal = (array[i].item_price * array[i].qty_sold).toFixed(2);
             // total_sales += parseFloat(total);
 
             let start = array[i].item_name.substr(0, itemNameLength);
-            result += `<tr><td>${start}</td>
+            result += `<tr><td style="max-width: 80px">${start}</td>
                  <td>${typeDelimiter}${array[i].item_category.substring(0, 1)}</td>
                 <td>${array[i].qty_sold}</td>
-                <td align="right">${total}</td>
+                <td align="right">${subtotal}</td>
                 <td>${array[i].inv ? array[i].inv : '-'} </td>
                 </tr>`;
         }
-        result += "<tr><td></td><td></td>" +
-            "<td></td><td></td><td></td></tr><tr>" +
-            "<td>Total</td><td></td><td>" +
-            "</td><td>" + this.state.total.toFixed(2) + "</td><td></td></tr></table>";
+        result += `<tr><td></td><td></td>
+                    <td></td><td></td><td></td></tr><tr>
+                    <td><strong>Total:</strong></td><td></td><td>
+                    </td><td><strong>${this.state.total.toFixed(2)}</strong></td><td></td></tr></table>`;
         // console.log(result)
         result += footer;
 
@@ -275,9 +275,6 @@ class Reports extends Component {
         // const {classes, theme} = this.props;
         return (
             <>
-                {/*<PageTitle title="Reports"/>*/}
-                {localStorage.setItem('page','Reports')}
-
                 <Grid container spacing={1}>
 
                     <Grid container item spacing={1} xs={12}>

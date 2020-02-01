@@ -47,10 +47,10 @@ export const convertArrayOfObjectsToPrint = (header, array, footer) => {
         let start = array[i].item.substr(0, itemNameLength);
         result +=
             `<tr>
-        <td>${start}</td>
-        <td>${typeDelimiter}${array[i].type.substring(0, 1)}</td>
-        <td>${array[i].qty}</td>
-        <td align="right">${array[i].subtotal}</td>
+                <td>${start}</td>
+                <td>${typeDelimiter}${array[i].type.substring(0, 1)}</td>
+                <td>${array[i].qty}</td>
+                <td align="right">${array[i].subtotal}</td>
         </tr>`;
     }
     result += "</tbody></table>";
@@ -218,10 +218,12 @@ export const GET_SHIFT = gql`
             createdAt
             updatedAt
             shift_details {
+                id
                 item {
                     id
                     name
                     quantity
+                    price
                     category {
                         name
                     }
@@ -229,7 +231,11 @@ export const GET_SHIFT = gql`
                 qty_start
                 qty_during_shift
                 qty_end
-                qty_sold_druing_shift_time_by_anyone
+                qty_sold_by_user
+                qty_sold_during_shift_time_by_anyone
+                #                user{
+                #                    user_id
+                #                }
             }
         }
     }
@@ -240,7 +246,7 @@ export const SAVE_TRANSACTIONS = gql`
     mutation SaveTransaction(
         $item_ids: [Int!]!
         $qtys: [Int!]!
-        $payment_method: String
+        $payment_method: String!
         $payment_detail: String
         $payment_type: String
         $total_amount: Float!
@@ -376,6 +382,15 @@ export const USERS = gql`
     }
 `;
 
+export const GET_STUDENT_DETAIL= gql`
+    query StudentDetailQuery($student_id: String!) {
+        getStudentDetail(student_id: $student_id) {
+            student_id
+            name
+        }
+    }
+`;
+
 export const ALL_USERS = gql`
     query UsersQuery {
         allUsersNoAdminDis {
@@ -426,7 +441,7 @@ export const CATEGORY_ADD = gql`
             name: $name
             status: $status
             vendor_id: $vendor_id
-        ) 
+        )
     }
 `;
 

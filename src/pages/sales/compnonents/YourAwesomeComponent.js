@@ -2,14 +2,17 @@ import {Container} from "react-floating-action-button";
 import {Grid, TextField} from "@material-ui/core";
 import React, {Component} from "react";
 import IconButton from "@material-ui/core/IconButton";
-import {Print} from "@material-ui/icons";
+import {
+    Filter1, Filter2, Filter3, Filter4, Filter5,
+    Filter6, Filter7, Filter8, Filter9, ExposureZero, Print, Clear, HighlightOff
+} from "@material-ui/icons";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
 const containerStyle = {
     right: '-1.5vw',
     width: '500px',
     top: '4.5vw',
-    height: '80px'
+    height: '100px'
 };
 const textFieldStyle = {
     resize: {
@@ -138,6 +141,69 @@ export class YourAwesomeComponent extends Component {
                                     onClick={this.props.printey}>
                             <Print color="primary" fontSize='large'/>
                         </IconButton>
+                    </Grid>
+
+                    <Grid container item spacing={3} xs={12}>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 1)}>
+                                <Filter1 fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 2)}>
+                                <Filter2 fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 3)}>
+                                <Filter3 fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 4)}>
+                                <Filter4 fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 5)}>
+                                <Filter5 fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 6)}>
+                                <Filter6 fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 7)}>
+                                <Filter7 fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 8)}>
+                                <Filter8 fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 9)}>
+                                <Filter9 fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 0)}>
+                                <ExposureZero fontSize='large'/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, '')}>
+                                <HighlightOff fontSize='large' color={"error"}/>
+                            </IconButton>
+                        </Grid>
+                        {/*<Grid item xs={1}>*/}
+                        {/*    <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 0)}>*/}
+                        {/*        <Close/>*/}
+                        {/*    </IconButton>*/}
+                        {/*</Grid>*/}
                     </Grid>
                 </Grid>
             </Container>

@@ -8,7 +8,7 @@ import Header from "../Header";
 import Sidebar from "../Sidebar";
 // pages
 import Dashboard from "../../pages/dashboard";
-import PagesIndex from "../../pages";
+// import PagesIndex from "../../pages";
 import {renderPageRoutes} from "../../_utils/routes";
 import Typography from "../../pages/typography";
 import Notifications from "../../pages/notifications";
