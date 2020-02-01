@@ -1,12 +1,12 @@
 import {
     Timer as ShiftIcon,} from '@material-ui/icons';
 
-import ShiftPage from "./Shifts";
+import ShiftReconciliationPg from "./ShiftReconciliation";
 import React from "react";
 
 export default {
-    page: ShiftPage,
+    page: ShiftReconciliationPg,
     icon: <ShiftIcon/>,
-    label: 'Book',
-    route: "/app/shifts"
+    label: 'MP Recon',
+    route: "/app/shifts/mp_reconciliation"
 };
