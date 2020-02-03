@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Button, Grid, TextField,} from "@material-ui/core";
 // components
 import Widget from "../../components/Widget";
-import {fetcher, GET_SHIFT, getUser} from "../../_utils/fetcher";
+import {fetcher, GET_SHIFT, getUser, MP_RECONCILIATION} from "../../_utils/fetcher";
 import {KeyboardDateTimePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 
@@ -25,13 +25,14 @@ import Notification from "../../components/Notification";
 // import PageTitle from "../../components/PageTitle";
 // import InputAdornment from "@material-ui/core/InputAdornment";
 
-const backG = 'rgba(63, 195, 128, 0.9)';
+let backG = 'rgba(63, 195, 128, 0.9)';
+let yellowG = 'rgba(242, 217, 132, 1)';
 const col = 'white';
 
 const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) => [ // cause infinte rerender i think using state
-    {name: "Item", selector: "item_name", sortable: true, grow: 4,},
+    {name: "Item", selector: "item_name", sortable: true, grow: 4, compact: true, cell: row => row.item_name},
     {
-        name: "Received", selector: "qty_start", sortable: true, grow: 1,
+        name: "Received", selector: "qty_start", sortable: true, grow: 1, right: false,
         style: {
             backgroundColor: backG,
             color: col
@@ -56,20 +57,28 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
             color: col
         },
     },
+    {
+        name: "MP Sold (Cash-PC)", selector: "qty_mp_sold_on_cash_pc", sortable: true, grow: 1,
+        style: {
+            backgroundColor: yellowG,
+            color: col,
+        },
+    },
     {name: "Qty Sold Everyone (Cash)", selector: "qty_sold_during_time", sortable: true, grow: 1},
     {name: `Qty Sold (Cash-${username.substring(0, 4)})`, selector: "qty_sold_by_user", sortable: true, grow: 1},
     {
-        name: "Total GH₵",
-        selector: "item_price * qty_sold",
+        name: "Total Cash GH₵",
+        selector: "subtotal_cash_sales",
         sortable: true,
         // right: true,
-        cell: row => {
-            // const quantity_sold = (row.qty_start + (row.qty_during ? row.qty_during : 0) - (row.qty_end ? row.qty_end : 0));
-            return `${(row.item_price * row.qty_start_minus_end).toFixed(2)}`;
-        }, grow: 1
+        // cell: row => {
+        //     // const quantity_sold = (row.qty_start + (row.qty_during ? row.qty_during : 0) - (row.qty_end ? row.qty_end : 0));
+        //     return `${(row.item_price * row.qty_start_minus_end).toFixed(2)}`;
+        // },
+        grow: 1
     },
     {
-        name: "Left", selector: "qty_end", sortable: true, grow: 1,
+        name: "End", selector: "qty_end", sortable: true, grow: 1,
         style: {
             backgroundColor: backG,
             color: col
@@ -77,22 +86,36 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
     },
     {
         name: "Qty Sold (MP)",
-        selector: "mp",
+        selector: "qty_mp_reconciliation",
         sortable: true,
         cell: row => {
+            // if (row.qty_mp_reconciliation > 0) {
+            //     backG = yellowG;
+            // }
             // console.log(row);
             return <TextField
                 id="mp" name={'meal_plan' + row.id} // label="Total ₵" placeholder="Total ₵"
                 inputProps={{style: textFieldStyle.resize, min: 0, max: row.qty_end}}
                 type='number' color='secondary'
-                defaultValue={0}
-                onChange={(e) => calculateLeftMPHandler(e, row)}
+                defaultValue={row.qty_mp_reconciliation}
+                onChange={(e) => {
+                    calculateLeftMPHandler(e, row);
+
+                }}
             />;
         }, grow: 1, //button:true
+        // when: row => row.qty_mp_reconciliation ,
+        style: {
+            backgroundColor: 'rgba(255, 195, 128, 0.9)',
+            color: 'white',
+            '&:hover': {
+                cursor: 'pointer',
+            },
+        },
     },
     {
         name: "Left After MP",
-        selector: "mp_",
+        selector: "qty_after_mp_reconciliation",
         sortable: true,
         cell: row => {
             // console.log(row);
@@ -105,7 +128,7 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
                     // inputRef={ref => reff = ref}
                     // disabled
                     // value={after_mp} // cause infinite rerender i think
-                    defaultValue={row.qty_end}
+                    defaultValue={row.qty_after_mp_reconciliation}
                     onChange={(e) => console.log(e.target.name)}
                 />
             );
@@ -113,23 +136,27 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
     },
     {name: "Current Stock", selector: "current_stock", sortable: true, grow: 1},
     {
-        name: 'Status', selector: 'status', sortable: true,
-        cell: row => row.status === "enabled" ? "on-going" : 'ended'
+        name: 'Status', selector: 'status', sortable: true, compact: true,
+        cell: row => row.status === "enabled" ? "on-going" : 'ended', grow: 1
     },
-    {name: 'User', selector: 'user_name', sortable: true, grow: 3},
+    {
+        name: 'MP Status', selector: 'mp_reconciliation_status', sortable: true, compact: true, grow: 1,
+        cell: row => row.mp_reconciliation_status === "enabled" ? "not reconciled" : 'reconciled'
+    },
+    {name: 'User', selector: 'user_name', sortable: true, cell: row => row.user_name,},
     {
         name: 'Start Date',
         selector: 'start_date',
         sortable: true,
-        grow: 5,
-        format: d => moment(parseInt(d.start_date)).format("dd-Do-MM-YY"),
+        grow: 1,
+        cell: d => moment(parseInt(d.start_date)).format("dd-Do-MM-YY"),
     },
     {
         name: 'End Date',
         selector: 'end_date',
         sortable: true,
-        grow: 5,
-        format: d => moment(parseInt(d.end_date)).format("dd-Do-MM-YY"),
+        grow: 1,
+        cell: d => moment(parseInt(d.end_date)).format("dd-Do-MM-YY"),
     },
 ]);
 
@@ -144,7 +171,7 @@ class Shifts extends Component {
         this.user_id = -1;
         this.state = {
             shifts: [],
-            startDate: new Date().setHours(5), // set as six am
+            startDate: new Date().setHours(2), // set as six am
             endDate: new Date(),
             user_id: 0,
             book_total: 0,
@@ -209,6 +236,7 @@ class Shifts extends Component {
                     status,
                 }
             });
+            // console.log(res);
             const shiftsReceived = res.data.getShift;
 
             let shifts = [];
@@ -216,16 +244,17 @@ class Shifts extends Component {
             for (let shift of shiftsReceived) {
                 for (let shift_det of shift.shift_details) {
                     // console.log(shift_det);
-                    book_total += shift_det.item.price * (shift_det.qty_start + (shift_det.qty_during ? shift_det.qty_during : 0) - (shift_det.qty_end ? shift_det.qty_end : 0));
+                    book_total += shift_det.item.price * (shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0);
 
                     shifts.push({
                         id: shift_det.id,
+                        item_id: shift_det.item.id,
                         item_name: shift_det.item.name,
                         item_price: shift_det.item.price,
                         qty_start: shift_det.qty_start,
                         qty_during: shift_det.qty_during,
                         qty_sold_during_time: shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0, // should come from db transaction table
-
+                        subtotal_cash_sales: (shift_det.item.price * (shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0)).toFixed(2),
                         qty_sold_by_user: shift_det.qty_sold_by_user ? shift_det.qty_sold_by_user : 0,
                         qty_end: shift_det.qty_end,
                         qty_start_minus_end: (shift_det.qty_start + (shift_det.qty_during ? shift_det.qty_during : 0) - (shift_det.qty_end ? shift_det.qty_end : 0)),
@@ -233,7 +262,12 @@ class Shifts extends Component {
                         user_name: `${shift.user.first_name} ${shift.user.last_name}`,
                         status: shift.status,
                         start_date: shift.createdAt,
-                        end_date: shift.updatedAt
+                        end_date: shift.updatedAt,
+
+                        qty_mp_reconciliation: shift_det.mp_reconciliation,// ? shift_det.mp_reconciliation : 0,
+                        qty_after_mp_reconciliation: shift_det.after_mp_reconciliation, // ? shift_det.after_mp_reconciliation : shift_det.qty_end,
+                        mp_reconciliation_status: shift_det.mp_reconciliation_status,
+                        qty_mp_sold_on_cash_pc: shift_det.qty_mp_sold_on_cash_pc ? shift_det.qty_mp_sold_on_cash_pc : 0,
                     });
                 }
             }
@@ -377,7 +411,9 @@ class Shifts extends Component {
             return;
         }
 
-        if (row.qty_end - value < 0) {
+        // value is Qty Sold MP
+        let should_be_left = row.qty_end - value + row.qty_mp_sold_on_cash_pc;
+        if (should_be_left < 0) {
 
             const componentProps = {
                 type: "feedback",
@@ -390,14 +426,37 @@ class Shifts extends Component {
                 {...componentProps}
                 className={classes.notificationComponent}
             />, toastOptions);
+            // $('#mp_' + row.id).val(result);
             return;
         }
-        const result = row.qty_end - value;
+
+        const result = should_be_left;
+
+        /////////////////// update shift state///////////////////////////
+        // let shifts = [...this.state.shifts];
+        const newShiftState = this.state.shifts.map((shift) => {
+            if (shift.id === row.id) {
+                shift = {
+                    ...row,
+                };
+                shift.qty_mp_reconciliation = parseInt(value);
+                shift.qty_after_mp_reconciliation = result;
+            }
+            return shift;
+        });
+        // console.log(newShiftState);
+        // console.log(shifts);
+        // console.log(row.id);
+        /////////////////////////////////////////////////////////////////
+
+
         //
         // console.log($('.after_meal_plan' + row.id).val());
         // console.log($('#mp_' + row.id).val());
 
-        $('#mp_' + row.id).val(result);
+        $('#mp_' + row.id).val(result);  // changing with vanillaJS
+
+        this.setState({shifts: newShiftState});
 
         // this.setState({after_meal_plan:result}); // causes infinite rerender i think using state
         // console.log(result);
@@ -406,8 +465,91 @@ class Shifts extends Component {
         // this.setState({meal_plan: value});
     };
 
-    reconciliation = () => {
-        console.log("reconciliation")
+    reconciliation = async () => {
+
+        if (!(window.confirm(`Are you sure?
+This action cannot be undone`))) {
+            return;
+        }
+
+        let componentProps = {};
+
+
+        let shift_detail_ids = [];
+        let mp_rec_status = [];
+        let mp_qtys_sold = [];
+        let mp_qtys_left = [];
+        let mp_item_ids = [];
+
+        let i = 0;
+        for (let shift of this.state.shifts) {
+            if(shift.qty_mp_reconciliation) {
+                shift_detail_ids[i] = shift.id;
+                mp_qtys_sold[i] = shift.qty_mp_reconciliation;
+                mp_qtys_left[i] = shift.qty_after_mp_reconciliation;
+                mp_rec_status[i] = shift.mp_reconciliation_status;
+                mp_item_ids[i] = shift.item_id;
+                i++;
+                // if (i===5) break;
+            }
+        }
+        console.log(shift_detail_ids.length );
+
+        if (shift_detail_ids.length < 1) {
+            componentProps = {
+                type: "info",
+                message: 'Nothing to update',
+                color: "warning",
+            };
+            componentProps.variant = "contained";
+            toast(<Notification
+                {...componentProps}
+                className={classes.notificationComponent}
+            />, toastOptions);
+            return;
+        }
+        // console.log(shift_detail_ids, mp_rec_status, mp_qtys_sold, mp_qtys_left);
+
+        try {
+            let res = await fetcher({
+                query: MP_RECONCILIATION,
+                variables: {
+                    shift_detail_ids,
+                    mp_qtys_sold,
+                    mp_qtys_left,
+                    mp_rec_status,
+                    mp_item_ids
+                }
+            });
+
+
+            if (res && res.errors) {
+                componentProps = {
+                    type: "report",
+                    message: res.errors[0].message,
+                    color: "secondary",
+                };
+            } else {
+                componentProps = {
+                    type: "shipped",
+                    message: 'MP Reconciliation Success',
+                    color: "success",
+                };
+            }
+
+
+            // console.log(res);
+        } catch (e) {
+
+
+        }
+
+
+        componentProps.variant = "contained";
+        toast(<Notification
+            {...componentProps}
+            className={classes.notificationComponent}
+        />, toastOptions);
     };
 
     actions = () => [
@@ -524,7 +666,7 @@ class Shifts extends Component {
                                 // contextActions={contextActions(this.deleteSelectedRows)}
                                 // pagination
                                 fixedHeader
-                                // fixedHeaderScrollHeight='500px'
+                                fixedHeaderScrollHeight='56vh'
                             />
                         </Grid>
 
@@ -544,7 +686,7 @@ class Shifts extends Component {
 const dataTableFont = {
     cells: {
         style: {
-            fontSize: '16px', // override the cell padding for data cells
+            fontSize: '18px', // override the cell padding for data cells
             // paddingRight: '8px',
         },
     },

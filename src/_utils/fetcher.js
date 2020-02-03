@@ -1,14 +1,21 @@
 import {createApolloFetch} from "apollo-fetch";
 import gql from "graphql-tag";
 
+
 export const fetcher = createApolloFetch({
     // uri: 'http://192.168.1.21:4000/graphql', //lisa's
     // uri: 'http://192.168.0.39:3333/graphql', //apa's
     // uri: 'http://192.168.137.1:3333/graphql', //
     // uri: 'http://192.168.137.84:3333/graphql', //
-    uri: 'http://localhost:3333/graphql', //
-    // uri: "/graphql",
+    // uri: 'http://192.168.9.104:3333/graphql', //
+    // uri: 'http://localhost:3333/graphql', //
+    uri: "/graphql",
+    // uri: contents[0]
 });
+
+
+
+
 //     .use(({ request, options }, next) => {
 //   options.headers = {
 //     authorization: localStorage.getItem('token'),
@@ -176,11 +183,13 @@ export const GET_REPORT = gql`
         $user_id: Int!
         $startDate: String!
         $endDate: String!
+        $payment_method: String!
     ) {
         getDailyReport(
             user_id: $user_id
             startDate: $startDate
             endDate: $endDate
+            payment_method: $payment_method
         ) {
             user_id
             vendor_id
@@ -233,6 +242,10 @@ export const GET_SHIFT = gql`
                 qty_end
                 qty_sold_by_user
                 qty_sold_during_shift_time_by_anyone
+                mp_reconciliation
+                after_mp_reconciliation
+                mp_reconciliation_status
+                qty_mp_sold_on_cash_pc
                 #                user{
                 #                    user_id
                 #                }
@@ -382,7 +395,7 @@ export const USERS = gql`
     }
 `;
 
-export const GET_STUDENT_DETAIL= gql`
+export const GET_STUDENT_DETAIL = gql`
     query StudentDetailQuery($student_id: String!) {
         getStudentDetail(student_id: $student_id) {
             student_id
@@ -488,6 +501,20 @@ export const START_SHIFT = gql`
 export const END_SHIFT = gql`
     mutation EndShiftQuery($user_id: Int!) {
         endShift(user_id: $user_id)
+    }
+`;
+
+// export const MP_RECONCILIATION_2 = gql`
+//     mutation MPReconciliationQuery($shift_detail:[ShiftDetail!]!)
+//     {
+//         mpReconciliation(shift_detail: $shift_detail)
+//     }
+// `;
+
+export const MP_RECONCILIATION = gql`
+    mutation MPReconciliationQuery($shift_detail_ids:[Int!]!, $mp_qtys_sold:[Int]!, $mp_qtys_left:[Int]!, $mp_rec_status:[String]!, $mp_item_ids:[Int!]!)
+    {
+        mpReconciliation(shift_detail_ids: $shift_detail_ids, mp_qtys_sold:$mp_qtys_sold, mp_qtys_left:$mp_qtys_left, mp_rec_status:$mp_rec_status, mp_item_ids: $mp_item_ids)
     }
 `;
 

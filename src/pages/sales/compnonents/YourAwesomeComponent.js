@@ -11,8 +11,8 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 const containerStyle = {
     right: '-1.5vw',
     width: '500px',
-    top: '4.5vw',
-    height: '100px'
+    top: '4.2vw',
+    height: '90px'
 };
 const textFieldStyle = {
     resize: {

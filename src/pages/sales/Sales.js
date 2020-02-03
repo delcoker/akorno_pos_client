@@ -92,7 +92,7 @@ class Sales extends Component {
             student_details: {name: ''},
             student_number_txt: "",
         };
-        this.myRef = React.createRef();
+        // this.myRef = React.createRef();
     }
 
     componentDidMount() {
@@ -132,8 +132,6 @@ class Sales extends Component {
     };
 
     del_handleDel = (ids, selectedRows, qty_to_del) => {
-
-        // console.log (ids, selectedRows, qty_to_del);
 
         if (qty_to_del) {
             // console.log(ids, qty_to_del);
@@ -338,28 +336,41 @@ class Sales extends Component {
     handlePaymentMethodChange = (e) => {
         const {value} = e.target;
         this.setState({payment_method: value});
-        // this.handleStudentNumber(e);
-        if (this.state.student_number_txt > 6) {
-            this.setState({student_number_txt: this.state.student_number_txt.substring(0, 6)})
+        if (this.myRef.value > 6) {
+            this.myRef.value = this.myRef.value.substring(0, 6);
+            // this.student_name_ref.value = '';
         }
     };
 
     handleStudentNumber = async e => {
-        if (this.state.payment_method === "cash" || this.state.payment_method === "visa") return;
-        this.setState({student_number_txt :e.target.value});
-        console.log('student_id', this.state.student_number_txt);
-        if (this.state.student_number_txt.length < 7) return;
+        if (this.state.payment_method === "cash" || this.state.payment_method === "visa") {
+            this.myRef.value = "";
+            const componentProps = {
+                type: "defence",
+                message: 'Choose meal plan first.',
+                variant: "contained",
+                color: "info",
+            };
+
+            toast(<Notification
+                className={classes.notificationComponent}
+                {...componentProps} />, toastOptions);
+            return;
+        }
+        const student_id = e.target.value;
+        if (student_id.length < 7) return;
         // try to get student details
         try {
             let res = await fetcher({
                 query: GET_STUDENT_DETAIL,
                 variables: {
-                    student_id:this.state.student_number_txt,
+                    student_id,
                 }
             });
 
-            // console.log(res);
             const student_details = res.data.getStudentDetail;
+            // console.log(student_details);
+            // this.student_name_ref.value = student_details.name;
 
             this.setState({student_details});
 
@@ -368,9 +379,50 @@ class Sales extends Component {
         }
     };
 
-    printey = async () => {
-        //
+    handleStudentName = async e => {
+        if (this.state.payment_method === "cash" || this.state.payment_method === "visa") return;
+        let a = e.target.value;
 
+
+        // console.log(a);
+        this.setState({student_details: {name: a}});
+        // this.student_name_ref.value = e.target.value;
+    };
+
+    printey = async () => {
+
+        // console.log(this.student_name_ref.value );
+        if (this.state.payment_method === "meal plan" && this.myRef.value.length < 8) {
+            const componentProps = {
+                type: "defence",
+                message: 'Student number too short.',
+                variant: "contained",
+                color: "info",
+            };
+
+            toast(<Notification
+                className={classes.notificationComponent}
+                {...componentProps} />, toastOptions);
+            return;
+        }
+
+        if (this.state.payment_method === "meal plan" && this.student_name_ref.value.length < 3) {
+            const componentProps = {
+                type: "defence",
+                message: 'Student name too short.',
+                variant: "contained",
+                color: "info",
+            };
+
+            toast(<Notification
+                className={classes.notificationComponent}
+                {...componentProps} />, toastOptions);
+            return;
+        }
+
+        if (this.state.payment_method === "meal plan") {
+            this.state.payment_detail = `${this.myRef.value} - ${this.student_name_ref.value}`
+        }
 
         // get cashier at time of sale
         const user = await getUser(localStorage.getItem("token"));
@@ -453,7 +505,8 @@ class Sales extends Component {
             "Cashier: " +
             (user.first_name + " " + user.last_name).substr(-company.length);
         let head = company + cashier_name;
-
+        head += lineDelimiter + this.state.payment_method.toUpperCase();
+        this.state.payment_method === "meal plan" ? head += lineDelimiter + this.state.payment_detail : head += null;
 
         let foot =
             `${lineDelimiter}Total:${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.totalNii.toFixed(2)}${lineDelimiter}Paid :${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.payingNii.toFixed(2)}${lineDelimiter}Change:${columnDelimiter}${columnDelimiter}${columnDelimiter}<strong>${this.state.changeNii.toFixed(2)}</strong>${lineDelimiter}050-248-0435`;
@@ -502,7 +555,9 @@ class Sales extends Component {
             let res = await this.saveTransactions(
                 ids, qty, vendor,
                 transaction_point,
-                user.user_id, this.state.payment_method,
+                user.user_id,
+                this.state.payment_method,
+                this.state.payment_detail
             );
 
             if (res === 0) {
@@ -537,7 +592,8 @@ class Sales extends Component {
                 className={classes.notificationComponent}
                 {...componentProps} />, toastOptions);
 
-            this.setState({payingNii: 0, changeNii: 0});
+            this.myRef.value = '';
+            this.setState({payingNii: 0, changeNii: 0, student_details: {name: ''}});
         }
     };
 
@@ -548,12 +604,12 @@ class Sales extends Component {
     };
 
     saveTransactions = async (ids, qty, vendor_id, transaction_point_id, user_id, payment_method, payment_detail) => {
-        console.log('user_id', user_id);
+        // console.log('user_id', user_id);
         // console.log('user_id', ids,)// qty, vendor_id, transaction_point_id, user_id);
         // console.log('qty', qty,)// qty, vendor_id, transaction_point_id, user_id);
         // console.log('ven', vendor_id,)// qty, vendor_id, transaction_point_id, user_id);
         // console.log('transa', parseFloat(this.state.totalNii))// qty, vendor_id, transaction_point_id, user_id);
-        console.log('payment_method', payment_method,);// qty, vendor_id, transaction_point_id, user_id);
+        // console.log('payment_method', payment_method,);// qty, vendor_id, transaction_point_id, user_id);
         try {
             let res = await fetcher({
                 query: SAVE_TRANSACTIONS,
@@ -651,7 +707,7 @@ class Sales extends Component {
                             style={{margin: 0, style: textFieldStyle.resize,}}>
                             <InputLabel>Status</InputLabel>
                             <Select style={textFieldStyle.resize}
-                                    id="standard-secondary" label="Status"
+                                    id="standard-secondary" label="Payment Method"
                                     color="primary" onChange={this.handlePaymentMethodChange}
                                     defaultValue={'cash'} name='payment_method'>
                                 <MenuItem
@@ -672,23 +728,27 @@ class Sales extends Component {
                                        autoComplete='' fullWidth variant={"outlined"}
                                        inputProps={{style: textFieldStyle.resize}}
                                        label="Student Number" name="student_number"
-                                       value={this.state.student_number_txt}
+                                // value={this.state.student_number_txt}
                                        onChange={this.handleStudentNumber}
-                                       ref={this.myRef}
+                                // ref={this.myRef}
+                                       inputRef={input => (this.myRef = input)}
+                                // ref={'stud_num'}
                             />
 
                         </Grid>
 
                         <Grid container item sm={7} xs={12}>
                             <h2>Student Name</h2>
-                            <TextField label="Student Name" placeholder="Name"
-                                       type='text' color='primary'
-                                       fullWidth variant={"standard"}
-                                       inputProps={{style: textFieldStyle.resize}}
-                                // onChange={this.handleChange}
-
-                                       value={this.state.student_details ? this.state.student_details.name : ''}
-                                       name={'student_name'}
+                            <TextField
+                                label="Student Name"
+                                placeholder="Name"
+                                type='text' color='primary'
+                                fullWidth variant={"standard"}
+                                inputProps={{style: textFieldStyle.resize}}
+                                inputRef={input => (this.student_name_ref = input)}
+                                value={this.state.student_details ? this.state.student_details.name : ''}
+                                name={'student_name'}
+                                onChange={this.handleStudentName}
                             />
                         </Grid>
                     </Grid>
@@ -696,10 +756,8 @@ class Sales extends Component {
                 <br/>
                 <div id="subContent">
                     <Grid container className="flex-section">
-                        <Grid container item spacing={3} sm={7} xs={12} className={"flex-col-scroll"}>
-                            <Grid container item spacing={2} id="myContainer"
-                                // style={{backgroundColor: "pink"}}
-                            >
+                        <Grid container item spacing={2} sm={7} xs={12} className={"flex-col-scroll"}>
+                            <Grid container item spacing={2} id="myContainer">
 
                                 {/*<Grid container item spacing={2} sm={7} xs={12}>*/}
                                 {this.renderItems()}
@@ -707,25 +765,27 @@ class Sales extends Component {
 
                             </Grid>
                         </Grid>
-                        <Grid item sm={5} xs={12} className={"flex-col-scroll"}>
-                            {/*<Grid item xs={12}>*/}
+                        <Grid container item spacing={2} sm={5} xs={12}>
+                            <Grid item className={"flex-col-scroll"}>
+                                {/*<Grid item xs={12}>*/}
 
-                            {/*<Grid item xs={12}>*/}
-                            <SaleList
-                                mData={this.state.dataSet}
-                                totalNii={this.state.totalNii}
-                                payingNii={this.state.payingNii}
-                                changeNii={this.state.changeNii}
+                                {/*<Grid item xs={12}>*/}
+                                <SaleList
+                                    mData={this.state.dataSet}
+                                    totalNii={this.state.totalNii}
+                                    payingNii={this.state.payingNii}
+                                    changeNii={this.state.changeNii}
 
-                                handlePayingChangeNii={this.handlePayingChangeNii}
-                                printey={this.printey}
-                                del_handleDelete={this.del_handleDel}
+                                    handlePayingChangeNii={this.handlePayingChangeNii}
+                                    printey={this.printey}
+                                    del_handleDelete={this.del_handleDel}
 
-                                handleNumberClick={this.handleNumberClicked}
-                            />
-                            {/*</Grid>*/}
+                                    handleNumberClick={this.handleNumberClicked}
+                                />
+                                {/*</Grid>*/}
 
-                            {/*</Grid>*/}
+                                {/*</Grid>*/}
+                            </Grid>
                         </Grid>
                     </Grid>
                 </div>

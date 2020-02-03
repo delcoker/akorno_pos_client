@@ -20,8 +20,9 @@
 #subContent {
     height: 72vh;
     display: flex;
-    /*width: 100vh*/
+    /*width: auto;*/
     /*flex-direction: column;*/
+    /*mar*/
 }
 
 .flex-section {

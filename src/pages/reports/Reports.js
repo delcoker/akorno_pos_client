@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Grid} from "@material-ui/core";
+import {FormControl, Grid, InputLabel, MenuItem, Select} from "@material-ui/core";
 
 // components
 import Widget from "../../components/Widget";
@@ -43,10 +43,11 @@ class Reports extends Component {
         this.user_id = -1;
         this.state = {
             transactions: [],
-            startDate: new Date().setHours(5), // set as six am
+            startDate: new Date().setHours(2), // set as six am
             endDate: new Date(),
             user_id: 0,
-            total: 0
+            total: 0,
+            payment_method: 'cash'
         };
         // console.log(user_id, startDate, endDate)
         // let user = getUser(localStorage.getItem('token'))
@@ -61,7 +62,7 @@ class Reports extends Component {
         // this.user_id = this.user ? this.user.user_id : 0;
         this.setState({user_id: user.user_id});
 
-        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.state.user_id);
+        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.state.user_id, this.state.payment_method);
     }
 
     handleStartDateChange = date => {
@@ -72,7 +73,7 @@ class Reports extends Component {
         let transactionPoint = null;
         //////////// --------------------------------
 
-        this.fetchTransactions(date, this.state.endDate, transactionPoint, this.state.user_id);
+        this.fetchTransactions(date, this.state.endDate, transactionPoint, this.state.user_id, this.state.payment_method);
     };
 
     handleEndDateChange = date => {
@@ -82,11 +83,11 @@ class Reports extends Component {
         let transactionPoint = null;
         //////////// --------------------------------
 
-        this.fetchTransactions(this.state.startDate, date, transactionPoint, this.state.user_id);
+        this.fetchTransactions(this.state.startDate, date, transactionPoint, this.state.user_id, this.state.payment_method);
     };
 
-    fetchTransactions = async (startDate, endDate, transactionPoint, user_id) => {
-        // console.log(startDate, endDate, transactionPoint, user_id);
+    fetchTransactions = async (startDate, endDate, transactionPoint, user_id, payment_method) => {
+        // console.log(startDate, endDate, transactionPoint, user_id, payment_method);
 
         if (!this.state.user_id) return;
 
@@ -99,7 +100,8 @@ class Reports extends Component {
                     user_id: user_id,
                     startDate,
                     endDate,
-                    transactionPoint
+                    transactionPoint,
+                    payment_method
                 }
             });
             // console.log(res);
@@ -111,12 +113,10 @@ class Reports extends Component {
                 total += ite.qty_sold * ite.item_price;
             }
 
-
             // sort alphabetically
             transactions.sort(this.compare);
 
             // console.log(total);
-
             this.setState({transactions, total});
         } catch (err) {
             console.log(err);
@@ -145,7 +145,7 @@ class Reports extends Component {
         const {value} = e.target;
         this.user_id = e.target.value;
         this.setState({user_id: value});
-        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.user_id);
+        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.user_id, this.state.payment_method);
     };
 
     convertArrayOfObjectsToPrint = (header, array, footer) => {
@@ -195,13 +195,12 @@ class Reports extends Component {
         let company = company_name + lineDelimiter;
         // let vendor = 1;
         // let transaction_point = null;
-        let cashier_name = (user.first_name + " " + user.last_name).substr(
-            -company.length
-        );
+        let cashier_name = (user.first_name + " " + user.last_name).substr(-company.length);
         let report_on = this.state.user_id === -1 ? "Everyone" : cashier_name;
         let head = company + "Run By: " + cashier_name + lineDelimiter + "Report On:" + report_on;
         head += lineDelimiter + "Start: " + moment((this.state.startDate)).format("llll");
         head += lineDelimiter + "End  : " + moment((this.state.endDate)).format("llll");
+        head += lineDelimiter + this.state.payment_method.toUpperCase();
 
         let foot = "";// lineDelimiter + "Report On:" + report_on;
         foot += lineDelimiter + moment((new Date())).format("llll");
@@ -271,109 +270,141 @@ class Reports extends Component {
         pri.print();
     };
 
+    handlePaymentMethodChange = e => {
+        const payment_method = e.target.value;
+        this.setState({payment_method});
+        // console.log(payment_method);
+        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.state.user_id, payment_method);
+    };
+
     render() {
         // const {classes, theme} = this.props;
         return (
             <>
                 <Grid container spacing={1}>
 
-                    <Grid container item spacing={1} xs={12}>
-                        <Grid item xs={12}>
-                            <Widget disableWidgetMenu>
-                                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                    <Grid container spacing={3}
-                                          justify="space-around">
-                                        <Grid item lg={4} md={4} sm={6} xs={12}>
-                                            <KeyboardDateTimePicker
-                                                // disableToolbar
-                                                fullWidth
-                                                inputVariant="outlined"
-                                                variant="inline"
-                                                format="dd-MMM-yyyy hh:mm a"
-                                                margin="normal"
-                                                id="start_date"
-                                                label="Start Date"
-                                                value={this.state.startDate}
-                                                onChange={this.handleStartDateChange}
-                                                inputProps={{
-                                                    style: textFieldStyle.resize,
-                                                }}
-                                            />
-                                        </Grid>
+                    {/*<Grid container item spacing={1} xs={12}>*/}
+                    <Grid item xs={12}>
+                        <Widget disableWidgetMenu>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <Grid container spacing={3} justify="space-around">
 
-                                        <Grid item lg={4} md={4} sm={6} xs={12}>
-                                            <KeyboardDateTimePicker
-                                                fullWidth
-                                                label="End Date"
-                                                inputVariant="outlined"
-                                                variant="inline"
-                                                margin="normal"
-                                                id="end_date"
-                                                value={this.state.endDate}
-                                                onChange={this.handleEndDateChange}
-                                                format="dd-MMM-yyyy hh:mm a"
-                                                ampm={true}
-                                                inputProps={{
-                                                    style: textFieldStyle.resize,
-                                                }}
-                                            />
-                                        </Grid>
+                                    <Grid item lg={2} md={5} sm={6} xs={12}>
+                                        <FormControl
+                                            fullWidth
+                                            style={{style: textFieldStyle.resize, marginTop: '10px'}}>
+                                            <InputLabel>Payment Method</InputLabel>
+                                            <Select style={textFieldStyle.resize}
+                                                    id="standard-secondary" label="Payment Method"
+                                                    color="primary" onChange={this.handlePaymentMethodChange}
+                                                    defaultValue={'cash'} name='payment_method'>
+                                                <MenuItem
+                                                    style={textFieldStyle.resize}
+                                                    value={'cash'}>Cash</MenuItem>
+                                                <MenuItem style={textFieldStyle.resize}
+                                                          value={'meal plan'}>Meal Plan</MenuItem>
+                                                <MenuItem style={textFieldStyle.resize}
+                                                          value={'visa'}>Visa</MenuItem>
+                                            </Select>
+                                        </FormControl>
 
-                                        <Grid item lg={3} md={3} sm={6} xs={12}>
-                                            <GetUsersDropDown
-                                                loggedUserId={this.state.user_id}
-                                                handleDropDownChange={
-                                                    this.handleDropDownChange
-                                                }
-                                            />
-                                        </Grid>
-
-                                        <Grid item xs={1}>
-
-                                            <IconButton size="medium"
-                                                        style={{
-                                                            height: "100px",
-                                                            width: "100px"
-                                                        }}
-                                                        onClick={this.runReport}
-                                            >
-                                                <Print color="secondary"
-                                                       fontSize='large'/>
-                                            </IconButton>
-                                        </Grid>
+                                        {/*<GetUsersDropDown*/}
+                                        {/*    loggedUserId={this.state.user_id}*/}
+                                        {/*    handleDropDownChange={*/}
+                                        {/*        this.handleDropDownChange*/}
+                                        {/*    }*/}
+                                        {/*/>*/}
                                     </Grid>
-                                </MuiPickersUtilsProvider>
-                            </Widget>
-                        </Grid>
-                    </Grid>
-                    <Grid container item spacing={1} xs={12}>
-                        <Grid item xs={12}>
-                            <DataTable
-                                title={"Total: GH₵ " + this.state.total.toFixed(2)}
-                                columns={columnsR}
-                                data={this.state.transactions}
-                                // selectableRows // add for checkbox selection
-                                // selectableRowsComponent={Checkbox}
-                                // selectableRowsComponentProps={{ inkDisabled: true }}
-                                // onRowSelected={this.handleChange}
-                                // defaultSortField={"item_name"}
-                                // clearSelectedRows={this.state.toggledClearRows}
-                                expandableRows={false}
-                                highlightOnHover
-                                pointerOnHover
-                                striped
-                                customStyles={dataTableFont}
-                                // onRowClicked={this.handleRowClicked}
-                                // contextActions={contextActions(this.deleteSelectedRows)}
-                                // pagination
-                                fixedHeader
-                                // fixedHeaderScrollHeight='500px'
-                            />
-                        </Grid>
 
+                                    <Grid item lg={3} md={5} sm={6} xs={12}>
+                                        <KeyboardDateTimePicker
+                                            // disableToolbar
+                                            fullWidth
+                                            inputVariant="outlined"
+                                            variant="inline"
+                                            format="dd-MMM-yyyy hh:mm a"
+                                            margin="normal"
+                                            id="start_date"
+                                            label="Start Date"
+                                            value={this.state.startDate}
+                                            onChange={this.handleStartDateChange}
+                                            inputProps={{
+                                                style: textFieldStyle.resize,
+                                            }}
+                                        />
+                                    </Grid>
+
+                                    <Grid item lg={3} md={5} sm={6} xs={12}>
+                                        <KeyboardDateTimePicker
+                                            fullWidth
+                                            label="End Date"
+                                            inputVariant="outlined"
+                                            variant="inline"
+                                            margin="normal"
+                                            id="end_date"
+                                            value={this.state.endDate}
+                                            onChange={this.handleEndDateChange}
+                                            format="dd-MMM-yyyy hh:mm a"
+                                            ampm={true}
+                                            inputProps={{
+                                                style: textFieldStyle.resize,
+                                            }}
+                                        />
+                                    </Grid>
+
+                                    <Grid item lg={3} md={5} sm={6} xs={12}>
+                                        <GetUsersDropDown
+                                            loggedUserId={this.state.user_id}
+                                            handleDropDownChange={
+                                                this.handleDropDownChange
+                                            }
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={1}>
+
+                                        <IconButton size="medium"
+                                                    style={{
+                                                        height: "100px",
+                                                        width: "100px"
+                                                    }}
+                                                    onClick={this.runReport}
+                                        >
+                                            <Print color="secondary"
+                                                   fontSize='large'/>
+                                        </IconButton>
+                                    </Grid>
+                                </Grid>
+                            </MuiPickersUtilsProvider>
+                        </Widget>
                     </Grid>
-                    <Grid container item spacing={1} xs={1}>
+                    {/*</Grid>*/}
+                    {/*<Grid container item spacing={1} xs={12}>*/}
+                    <Grid item xs={12}>
+                        <DataTable
+                            title={"Total: GH₵ " + this.state.total.toFixed(2)}
+                            columns={columnsR}
+                            data={this.state.transactions}
+                            // selectableRows // add for checkbox selection
+                            // selectableRowsComponent={Checkbox}
+                            // selectableRowsComponentProps={{ inkDisabled: true }}
+                            // onRowSelected={this.handleChange}
+                            // defaultSortField={"item_name"}
+                            // clearSelectedRows={this.state.toggledClearRows}
+                            expandableRows={false}
+                            highlightOnHover
+                            pointerOnHover
+                            striped
+                            customStyles={dataTableFont}
+                            // onRowClicked={this.handleRowClicked}
+                            // contextActions={contextActions(this.deleteSelectedRows)}
+                            // pagination
+                            fixedHeader
+                            fixedHeaderScrollHeight='57vh'
+                        />
                     </Grid>
+
+                    {/*</Grid>*/}
                 </Grid>
 
                 <iframe title={'Print Report'} id="contents_to_print"

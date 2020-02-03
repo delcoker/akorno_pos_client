@@ -50,10 +50,10 @@ const columnsR = [
         // < /Avatar>
     },
     {
-        name: 'Has Stock', selector: 'has_stock', hide: 'sm', sortable: true, width: '50px', cell: (da) => {
+        name: 'Track Stock', selector: 'has_stock', hide: 'sm', sortable: true, width: '50px', cell: (da) => {
             return <Checkbox
                 id="standard-secondary"
-                label="Has Stock" color="secondary"
+                label="Track Stock" color="secondary"
                 checked={da.has_stock}/>
         }
     },
@@ -221,7 +221,7 @@ class Inventory extends Component {
                                 <Grid item xs={12} sm={3}>
                                     <Typography variant="h5" color="secondary" className={classes.text}>
                                         STOCK
-                                        <Checkbox id="standard-secondary" label="Has Stock"
+                                        <Checkbox id="standard-secondary" label="Track Stock"
                                                   color="secondary" hidden
                                                   name='has_stock' checked={data.has_stock}/>
                                     </Typography>
@@ -311,10 +311,10 @@ class Inventory extends Component {
                                     <FormControlLabel
                                         control={<Checkbox
                                             id="standard-secondary"
-                                            label="Has Stock" color="primary"
+                                            label="Track Stock" color="primary"
                                             name='has_stock' onChange={this.handleChange}
                                             defaultChecked={data.has_stock}/>}
-                                        label="Has Stock"
+                                        label="Track Stock"
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
@@ -500,7 +500,7 @@ class Inventory extends Component {
         // console.log(item);
 
         if (!(item.has_stock)) {
-            alert('This item stock is not being tracked. Select Has Stock and Hit SAVE to start tracking');
+            alert('This item stock is not being tracked. Select Track Stock and Hit SAVE to start tracking');
             return;
         }
         let user_id = (await getUser(localStorage.getItem('token'))).user_id;
@@ -597,16 +597,17 @@ class Inventory extends Component {
                     sortIcon={arrowDownward}
                     // onRowClicked={this.handleRowClicked}
                     contextActions={contextActions(this.deleteSelected)}
-                    pagination
                     dense
                     // expand
-                    // fixedHeader
+                    fixedHeader
+                    fixedHeaderScrollHeight={'65vh'}
                     expandOnRowClicked
                     customStyles={cust}
                     // subHeader
                     // subHeaderComponent={this.actions()}
-                    paginationPerPage={15}
-                    paginationRowsPerPageOptions={[15, 30, 50, 100]}
+                    // pagination
+                    // paginationPerPage={15}
+                    // paginationRowsPerPageOptions={[15, 30, 50, 100]}
                 />
                 {/*</Grid>*/}
             </>

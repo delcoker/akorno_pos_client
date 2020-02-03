@@ -568,16 +568,18 @@ class Items extends Component {
                     sortIcon={arrowDownward}
                     // onRowClicked={this.handleRowClicked}
                     contextActions={contextActions(this.deleteSelected)}
-                    pagination
+
                     dense
                     // expand
-                    // fixedHeader
+                    fixedHeader
+                    fixedHeaderScrollHeight={'65vh'}
                     expandOnRowClicked
                     customStyles={cust}
                     // subHeader
                     // subHeaderComponent={this.actions()}
-                    paginationPerPage={15}
-                    paginationRowsPerPageOptions={[15, 30, 50, 100]}
+                    // pagination
+                    // paginationPerPage={15}
+                    // paginationRowsPerPageOptions={[15, 30, 50, 100]}
                 />
                 {/*</Grid>*/}
             </>
@@ -588,7 +590,7 @@ class Items extends Component {
 const cust = {
     cells: {
         style: {
-            fontSize: '16px', // override the cell padding for data cells
+            fontSize: '17px', // override the cell padding for data cells
             // paddingRight: '8px',
         },
     },
