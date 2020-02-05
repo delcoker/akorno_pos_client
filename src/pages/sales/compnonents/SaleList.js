@@ -23,7 +23,7 @@ const cust = {
 };
 
 const columnsR = deleteItem => [
-    {name: "Item", selector: "item", sortable: true, maxWidth: '110px', compact: true,},
+    {name: "Item", selector: "item", sortable: true, compact: true, grow: 5, cell: row => row.item},
     {
         name: "Price",
         selector: "price",
@@ -33,7 +33,7 @@ const columnsR = deleteItem => [
     },
     // {name: "Typ", selector: "type", width: "55px"}, // max wi
     {
-        name: "Qty", selector: "qty", maxWidth: "120px", center: true, compact: true,
+        name: "Qty", selector: "qty",  center: true, compact: true, grow: 5,
 
         cell: (row) => {
 
@@ -66,7 +66,7 @@ const columnsR = deleteItem => [
         cell: (row) => {
             // let a = e=>deleteItem(row.id);
             const closeIcon = <IconButton size={"medium"} onClick={e => (deleteItem(row))}
-                                          // onKeyPress={() => console.log("- being pressed")}
+                // onKeyPress={() => console.log("- being pressed")}
             >
                 <HighlightOff color="error"/>
             </IconButton>;

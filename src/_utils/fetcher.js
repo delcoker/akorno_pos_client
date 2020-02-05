@@ -1,19 +1,19 @@
 import {createApolloFetch} from "apollo-fetch";
 import gql from "graphql-tag";
-
+import {config} from './constants'
 
 export const fetcher = createApolloFetch({
     // uri: 'http://192.168.1.21:4000/graphql', //lisa's
     // uri: 'http://192.168.0.39:3333/graphql', //apa's
     // uri: 'http://192.168.137.1:3333/graphql', //
     // uri: 'http://192.168.137.84:3333/graphql', //
-    // uri: 'http://192.168.9.104:3333/graphql', //
+    // uri: 'http://192.168.9.104:3333/graphql',
     // uri: 'http://localhost:3333/graphql', //
-    uri: "/graphql",
+    uri: config.url.API_URL,
     // uri: contents[0]
 });
 
-
+// console.log('fetcher_url', config);
 
 
 //     .use(({ request, options }, next) => {
@@ -199,6 +199,66 @@ export const GET_REPORT = gql`
             item_price
             inv
             transaction_point
+        }
+    }
+`;
+
+export const GET_MEAL_PLAN_BREAKDOWN = gql`
+    query MealPlanBreakdownQuery(
+        $user_id: Int!
+        $startDate: String!
+        $endDate: String!
+        $payment_method: String!
+    ) {
+        mealPlanBreakdown(
+            user_id: $user_id
+            startDate: $startDate
+            endDate: $endDate
+            payment_method: $payment_method
+        ) {
+            user_id
+            vendor_id
+            item_name
+            qty_sold
+            item_category
+            item_price
+            inv
+            transaction_point
+            student_detail{
+                student_id
+                name
+            }
+            createdAt
+        }
+    }
+`;
+
+export const GET_COMPACT_MP_BREAKDOWN = gql`
+    query MPSmallBreakdownQuery(
+        $user_id: Int!
+        $startDate: String!
+        $endDate: String!
+        $payment_method: String!
+    ) {
+        mPSmallBreakdown(
+            user_id: $user_id
+            startDate: $startDate
+            endDate: $endDate
+            payment_method: $payment_method
+        ) {
+            user_id
+#            vendor_id
+#            item_name
+            qty_sold
+#            item_category
+            item_price
+#            inv
+#            transaction_point
+            student_detail{
+                student_id
+                name
+            }
+            createdAt
         }
     }
 `;

@@ -412,7 +412,7 @@ class Shifts extends Component {
         }
 
         // value is Qty Sold MP
-        let should_be_left = row.qty_end - value + row.qty_mp_sold_on_cash_pc;
+        let should_be_left = row.current_stock - value;// + row.qty_mp_sold_on_cash_pc;
         if (should_be_left < 0) {
 
             const componentProps = {
@@ -493,7 +493,7 @@ This action cannot be undone`))) {
                 // if (i===5) break;
             }
         }
-        console.log(shift_detail_ids.length );
+        // console.log(shift_detail_ids.length );
 
         if (shift_detail_ids.length < 1) {
             componentProps = {
