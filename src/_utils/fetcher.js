@@ -42,22 +42,22 @@ const lineDelimiter = "<br>";
 const typeDelimiter = "-";
 
 export const convertArrayOfObjectsToPrint = (header, array, footer) => {
-    array.sort((a, b) => (a.item > b.item ? 1 : -1));
+    array.sort((a, b) => (a.item > b.item ? 1 : -1));  // check this our for sorting
 
     const itemNameLength = 15;
 
     let result = header + lineDelimiter + lineDelimiter;
     result +=
-        '<table border="1px"><tr><th align="left">Item</th><th>Ty</th><th>Qty</th><th>SubT</th></tr><tbody>';
+        '<table <table style="font-size: 15px; border-collapse: collapse; border:1px solid"><tr style="border:1px solid"><th align="left">Item</th><th>Ty</th><th>Qty</th><th>SubT</th></tr><tbody>';
 
     for (let i = 0; i < array.length; i++) {
         let start = array[i].item.substr(0, itemNameLength);
         result +=
             `<tr>
-                <td>${start}</td>
-                <td>${typeDelimiter}${array[i].type.substring(0, 1)}</td>
-                <td>${array[i].qty}</td>
-                <td align="right">${array[i].subtotal}</td>
+                <td style="border:1px solid">${start}</td>
+                <td style="border:1px solid">${typeDelimiter}${array[i].type.substring(0, 1)}</td>
+                <td style="border:1px solid">${array[i].qty}</td>
+                <td style="border:1px solid" align="right">${array[i].subtotal}</td>
         </tr>`;
     }
     result += "</tbody></table>";
@@ -247,13 +247,13 @@ export const GET_COMPACT_MP_BREAKDOWN = gql`
             payment_method: $payment_method
         ) {
             user_id
-#            vendor_id
-#            item_name
+            #            vendor_id
+            #            item_name
             qty_sold
-#            item_category
+            #            item_category
             item_price
-#            inv
-#            transaction_point
+            #            inv
+            #            transaction_point
             student_detail{
                 student_id
                 name
@@ -572,9 +572,9 @@ export const END_SHIFT = gql`
 // `;
 
 export const MP_RECONCILIATION = gql`
-    mutation MPReconciliationQuery($shift_detail_ids:[Int!]!, $mp_qtys_sold:[Int]!, $mp_qtys_left:[Int]!, $mp_rec_status:[String]!, $mp_item_ids:[Int!]!)
+    mutation MPReconciliationQuery($shift_detail_ids:[Int!]!, $mp_qtys_sold:[Int]!, $mp_qtys_left:[Int]!, $mp_rec_status:[String]!, $mp_item_ids:[Int!]!, $shift_ids:[Int!]!)
     {
-        mpReconciliation(shift_detail_ids: $shift_detail_ids, mp_qtys_sold:$mp_qtys_sold, mp_qtys_left:$mp_qtys_left, mp_rec_status:$mp_rec_status, mp_item_ids: $mp_item_ids)
+        mpReconciliation(shift_detail_ids: $shift_detail_ids, mp_qtys_sold:$mp_qtys_sold, mp_qtys_left:$mp_qtys_left, mp_rec_status:$mp_rec_status, mp_item_ids: $mp_item_ids, shift_ids: $shift_ids)
     }
 `;
 

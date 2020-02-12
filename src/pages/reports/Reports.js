@@ -11,10 +11,11 @@ import DateFnsUtils from "@date-io/date-fns";
 import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
 import DataTable from "react-data-table-component";
 import IconButton from "@material-ui/core/IconButton";
-import {Add, Lock, Print} from "@material-ui/icons";
+import {Print} from "@material-ui/icons";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import useStyles from './styles'
 import moment from "moment";
+import {filterEventsOfChild} from "recharts/lib/util/ReactUtils";
 // import _ from "lodash"
 
 let classes = null;
@@ -83,13 +84,14 @@ class Reports extends Component {
             transactions: [],
             mpBreakdown: [],
             mpCompactBreakdown: [],
-            startDate: new Date().setFullYear(2019, 10, 10), // set as six am
-            // startDate: new Date().setHours(2), // set as six am
+            // startDate: new Date().setFullYear(2019, 10, 10), // set as six am
+            startDate: new Date().setHours(2), // set as six am
             endDate: new Date(),
             user_id: 0,
             total: 0,
             payment_method: 'cash',
             // payment_method: 'cash',
+            selected_user_name: null,// localStorage.getItem("username"),
             activeTabId: 0,
         };
         // console.log(user_id, startDate, endDate)
@@ -102,6 +104,7 @@ class Reports extends Component {
 
     async componentDidMount() {
         let user = await getUser(localStorage.getItem("token"));
+        // this.handleDropDownChange();
         // console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhh", user)
         // this.user_id = this.user ? this.user.user_id : 0;
         this.setState({user_id: user.user_id});
@@ -408,10 +411,15 @@ class Reports extends Component {
         console.log("handleRowSelectedChange", data, value.rowData, d, e);
     };
 
-    handleDropDownChange = e => {
+    handleDropDownChange = (e) => {
+        // console.log(e.target);
+        // console.log(e.nativeEvent.target);
+        // console.log(e.nativeEvent.toElement.innerText);
+        // console.log(e.nativeEvent.toElement.innerHTML);
+        // console.log(e.nativeEvent.toElement.textContent);
         const {value} = e.target;
         this.user_id = e.target.value;
-        this.setState({user_id: value});
+        this.setState({user_id: value, selected_user_name: e.nativeEvent.toElement.textContent});
         this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.user_id, this.state.payment_method);
     };
 
@@ -421,7 +429,7 @@ class Reports extends Component {
         const itemNameLength = 15;
 
         let result = header + lineDelimiter + lineDelimiter;
-        result += `<table style="font-size: 16px"><tr><th align="left">Item</th><th>Ty</th><th>Qty</th><th>Total</th><th>Inv</th></tr>`;
+        result += `<table style="font-size: 16px; border-collapse: collapse; border:1px solid"><tr style="border:1px solid"><th align="left">Item</th><th>Ty</th><th>Qty</th><th>Total</th><th>Inv</th></tr>`;
 
         // let total_sales = 0;
 
@@ -431,17 +439,17 @@ class Reports extends Component {
             // total_sales += parseFloat(total);
 
             let start = array[i].item_name.substr(0, itemNameLength);
-            result += `<tr><td style="max-width: 80px">${start}</td>
-                 <td>${typeDelimiter}${array[i].item_category.substring(0, 1)}</td>
-                <td>${array[i].qty_sold}</td>
-                <td align="right">${subtotal}</td>
-                <td>${array[i].inv ? array[i].inv : '-'} </td>
+            result += `<tr><td style="border:1px solid; max-width: 80px">${start}</td>
+                 <td style="border:1px solid">${typeDelimiter}${array[i].item_category.substring(0, 1)}</td>
+                <td style="border:1px solid">${array[i].qty_sold}</td>
+                <td align="right" style="border:1px solid">${subtotal}</td>
+                <td style="border:1px solid">${array[i].inv ? array[i].inv : '-'} </td>
                 </tr>`;
         }
-        result += `<tr><td></td><td></td>
+        result += `<tr style="border:1px solid"><td></td><td></td>
                     <td></td><td></td><td></td></tr><tr>
                     <td><strong>Total:</strong></td><td></td><td>
-                    </td><td><strong>${this.state.total.toFixed(2)}</strong></td><td></td></tr></table>`;
+                    </td><td style="border:1px solid"><strong>${this.state.total.toFixed(2)}</strong></td><td></td></tr></table>`;
         // console.log(result)
         result += footer;
 
@@ -456,15 +464,20 @@ class Reports extends Component {
         // get cashier at time of sale
         let user = await getUser(localStorage.getItem("token"));
 
+        // console.log(user);
+
         if (!user.user_id)
             throw new Error("Could not get user.\nTransaction not saved");
 
         let company = company_name + lineDelimiter;
         // let vendor = 1;
         // let transaction_point = null;
-        let cashier_name = (user.first_name + " " + user.last_name).substr(-company.length);
-        let report_on = this.state.user_id === -1 ? "Everyone" : cashier_name;
-        let head = company + "Run By: " + cashier_name + lineDelimiter + "Report On:" + report_on;
+        let report_runner = (user.first_name + " " + user.last_name);//.substr(-company.length);
+
+        // let report_on1 =  this.state.user_id === -1 ? "Everyone" : "await getUser(this.state.user_id)";
+        // console.log(report_on1);return;
+        let report_on = this.state.selected_user_name ? this.state.selected_user_name : localStorage.getItem("username");
+        let head = company + "Run By: " + report_runner + lineDelimiter + "Report On: " + report_on;
         head += lineDelimiter + "Start: " + moment((this.state.startDate)).format("llll");
         head += lineDelimiter + "End  : " + moment((this.state.endDate)).format("llll");
         head += lineDelimiter + this.state.payment_method.toUpperCase();

@@ -565,7 +565,7 @@ class ItemCategory extends Component {
                     sortIcon={arrowDownward}
                     // onRowClicked={this.handleRowClicked}
                     contextActions={contextActions(this.deleteSelected)}
-                    pagination
+                    // pagination
                     dense
                     // expand
                     // fixedHeader

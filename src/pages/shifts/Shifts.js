@@ -95,12 +95,11 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
             // console.log(row);
             return <TextField
                 id="mp" name={'meal_plan' + row.id} // label="Total ₵" placeholder="Total ₵"
-                inputProps={{style: textFieldStyle.resize, min: 0, max: row.qty_end}}
+                inputProps={{style: textFieldStyle.resize, min: 0, max: row.qty_end, readOnly: row.mp_reconciliation_status !== "enabled"}}
                 type='number' color='secondary'
                 defaultValue={row.qty_mp_reconciliation}
                 onChange={(e) => {
                     calculateLeftMPHandler(e, row);
-
                 }}
             />;
         }, grow: 1, //button:true
@@ -244,17 +243,18 @@ class Shifts extends Component {
             for (let shift of shiftsReceived) {
                 for (let shift_det of shift.shift_details) {
                     // console.log(shift_det);
-                    book_total += shift_det.item.price * (shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0);
+                    book_total += shift_det.item.price * (shift_det.qty_sold_by_user ? shift_det.qty_sold_by_user : 0);
 
                     shifts.push({
                         id: shift_det.id,
+                        shift_id: shift.id,
                         item_id: shift_det.item.id,
                         item_name: shift_det.item.name,
                         item_price: shift_det.item.price,
                         qty_start: shift_det.qty_start,
                         qty_during: shift_det.qty_during,
                         qty_sold_during_time: shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0, // should come from db transaction table
-                        subtotal_cash_sales: (shift_det.item.price * (shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0)).toFixed(2),
+                        subtotal_cash_sales: (shift_det.item.price * (shift_det.qty_sold_by_user ? shift_det.qty_sold_by_user : 0)).toFixed(2),
                         qty_sold_by_user: shift_det.qty_sold_by_user ? shift_det.qty_sold_by_user : 0,
                         qty_end: shift_det.qty_end,
                         qty_start_minus_end: (shift_det.qty_start + (shift_det.qty_during ? shift_det.qty_during : 0) - (shift_det.qty_end ? shift_det.qty_end : 0)),
@@ -412,7 +412,7 @@ class Shifts extends Component {
         }
 
         // value is Qty Sold MP
-        let should_be_left = row.current_stock - value;// + row.qty_mp_sold_on_cash_pc;
+        let should_be_left = row.qty_end - value;// + row.qty_mp_sold_on_cash_pc;
         if (should_be_left < 0) {
 
             const componentProps = {
@@ -480,15 +480,20 @@ This action cannot be undone`))) {
         let mp_qtys_sold = [];
         let mp_qtys_left = [];
         let mp_item_ids = [];
+        let shift_ids = [];
 
         let i = 0;
         for (let shift of this.state.shifts) {
-            if(shift.qty_mp_reconciliation) {
+
+
+            //#todo
+            if(shift.qty_mp_reconciliation && (shift.mp_reconciliation_status==='enabled')) {
                 shift_detail_ids[i] = shift.id;
                 mp_qtys_sold[i] = shift.qty_mp_reconciliation;
                 mp_qtys_left[i] = shift.qty_after_mp_reconciliation;
                 mp_rec_status[i] = shift.mp_reconciliation_status;
                 mp_item_ids[i] = shift.item_id;
+                shift_ids[i] = shift.shift_id;
                 i++;
                 // if (i===5) break;
             }
@@ -518,7 +523,8 @@ This action cannot be undone`))) {
                     mp_qtys_sold,
                     mp_qtys_left,
                     mp_rec_status,
-                    mp_item_ids
+                    mp_item_ids,
+                    shift_ids
                 }
             });
 
@@ -655,7 +661,7 @@ This action cannot be undone`))) {
                                 // selectableRowsComponent={Checkbox}
                                 // selectableRowsComponentProps={{ inkDisabled: true }}
                                 // onRowSelected={this.handleChange}
-                                defaultSortField={"start_date"}
+                                defaultSortField={"item_name"}
                                 // clearSelectedRows={this.state.toggledClearRows}
                                 expandableRows={false}
                                 highlightOnHover

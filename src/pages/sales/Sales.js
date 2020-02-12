@@ -133,9 +133,10 @@ class Sales extends Component {
 
     del_handleDel = (ids, selectedRows, qty_to_del) => {
 
+        // console.log('qty_to_del', qty_to_del);
         if (qty_to_del) {
             // console.log(ids, qty_to_del);
-            this.removeOne(ids, -qty_to_del); // id will be the actual row
+            this.removeOrAddOne(ids, qty_to_del); // id will be the actual row id
             return;
         }
 
@@ -144,13 +145,16 @@ class Sales extends Component {
         this.getClickedItemsAsArray(temp);
     };
 
-    removeOne = (row, qty) => {
+    removeOrAddOne = (row_id, qty) => {
         const map = new Map(this.state.items_list);
+        let removingFrom = null;
 
         for (let [k, v] of map) {
-            if (k.id === row.id) { // means it's contained in list
+            if (k.id === row_id) { // means it's contained in list
+
                 qty += v;
-                console.log('qty_to_delete', qty);
+                // console.log('qty_to_delete', k,v,qty);
+                removingFrom = k;
                 map.delete(k);
                 break;
             }
@@ -158,10 +162,10 @@ class Sales extends Component {
 
 
         if (qty > 0) {
-            map.set(row, qty);
+            map.set(removingFrom, qty);
         }
 
-        console.log(map);
+        // console.log(map);
 
         this.getClickedItemsAsArray(map);
 
@@ -191,6 +195,8 @@ class Sales extends Component {
 
     // when a card is clicked
     handleCardClickChild = (dataFromChild, qty) => {
+
+        // console.log(dataFromChild);
 
         // console.log(parseInt(this.state.quantity_clicked));
 
@@ -509,7 +515,7 @@ class Sales extends Component {
         this.state.payment_method === "meal plan" ? head += lineDelimiter + this.state.payment_detail : head += null;
 
         let foot =
-            `${lineDelimiter}Total:${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.totalNii.toFixed(2)}${lineDelimiter}Paid :${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.payingNii.toFixed(2)}${lineDelimiter}Change:${columnDelimiter}${columnDelimiter}${columnDelimiter}<strong>${this.state.changeNii.toFixed(2)}</strong>${lineDelimiter}050-248-0435`;
+            `${lineDelimiter}Total:${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.totalNii.toFixed(2)}${lineDelimiter}Paid :${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.payingNii.toFixed(2)}${lineDelimiter}Change:${columnDelimiter}${columnDelimiter}${columnDelimiter}<strong>${this.state.changeNii.toFixed(2)}</strong>${lineDelimiter}050-248-0435${lineDelimiter}delcoker@gmail.com`;
 
         foot += "<br/>" + moment((new Date())).format("llll");
 

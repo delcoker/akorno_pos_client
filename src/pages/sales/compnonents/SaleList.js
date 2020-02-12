@@ -22,7 +22,7 @@ const cust = {
     },
 };
 
-const columnsR = deleteItem => [
+const columnsR = deleteOrAddOneMore => [
     {name: "Item", selector: "item", sortable: true, compact: true, grow: 5, cell: row => row.item},
     {
         name: "Price",
@@ -33,16 +33,23 @@ const columnsR = deleteItem => [
     },
     // {name: "Typ", selector: "type", width: "55px"}, // max wi
     {
-        name: "Qty", selector: "qty",  center: true, compact: true, grow: 5,
+        name: "Qty", selector: "qty", center: true, compact: true, grow: 5,
 
         cell: (row) => {
-
-            const addIcon = <IconButton size={"medium"} onClick={event => console.log('here')}
-                                        onKeyPress={() => console.log("+ being pressed")}>
+            const addIcon = <IconButton size={"medium"} onClick={() => {
+                deleteOrAddOneMore(row.id, 1);
+            }}
+                // onMouseDown={() => console.log("+ being pressed")}
+            >
                 <Add color="secondary"/>
             </IconButton>;
 
-            const minusIcon = <IconButton size={"medium"} onKeyPress={() => console.log("- being pressed")}>
+            const minusIcon = <IconButton size={"medium"} onClick={() => {
+                // console.log(row);
+                deleteOrAddOneMore(row.id, -1)
+            }}
+                // onMouseDown={() => console.log("- being pressed")}
+            >
                 <Remove color="primary"/>
             </IconButton>;
 
@@ -65,7 +72,7 @@ const columnsR = deleteItem => [
         maxWidth: "90px",
         cell: (row) => {
             // let a = e=>deleteItem(row.id);
-            const closeIcon = <IconButton size={"medium"} onClick={e => (deleteItem(row))}
+            const closeIcon = <IconButton size={"medium"} onClick={() => (deleteOrAddOneMore(row))}
                 // onKeyPress={() => console.log("- being pressed")}
             >
                 <HighlightOff color="error"/>
@@ -143,11 +150,13 @@ class SaleList extends Component {
         this.setState(state => ({toggleCleared: !state.toggleCleared}));
     };
 
-    deleteSelectedRow = (row) => {
+    deleteSelectedRow = (row, remove_1) => {
+        // console.log('row', row);
 
-        // console.log(row);
-
-        this.props.del_handleDelete([row.id], null);
+        // console.log(row, remove_1);
+        if (remove_1) this.props.del_handleDelete(row, null, remove_1);
+        else
+            this.props.del_handleDelete([row.id], null);
 
         // console.log("oooooooooooooooooooomg");
 
@@ -183,7 +192,7 @@ class SaleList extends Component {
                     contextActions={contextActions(this.deleteSelectedRows)}
                     // pagination
                     fixedHeader
-                    fixedHeaderScrollHeight={'52vh'}
+                    fixedHeaderScrollHeight={'55vh'}
                     paginationPerPage={10}
                     customStyles={cust}
                     // onRowDoubleClicked={this.deleteSelectedRow}
