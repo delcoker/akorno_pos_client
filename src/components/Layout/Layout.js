@@ -30,9 +30,9 @@ function Layout(props) {
 
     const [pageTitle, setPageTitle] = React.useState('No Title');
 
-    var classes = useStyles();
+    let classes = useStyles();
     // global
-    var layoutState = useLayoutState();
+    let layoutState = useLayoutState();
     // var {isAdmin} = useUserState();
     // console.log(isAdmin);
 

@@ -23,7 +23,7 @@ import {
     CHECK_USER_SESSION,
     convertArrayOfObjectsToPrint,
     ENABLED_ITEMS,
-    fetcher, GET_STUDENT_DETAIL, GET_STUDENT_DETAILS,
+    fetcher, GET_STUDENT_DETAIL,
     getUser,
     isAnyShiftActive, SAVE_TRANSACTIONS, START_SHIFT
 } from "../../_utils/fetcher";
@@ -437,8 +437,12 @@ class Sales extends Component {
             throw new Error("Could not get user.\nTransaction not saved");
         }
 
-        //check if user has started a shift
-        const session_started = await this.checkUserSession(user.user_id);
+        // console.log(user);
+
+        if (!user.isAdmin){
+
+            //check if user has started a shift
+            const session_started = await this.checkUserSession(user.user_id);
         // console.log(session_started);
         if (!session_started) {
 
@@ -467,6 +471,8 @@ class Sales extends Component {
                 return;
             }
         }
+
+    }
 
         const chan = this.state.payingNii - this.state.totalNii;
 
@@ -517,7 +523,8 @@ class Sales extends Component {
         let foot =
             `${lineDelimiter}Total:${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.totalNii.toFixed(2)}${lineDelimiter}Paid :${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.payingNii.toFixed(2)}${lineDelimiter}Change:${columnDelimiter}${columnDelimiter}${columnDelimiter}<strong>${this.state.changeNii.toFixed(2)}</strong>${lineDelimiter}050-248-0435${lineDelimiter}delcoker@gmail.com`;
 
-        foot += "<br/>" + moment((new Date())).format("llll");
+        foot += lineDelimiter + moment((new Date())).format("llll");
+        foot += lineDelimiter + "Items are valid for the day.";
 
         let content = convertArrayOfObjectsToPrint(
             head,

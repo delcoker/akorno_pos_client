@@ -9,7 +9,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
 import DataTable from "react-data-table-component";
 import IconButton from "@material-ui/core/IconButton";
-import {Lock, Print} from "@material-ui/icons";
+import {Add, Close, Lock, Print} from "@material-ui/icons";
 import useStyles from './styles'
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import moment from "moment";
@@ -26,46 +26,56 @@ import Notification from "../../components/Notification";
 // import InputAdornment from "@material-ui/core/InputAdornment";
 
 let backG = 'rgba(63, 195, 128, 0.9)';
+let sthBackG = 'rgba(200, 195, 128, 0.9)';
 let yellowG = 'rgba(242, 217, 132, 1)';
 const col = 'white';
 
-const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) => [ // cause infinte rerender i think using state
-    {name: "Item", selector: "item_name", sortable: true, grow: 4, compact: true, cell: row => row.item_name},
+const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) => [ // cause infinite rerender i think using state
+    {name: "Item", selector: "item_name", sortable: true, grow: 8, compact: true, cell: row => row.item_name},
     {
-        name: "Received", selector: "qty_start", sortable: true, grow: 1, right: false,
+        name: "Received", selector: "qty_start", sortable: true, right: false,
+        style: {
+            backgroundColor: backG,
+            color: col
+        },
+        // width: '50px',
+    },
+    {
+        name: "Added", selector: "qty_during", sortable: true, compact: true, width: '70px',
+        cell: row => row.qty_during ? row.qty_during : 0, //grow: 0,
         style: {
             backgroundColor: backG,
             color: col
         },
     },
     {
-        name: "Added", selector: "qty_during", sortable: true,
-        cell: row => row.qty_during ? row.qty_during : 0, grow: 1,
+        name: "Total", selector: "r_a", sortable: true, compact: true, width: '70px',
+        cell: row => row.qty_during ? row.qty_during + row.qty_start : row.qty_start,// grow: 0
+    },
+    {
+        name: `Qty Sold (Cash-${username.substring(0, 4)})`, selector: "qty_sold_by_user",
+        sortable: true, grow: 1, width: '80px',
         style: {
             backgroundColor: backG,
             color: col
         },
     },
+    // {  // does not actually work because not recorded in real-time
+    //     name: "Qty Sold Start-End (Cash)", selector: "qty_start_minus_end", sortable: true, grow: 1,
+    //     style: {
+    //         backgroundColor: backG,
+    //         color: col
+    //     }, //omit: true,
+    // },
     {
-        name: "Total", selector: "r_a", sortable: true,
-        cell: row => row.qty_during ? row.qty_during + row.qty_start : row.qty_start, grow: 1
-    },
-    {
-        name: "Qty Sold Start-End (Cash)", selector: "qty_start_minus_end", sortable: true, grow: 1,
-        style: {
-            backgroundColor: backG,
-            color: col
-        },
-    },
-    {
-        name: "MP Sold (Cash-PC)", selector: "qty_mp_sold_on_cash_pc", sortable: true, grow: 1,
+        name: "MP Sold (Cash-PC)", selector: "qty_mp_sold_on_cash_pc", sortable: true,
+        grow: 1, width: '80px',
         style: {
             backgroundColor: yellowG,
             color: col,
         },
     },
-    {name: "Qty Sold Everyone (Cash)", selector: "qty_sold_during_time", sortable: true, grow: 1},
-    {name: `Qty Sold (Cash-${username.substring(0, 4)})`, selector: "qty_sold_by_user", sortable: true, grow: 1},
+    {name: "Qty Sold Everyone (Cash)", selector: "qty_sold_during_time", sortable: true, grow: 1, width: '80px',},
     {
         name: "Total Cash GH₵",
         selector: "subtotal_cash_sales",
@@ -77,8 +87,20 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
         // },
         grow: 1
     },
+    // {
+    //     name: "Old End Real-Time", selector: "qty_end", sortable: true, grow: 1,
+    //     // cell:row=> row.qty_end,
+    //     style: {
+    //         backgroundColor: sthBackG,
+    //         color: col
+    //     },
+    // },
     {
-        name: "End", selector: "qty_end", sortable: true, grow: 1,
+        name: "End", selector: "qty_end_2", sortable: true, grow: 1, width: '90px',
+        cell: row => {
+            const total = row.qty_during ? row.qty_during + row.qty_start : row.qty_start;
+            return total - row.qty_sold_by_user;
+        },
         style: {
             backgroundColor: backG,
             color: col
@@ -87,7 +109,7 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
     {
         name: "Qty Sold (MP)",
         selector: "qty_mp_reconciliation",
-        sortable: true,
+        sortable: true, width: '90px', //compact: true,
         cell: row => {
             // if (row.qty_mp_reconciliation > 0) {
             //     backG = yellowG;
@@ -95,7 +117,12 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
             // console.log(row);
             return <TextField
                 id="mp" name={'meal_plan' + row.id} // label="Total ₵" placeholder="Total ₵"
-                inputProps={{style: textFieldStyle.resize, min: 0, max: row.qty_end, readOnly: row.mp_reconciliation_status !== "enabled"}}
+                inputProps={{
+                    style: textFieldStyle.resize,
+                    min: 0,
+                    max: row.qty_end,
+                    readOnly: row.mp_reconciliation_status !== "enabled"
+                }}
                 type='number' color='secondary'
                 defaultValue={row.qty_mp_reconciliation}
                 onChange={(e) => {
@@ -115,7 +142,7 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
     {
         name: "Left After MP",
         selector: "qty_after_mp_reconciliation",
-        sortable: true,
+        sortable: true,  width: '90px',
         cell: row => {
             // console.log(row);
             return (
@@ -133,9 +160,9 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
             );
         }, grow: 1, //button:true
     },
-    {name: "Current Stock", selector: "current_stock", sortable: true, grow: 1},
+    {name: "Current Stock", selector: "current_stock", sortable: true, grow: 1, width: '90px',},
     {
-        name: 'Status', selector: 'status', sortable: true, compact: true,
+        name: 'Status', selector: 'status', sortable: true, compact: true, width: '90px',
         cell: row => row.status === "enabled" ? "on-going" : 'ended', grow: 1
     },
     {
@@ -147,14 +174,14 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
         name: 'Start Date',
         selector: 'start_date',
         sortable: true,
-        grow: 1,
+        grow: 6,
         cell: d => moment(parseInt(d.start_date)).format("dd-Do-MM-YY"),
     },
     {
         name: 'End Date',
         selector: 'end_date',
         sortable: true,
-        grow: 1,
+        grow: 6,
         cell: d => moment(parseInt(d.end_date)).format("dd-Do-MM-YY"),
     },
 ]);
@@ -175,6 +202,8 @@ class Shifts extends Component {
             user_id: 0,
             book_total: 0,
             after_meal_plan: 0,
+            filterText: '',
+            filteredItems: [],
         };
 
         classes = this.props.classes;
@@ -275,7 +304,7 @@ class Shifts extends Component {
             shifts.sort(this.compare);
             // console.log(shifts);
 
-            this.setState({shifts, book_total: book_total.toFixed(2)});
+            this.setState({shifts, book_total: book_total.toFixed(2), filteredItems: shifts});
         } catch (err) {
             console.log(err);
         }
@@ -412,7 +441,8 @@ class Shifts extends Component {
         }
 
         // value is Qty Sold MP
-        let should_be_left = row.qty_end - value;// + row.qty_mp_sold_on_cash_pc;
+        const total = row.qty_during ? row.qty_during + row.qty_start : row.qty_start;
+        const should_be_left = total - row.qty_sold_by_user - value;// + row.qty_mp_sold_on_cash_pc;
         if (should_be_left < 0) {
 
             const componentProps = {
@@ -487,7 +517,7 @@ This action cannot be undone`))) {
 
 
             //#todo
-            if(shift.qty_mp_reconciliation && (shift.mp_reconciliation_status==='enabled')) {
+            if (shift.qty_mp_reconciliation && (shift.mp_reconciliation_status === 'enabled')) {
                 shift_detail_ids[i] = shift.id;
                 mp_qtys_sold[i] = shift.qty_mp_reconciliation;
                 mp_qtys_left[i] = shift.qty_after_mp_reconciliation;
@@ -550,7 +580,6 @@ This action cannot be undone`))) {
 
         }
 
-
         componentProps.variant = "contained";
         toast(<Notification
             {...componentProps}
@@ -559,18 +588,50 @@ This action cannot be undone`))) {
     };
 
     actions = () => [
-        // this.subHeaderComponentMemo(1),
-        // <IconButton color="primary" key={1} onClick={this.reconciliation}>
         <Button key={1} //fullWidth
                 onClick={this.reconciliation}
                 style={textFieldStyle.resize}
                 color='primary' variant="contained"
                 startIcon={<Lock/>}
-                endIcon={<Lock/>}>MP Reconciliation</Button>
-
-        // </IconButton>
+                endIcon={<Lock/>}>MP Reconciliation</Button>,
+        ' ',
+        this.subHeaderComponentMemo(2),
+        // <IconButton color="primary" key={2} onClick={this.handleClickOpen}>
+        //     <Add/>
+        // </IconButton>,
     ];
 
+    setFilterText = (text) => {
+        // console.log(this.state.shifts);
+        this.setState({
+            filterText: text,
+            filteredItems: this.state.shifts.filter(item => item.item_name && item.item_name.toLowerCase().includes(text.toLowerCase()))
+        });
+    };
+
+    handleClear = () => {
+        this.setState({filterText: '', filteredItems: this.state.shifts})
+    };
+
+    subHeaderComponentMemo = (key) => {
+        return <this.FilterComponent onFilter={e => this.setFilterText(e.target.value)}
+                                     onClear={this.handleClear}
+                                     filterText={this.state.filterText} key={key}/>;
+    };
+
+    FilterComponent = ({filterText, onFilter, onClear}) => (<>
+        &nbsp;&nbsp;
+        <TextField id="search" type="text" variant="standard"
+                   placeholder="Filter by Name" value={filterText}
+                   onChange={onFilter} inputProps={{
+            // className: classes.text,
+            style: textFieldStyle.resize,
+        }}
+        />
+        <IconButton color="secondary" onClick={onClear}>
+            <Close/>
+        </IconButton>
+    </>);
 
     render() {
         // const {classes, theme} = this.props;
@@ -655,7 +716,7 @@ This action cannot be undone`))) {
                             <DataTable
                                 title={"Book Total: GH₵ " + this.state.book_total}
                                 columns={columnsR(this.calculateLeftWithMP, this.state.user_id > 0 && this.state.shifts[0] ? this.state.shifts[0].user_name : 'Everyone')}
-                                data={this.state.shifts}
+                                data={this.state.filteredItems}
                                 actions={this.actions()}
                                 // selectableRows // add for checkbox selection
                                 // selectableRowsComponent={Checkbox}

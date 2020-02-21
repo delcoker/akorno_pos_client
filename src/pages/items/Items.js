@@ -385,7 +385,7 @@ class Items extends Component {
     getItemStats = (data, e) => {
         let item = {};
         item.id = data !== null ? data.id : 0;
-        item.name = e.target.item_name.value.charAt(0).toUpperCase() + e.target.item_name.value.trim().substring(1);
+        item.name = e.target.item_name.value.charAt(0).toUpperCase() + e.target.item_name.value.trim().toLowerCase().substring(1);
         item.pic = e.target.item_pic.value.trim();
         item.price = parseFloat(e.target.item_price.value);
         item.category_id = parseInt(e.target.item_category.value);

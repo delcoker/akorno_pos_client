@@ -1,11 +1,11 @@
-import {Vibration as ItemCategoryIcon} from '@material-ui/icons';
+import {Vibration as BillCategoryIcon} from '@material-ui/icons';
 
 import React from "react";
-import ItemCategoryPage from "./ItemCategory";
+import BillCategoryPage from "./BillCategory";
 
 export default {
-    page: ItemCategoryPage,
-    icon: <ItemCategoryIcon/>,
-    label: 'Item Category',
-    route: "/app/items/items_category"
+    page: BillCategoryPage,
+    icon: <BillCategoryIcon/>,
+    label: 'Bill Category',
+    route: "/app/bills/bill_category"
 };

@@ -94,7 +94,7 @@ let classes = null;
 
 let toastOptions = null;
 
-class Orders extends Component {
+class Bills extends Component {
     constructor(props) {
         super(props);
         classes = this.props.classes;
@@ -625,4 +625,4 @@ const cust = {
 };
 
 // export default Items;
-export default useStyles(Orders);
+export default useStyles(Bills);
