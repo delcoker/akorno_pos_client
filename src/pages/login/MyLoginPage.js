@@ -3,8 +3,8 @@ import React, {Component} from 'react';
 import LoginDropDown from "./LoginDropDown";
 import {fetcher, LOGIN_QUERY, LOGIN_SEED, LOGGED_USER, USERS} from "../../_utils/fetcher";
 import {
-    Avatar, Button, CssBaseline, TextField, FormControlLabel,
-    Checkbox, Link, Grid, Box, Typography, Container
+    Avatar, Button, CssBaseline, TextField,// FormControlLabel, Checkbox,
+    Link, Grid, Box, Typography, Container
 } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import {withStyles} from "@material-ui/core/styles";
@@ -60,7 +60,7 @@ class MyLoginPage extends Component {
         this.state = {
             registerUsername: '',
             registerEmail: 'delcoker@gmail.com',
-            registerPassword: '123',
+            registerPassword: '',
             registerAgree: false,
             submitted: false,
             isLoading: false,
@@ -203,7 +203,7 @@ class MyLoginPage extends Component {
 
     render() {
         const {classes} = this.props;
-        const {registerEmail, registerPassword, registerAgree} = this.state;
+        const {registerEmail, registerPassword} = this.state;
         return (
             <Container component="main" maxWidth="xs">
                 <CssBaseline/>

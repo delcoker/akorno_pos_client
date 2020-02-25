@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import DataTable from "react-data-table-component";
 
 import memoize from 'memoize-one';
-import {Add, ArrowDownward, Close, Delete, HighlightOff, Remove} from "@material-ui/icons";
+import {Add, ArrowDownward, Delete, HighlightOff, Remove} from "@material-ui/icons";
 import {IconButton} from "@material-ui/core";
 import Checkbox from "@material-ui/core/Checkbox";
 

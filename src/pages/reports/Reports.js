@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Button, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Tab, Tabs} from "@material-ui/core";
+import {Button, FormControl, Grid, InputLabel, MenuItem, Select, Tab, Tabs} from "@material-ui/core";
 
 // components
 import Widget from "../../components/Widget";
@@ -15,7 +15,7 @@ import {Print} from "@material-ui/icons";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import useStyles from './styles'
 import moment from "moment";
-import {filterEventsOfChild} from "recharts/lib/util/ReactUtils";
+// import {filterEventsOfChild} from "recharts/lib/util/ReactUtils";
 // import _ from "lodash"
 
 let classes = null;
@@ -228,7 +228,7 @@ class Reports extends Component {
     // };
 
     // Blatant "inspiration" from https://codepen.io/Jacqueline34/pen/pyVoWr
-    convertArrayOfObjectsToCSV = array => {
+    convertArrayOfObjectsToCSV = () => {
         // console.log(array.target.value);
         let result;
 
@@ -580,9 +580,9 @@ class Reports extends Component {
         //     PRINT</Button>
     ];
 
-    exportToExcel = () => {
-
-    };
+    // exportToExcel = () => {
+    //
+    // };
 
     render() {
         // const {classes, theme} = this.props;

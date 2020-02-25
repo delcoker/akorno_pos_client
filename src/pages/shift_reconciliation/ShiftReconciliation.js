@@ -9,7 +9,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
 import DataTable from "react-data-table-component";
 import IconButton from "@material-ui/core/IconButton";
-import {Add, Lock, Print, Save as SaveIcon} from "@material-ui/icons";
+import {Lock, Print} from "@material-ui/icons";
 import useStyles from './styles'
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import moment from "moment";
@@ -18,7 +18,7 @@ import memoizeOne from "memoize-one";
 import $ from 'jquery'
 import {toast, ToastContainer} from "react-toastify";
 import Notification from "../../components/Notification";
-import InputAdornment from "@material-ui/core/InputAdornment";
+// import InputAdornment from "@material-ui/core/InputAdornment";
 
 // styles
 // import useStyles from "./styles";
@@ -26,7 +26,7 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 // import PageTitle from "../../components/PageTitle";
 // import InputAdornment from "@material-ui/core/InputAdornment";
 
-const columnsR = memoizeOne((calculateLeftMPHandler, /**, after_mp**/) => [ // cause infinte rerender i think using state
+const columnsR = memoizeOne((calculateLeftMPHandler, /**, after_mp**/) => [ // cause infinite rerender i think using state
     {name: "Item", selector: "item_name", sortable: true, grow: 4,},
     {name: "Received", selector: "qty_start", sortable: true, grow: 1},
     {

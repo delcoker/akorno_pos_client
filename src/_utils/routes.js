@@ -64,13 +64,14 @@ export const renderSideBarRoutes = () => {
                     children: route[1].children
                 }
             }
-            return route[1].label !== 'Orders' ? {
+            // return route[1].label !== 'Orders' ?
+            return {
                 id: (i + 1),
                 label: route[1].label,
                 link: route[1].route,
                 icon: route[1].icon,
                 key: (i + 1)
-            } : '';
+            } //: '';
         }
     );
 };

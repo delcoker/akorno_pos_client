@@ -9,7 +9,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
 import DataTable from "react-data-table-component";
 import IconButton from "@material-ui/core/IconButton";
-import {Add, Close, Lock, Print} from "@material-ui/icons";
+import { Close, Lock, Print} from "@material-ui/icons";
 import useStyles from './styles'
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import moment from "moment";
@@ -132,7 +132,8 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
         }, grow: 1, //button:true
         // when: row => row.qty_mp_reconciliation ,
         style: {
-            backgroundColor: 'rgba(255, 195, 128, 0.9)',
+            // backgroundColor: 'rgba(255, 195, 128, 0.9)',
+            backgroundColor: sthBackG,
             color: 'white',
             '&:hover': {
                 cursor: 'pointer',

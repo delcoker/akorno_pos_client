@@ -3,8 +3,8 @@ import {Grid, TextField} from "@material-ui/core";
 import React, {Component} from "react";
 import IconButton from "@material-ui/core/IconButton";
 import {
-    Filter1, Filter2, Filter3, Filter4, Filter5,
-    Filter6, Filter7, Filter8, Filter9, ExposureZero, Print, Clear, HighlightOff
+    Filter1, Filter2, Filter3, Filter4, Filter5, Filter6,
+    Filter7, Filter8, Filter9, ExposureZero, Print, HighlightOff
 } from "@material-ui/icons";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
@@ -41,11 +41,16 @@ export class YourAwesomeComponent extends Component {
     };
 
     handleClick = (e) => {
+        e.target.select();
         // input type number does not support selection
-        const {target} = e;
+        // const {target} = e;
+        // console.log(e.());
+        // console.log(e.nativeEvent.toElement.focus());
+
         // const extensionStarts = target.value.lastIndexOf('.');
-        target.focus();
-        // target.setSelectionRange(0, extensionStarts);
+        // target.highlight();
+        // target.setSelectionRange(0, 1);
+        // target.select();
     };
 
     calculateChange = () => {

@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {AppBar, Fab, IconButton, InputBase, Link, Menu, MenuItem, Toolbar} from "@material-ui/core";
+import {AppBar, Fab, IconButton, Link, Menu, MenuItem, Toolbar} from "@material-ui/core";
 import {
     ArrowBack as ArrowBackIcon,
     MailOutline as MailIcon,
@@ -7,7 +7,7 @@ import {
     NotificationsNone as NotificationsIcon,
     PanTool,
     Person as AccountIcon,
-    Search as SearchIcon,
+    // Search as SearchIcon,
     Send as SendIcon,
     Cancel as ResetIcon,
 } from "@material-ui/icons";
@@ -103,7 +103,7 @@ export default function Header(props) {
     var [notificationsMenu, setNotificationsMenu] = useState(null);
     var [isNotificationsUnread, setIsNotificationsUnread] = useState(true);
     var [profileMenu, setProfileMenu] = useState(null);
-    var [isSearchOpen, setSearchOpen] = useState(false);
+    // var [isSearchOpen, setSearchOpen] = useState(false);
 
     const [open, setOpen] = React.useState(false);
 

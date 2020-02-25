@@ -18,13 +18,10 @@ import {
 import moment from "moment";
 
 import {
-    fetcher,
-    ALL_USERS,
-    CREATE_USER,
-    USER_UPDATE,
-    ADMIN_RESET_PASSWORD
+    fetcher, ALL_USERS, CREATE_USER,
+    USER_UPDATE, ADMIN_RESET_PASSWORD
 } from "../../_utils/fetcher";
-import PageTitle from "../../components/PageTitle";
+// import PageTitle from "../../components/PageTitle";
 // import {Typography} from "../../components/Wrappers";
 
 import CustomizedSnackbars from "../../components/myNotification/DelNotifcation";

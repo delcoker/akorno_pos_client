@@ -149,8 +149,18 @@ class Sales extends Component {
         const map = new Map(this.state.items_list);
         let removingFrom = null;
 
+        // console.log('row_id, qty', row_id, qty);
+
         for (let [k, v] of map) {
             if (k.id === row_id) { // means it's contained in list
+
+                // check stock amount
+                if (k.has_stock) {
+                    if (v + qty > k.quantity) {
+                        alert(`Cannot sell more than ${v} for ${k.name}`);
+                        return;
+                    }
+                }
 
                 qty += v;
                 // console.log('qty_to_delete', k,v,qty);
@@ -280,6 +290,10 @@ class Sales extends Component {
             dataSet: mDataSet
         });
         // return mDataSet;
+    };
+
+    highlight = e => {
+        e.target.select();
     };
 
     getItemImage = item_name => {
@@ -439,40 +453,40 @@ class Sales extends Component {
 
         // console.log(user);
 
-        if (!user.isAdmin){
+        if (!user.isAdmin) {
 
             //check if user has started a shift
             const session_started = await this.checkUserSession(user.user_id);
-        // console.log(session_started);
-        if (!session_started) {
+            // console.log(session_started);
+            if (!session_started) {
 
-            if (window.confirm("You haven't started a SHIFT so you cannot make this sale.\n" +
-                "Would you like to start one now")) {
+                if (window.confirm("You haven't started a SHIFT so you cannot make this sale.\n" +
+                    "Would you like to start one now")) {
 
-                let active_shift = await isAnyShiftActive();
+                    let active_shift = await isAnyShiftActive();
 
-                if (active_shift !== null) {
-                    alert(`${active_shift.user.first_name} ${active_shift.user.last_name} is already on a shift`);
-                    return;
-                }
-                //
-
-                if (await this.startShift(user.user_id)) {
-
-                    // alert a shift has started
-                    alert("Shift Started");
+                    if (active_shift !== null) {
+                        alert(`${active_shift.user.first_name} ${active_shift.user.last_name} is already on a shift`);
+                        return;
+                    }
                     //
+
+                    if (await this.startShift(user.user_id)) {
+
+                        // alert a shift has started
+                        alert("Shift Started");
+                        //
+                    } else {
+                        alert("Shift not started.\nYou CANNOT make a sale.");
+                        return;
+                    }
                 } else {
-                    alert("Shift not started.\nYou CANNOT make a sale.");
+                    alert("You did not start a shift.\nYou CANNOT make a sale.");
                     return;
                 }
-            } else {
-                alert("You did not start a shift.\nYou CANNOT make a sale.");
-                return;
             }
-        }
 
-    }
+        }
 
         const chan = this.state.payingNii - this.state.totalNii;
 

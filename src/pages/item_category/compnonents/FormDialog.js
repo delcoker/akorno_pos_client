@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -12,7 +12,7 @@ import Widget from "../../../components/Widget";
 import {textFieldStyle} from "../../../_utils/inlineStyles";
 // import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
 import {Save as SaveIcon} from "@material-ui/icons";
-import {fetcher, GET_CATEGORIES} from "../../../_utils/fetcher";
+// import {fetcher, GET_CATEGORIES} from "../../../_utils/fetcher";
 
 const useStyles = makeStyles(theme => ({
     form: {

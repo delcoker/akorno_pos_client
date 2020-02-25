@@ -18,7 +18,7 @@ import moment from "moment";
 
 import {
     fetcher,
-    ITEM_UPDATE,
+    // ITEM_UPDATE,
     // ALL_ITEMS,
     GET_CATEGORIES,
     CATEGORY_ADD,
@@ -186,36 +186,6 @@ class ItemCategory extends Component {
     // save new item done
 
 //------------------------ // this will really slow down program ----------------------------------------
-    handleChangeDropDown = (event, data) => {
-        this.handleChange(event);
-        /* let items = {...this.state.items}; // this didn't work - > array did []
-
-         for (let i = 0; i < Object.keys(items).length; i++) {
-
-             if (items[i] == data) {
-                 items[i].category.id = event.target.value
-                 // itemz[i].category.name = event.target.innerHTML
-                 // console.log('kkeeey', itemz[i].category.id)
-                 break;
-             }
-         }*/
-
-        // const {options, value} = event.target;
-        // console.log(options[value].innerHTML);
-        // const {options, selectedIndex} = event.target;
-        // console.log(event.target);
-        // console.log(event, data);
-
-        let items = [...this.state.items];
-        for (let i = 0; i < items.length; i++) {
-            if (items[i] === data) {
-                // items[i].category.id = event.key
-                items[i].category.id = event.target.value;
-                break;
-            }
-        }
-        this.setState({items, filteredItems: items})
-    };
 //----------------------------------------------------------------------------
     handleChange = () => { // not using  this
 
@@ -423,101 +393,6 @@ class ItemCategory extends Component {
             </Grid>
             <br/>
         </>
-    };
-
-
-    updateOrCreateItem = async (item, up) => {
-        // console.log(item)
-        let updatedOrAdded = 'failed';
-        try {
-            let res = await fetcher({
-                query: ITEM_UPDATE,
-                variables: item
-            });
-            //---------------- not really needed ------------------// APA should help me on this
-
-            // console.log(res);
-
-            if (res && res.errors && res.errors.length === 1) {
-                alert(res.errors[0].message);
-                return;
-            }
-            // } else if (res && res.errors && res.errors.length > 1) {
-            //     return;
-            // }
-
-
-            if (up === 1) { // item updated
-                updatedOrAdded = 'updated';
-                let items = [...this.state.items];
-
-                // const newItemsState = this.state.items.map((i) => {
-                //     if(i.id === item.id) {
-                //         i = {
-                //             ...item,
-                //             category: {
-                //                 id: item.category_id
-                //             }
-                //         };
-                //     }
-                //
-                //     return i;
-                // });
-
-                // console.log(item);
-
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].id === item.id) {
-                        items[i] = JSON.parse(JSON.stringify(items[i]));
-                        items[i].id = item.id;
-                        items[i].pic = item.pic;
-                        items[i].name = item.name;
-                        items[i].price = item.price;
-                        items[i].category.id = item.category_id;
-                        items[i].has_stock = item.has_stock;
-                        items[i].min_stock_level = !(item.min_stock_level > -1) ? null : item.min_stock_level;
-                        items[i].status = item.status;
-                        break;
-                    }
-                }
-
-                this.setState({items, filteredItems: items, sth_changed: false})
-            } else {
-                updatedOrAdded = 'added';
-                let items = [...this.state.items];
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].name === item.name) {
-                        alert("An item with this name already exist");
-                        item.id = -1; // and item already exist
-                        return item.id;
-                    }
-                }
-
-                const newItem = res.data.updateItem;
-                // console.log(newItem);
-
-                items = [...this.state.items, newItem];
-
-                this.setState({items, filteredItems: items, sth_changed: false})
-            }
-
-            const componentProps = {
-                type: "shipped",
-                message: `${item.name} ${updatedOrAdded}.`,
-                variant: "contained",
-                color: "success",
-            };
-
-            toast(<Notification
-                {...componentProps}
-                className={classes.notificationComponent}
-            />, toastOptions);
-
-        } catch (err) {
-            console.log(err);
-        }
-        // console.log(item.id);
-        return item.id;
     };
 
     fetchItems = async () => {
