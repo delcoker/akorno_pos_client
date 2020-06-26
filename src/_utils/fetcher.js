@@ -1,6 +1,6 @@
 import {createApolloFetch} from "apollo-fetch";
 import gql from "graphql-tag";
-import {config} from './constants'
+import {config} from './config'
 
 export const fetcher = createApolloFetch({
     // uri: 'http://192.168.1.21:4000/graphql', //lisa's
@@ -203,6 +203,8 @@ export const GET_REPORT = gql`
     }
 `;
 
+
+
 export const GET_MEAL_PLAN_BREAKDOWN = gql`
     query MealPlanBreakdownQuery(
         $user_id: Int!
@@ -259,6 +261,89 @@ export const GET_COMPACT_MP_BREAKDOWN = gql`
                 name
             }
             createdAt
+        }
+    }
+`;
+
+export const BULK_ITEM_UPDATE = gql`
+    mutation BulkUpdate(
+        $ids: [Int!]!
+        #        $names: [String!]!
+        #        $category_ids: [Int!]!
+        $type: String!
+        $tp: Int!,
+    ) {
+        bulkUpdate(
+            item_ids: $ids
+            #            item_names: $names
+            #            categories: $category_ids
+            type: $type
+            transaction_point_id: $tp
+        ) {
+            item{
+                id
+                name
+                price
+                pic
+                category {
+                    id
+                    name
+                }
+            }
+            min_stock_level
+            has_stock
+            quantity
+            status
+            createdAt
+            updatedAt
+        }
+    }
+`;
+
+export const BULK_USER_UPDATE = gql`
+    mutation BulkUpdate(
+        $ids: [Int!]!
+        #        $names: [String!]!
+        #        $category_ids: [Int!]!
+        $type: String!
+        $tp: Int!,
+    ) {
+        bulkUpdateUser(
+            user_ids: $ids
+            #            item_names: $names
+            #            categories: $category_ids
+            type: $type
+            transaction_point_id: $tp
+        ) {
+            user{
+                user_id
+                first_name
+                last_name
+                other_names
+                telephone
+                pic
+                status
+                isAdmin
+                email {
+                    email
+                }
+                postal_address
+                vendor {
+                    name
+                    email
+                    telephone
+                    postal_address
+                    website_url
+                }
+            }
+            status
+            transaction_point{
+                id
+                name
+            }
+            createdAt
+            updatedAt
+
         }
     }
 `;

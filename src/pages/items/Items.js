@@ -25,7 +25,7 @@ import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Notification from "../../components/Notification";
 import Widget from "../../components/Widget";
-import FormDialog from "./compnonents/FormDialog";
+import FormDialog from "./components/FormDialog";
 
 const columnsR = [
     {name: 'Name', selector: 'name', sortable: true, grow: 4,},

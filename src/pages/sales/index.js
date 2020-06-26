@@ -6,7 +6,7 @@ import {AttachMoney as SalesIcon} from '@material-ui/icons';
 
 import SalesPage from './Sales';
 import React from "react";
-// import Sales2 from './compnonents/Sales2';
+// import Sales2 from './components/Sales2';
 // import CategoryEdit from './CategoryEdit';
 
 export default {

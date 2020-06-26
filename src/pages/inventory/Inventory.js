@@ -10,13 +10,22 @@ import {
 } from "@material-ui/core";
 import DataTable from "react-data-table-component";
 import {
-    ArrowDownward, Delete, Close,
-    Save as SaveIcon, CloudUpload as CloudUploadIcon
+    ArrowDownward,
+    Delete,
+    Close,
+    Save as SaveIcon,
+    CloudUpload as CloudUploadIcon,
+    Add,
+    CheckCircleOutline,
+    GpsFixed,
+    RemoveCircleOutline,
+    GpsOff,
+    AttachMoney, Cached, DeleteForeverSharp
 } from '@material-ui/icons';
 import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDropDown";
 import moment from "moment";
 
-import {fetcher, ITEM_UPDATE, ALL_ITEMS, ADD_STOCK, getUser} from "../../_utils/fetcher";
+import {fetcher, ITEM_UPDATE, ALL_ITEMS, ADD_STOCK, getUser, BULK_ITEM_UPDATE} from "../../_utils/fetcher";
 // import PageTitle from "../../components/PageTitle";
 import {Typography} from "../../components/Wrappers";
 
@@ -25,6 +34,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import Notification from "../../components/Notification";
 import Widget from "../../components/Widget";
 import {textFieldStyle} from "../../_utils/inlineStyles";
+import Tooltip from "@material-ui/core/Tooltip";
+import FilterComponent from "../_shared_components/FilterComponent";
+import FormDialog from "../items/components/FormDialog";
 
 const columnsR = [
     {name: 'Name', selector: 'name', sortable: true, grow: 4,},
@@ -35,7 +47,10 @@ const columnsR = [
     {name: 'Category', selector: 'category.name', sortable: true,},
     {
         name: 'In Stock', selector: 'quantity', sortable: true, width: '70px',
-        cell: (row) => row.quantity === null ? '-' : row.quantity
+        cell: (row) => {
+            // console.log("here");
+            return row.quantity === null ? '-' : row.quantity
+        }
     },
     {
         name: 'Picture', selector: 'name', width: '50px', cell: (d) =>
@@ -66,26 +81,60 @@ const columnsR = [
         name: 'Last Update',
         selector: 'updatedAt',
         sortable: true,
-        grow: 5,
-        format: d => moment(parseInt(d.updatedAt)).format("dd-Do-MM-YY"),
+        grow: 8,
+        format: d => moment(parseInt(d.updatedAt)).format("dd-Do-MM-YY HH:mm"),
     },
-    // {
-    //     name: 'Created At',
-    //     selector: 'createdAt',
-    //     sortable: true,
-    //     grow: 5,
-    //     format: d => moment(parseInt(d.createdAt)).format("lll"),
-    //     // format: d => moment(d.airstamp).format('LLL'),
-    //     // format: d => moment(parseInt(d)).format("L")
-    //     // format: d => (new Date((d))).toString()//.format("dd.mm.yyyy hh:MM:ss")
-    //     // format: d => moment((d)).format("ll")//.format("dd.mm.yyyy hh:MM:ss")
-    // },
+    {
+        name: 'Created At',
+        selector: 'createdAt',
+        sortable: true,
+        grow: 8,
+        cell: d => moment(parseInt(d.createdAt)).format("dd-Do-MM-YY HH:mm"),
+    },
 ];
-
-const contextActions = memoize((deleteHandler) => (
-    <IconButton onClick={deleteHandler}>
-        <Delete color="secondary"/>
-    </IconButton>
+const contextActions = memoize((deleteHandler, disableHandler, enableHandler, stockEnabler, stockDisabler, priceHandler, minStockHandler) => (
+    <span>
+        {/*<Button key={1} //fullWidth*/}
+        {/*        onClick={stockEnabler}*/}
+        {/*        // style={textFieldStyle.resize}*/}
+        {/*        style={{fill: "yellow"}} variant="contained"*/}
+        {/*>Track</Button>*/}
+        <Tooltip title="Min Stock">
+            <IconButton onClick={minStockHandler}>
+                <Cached fontSize={'large'} style={{fill: "#5D0A25"}}/>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Price">
+            <IconButton onClick={priceHandler}>
+                <AttachMoney fontSize={'large'} style={{fill: "#85BB65"}}/>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Track">
+            <IconButton onClick={stockEnabler} color={'default'}>
+                <GpsFixed fontSize={'large'} style={{fill: "#2196F3"}}/>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Cancel Track">
+            <IconButton onClick={stockDisabler} color={'default'}>
+                <GpsOff fontSize={'large'} /*style={{fill: "#2196F3"}}*//>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Enable">
+            <IconButton onClick={enableHandler} color={'default'}>
+                <CheckCircleOutline fontSize={'large'} style={{fill: "#4CAF50"}}/>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Disable">
+            <IconButton onClick={disableHandler}>
+                <RemoveCircleOutline fontSize={'large'} style={{fill: "#FF9800"}}/>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Delete">
+            <IconButton onClick={deleteHandler} aria-label="delete">
+                <DeleteForeverSharp fontSize={'large'} style={{fill: "red"}}/>
+            </IconButton>
+        </Tooltip>
+    </span>
 ));
 
 let arrowDownward = <ArrowDownward/>;
@@ -113,7 +162,10 @@ class Inventory extends Component {
             stock_add_value: 0,
             // resetPaginationToggle: false,
             // setResetPaginationToggle: false,
-            filteredItems: []
+            filteredItems: [],
+            open: false,
+            selectedRows: [],
+            toggleCleared: false,
         };
     };
 
@@ -121,12 +173,37 @@ class Inventory extends Component {
         this.fetchItems();
     }
 
+    toggleCleared = () => this.setState({toggleCleared: !this.state.toggleCleared})
+
     actions = () => [
-        this.subHeaderComponentMemo(1),
-        // <IconButton color="primary" key={2}>
-        //     <Add/>
-        // </IconButton>
+        <FilterComponent
+            onFilter={e => this.setFilterText(e.target.value)}
+            onClear={this.handleClear}
+            filterText={this.state.filterText}
+            key={1}
+        />,
+        <Tooltip title="Add New" key={2}>
+            <IconButton color="secondary" onClick={this.handleClickOpen}>
+                <Add fontSize={'large'} style={{fill: "#4CAF50"}}/>
+            </IconButton>
+        </Tooltip>
     ];
+
+    // save new item
+    handleClickOpen = () => this.setState({open: true});
+
+    handleClose = () => this.setState({open: false});
+
+
+    saveNewItem = async (e) => {
+        // console.log(e.target.item_name.value);
+
+        let item = this.getItemStats(null, e);
+        let item_id = await this.updateOrCreateItem(item); //actually create new item;
+        // console.log(item_id);
+
+        if (item_id > -1) this.handleClose();
+    };
 
     setFilterText = (text) => {
         this.setState({
@@ -139,24 +216,12 @@ class Inventory extends Component {
         this.setState({filterText: '', filteredItems: this.state.items})
     };
 
-    subHeaderComponentMemo = (key) => {
-        return <this.FilterComponent onFilter={e => this.setFilterText(e.target.value)}
-                                     onClear={this.handleClear}
-                                     filterText={this.state.filterText} key={key}/>;
-    };
+    // subHeaderComponentMemo = (key) => {
+    //     return <this.FilterComponent onFilter={e => this.setFilterText(e.target.value)}
+    //                                  onClear={this.handleClear}
+    //                                  filterText={this.state.filterText} key={key}/>;
+    // };
 
-    FilterComponent = ({filterText, onFilter, onClear}) => (
-        <>
-            <TextField id="search" type="text" variant="standard"
-                       placeholder="Filter by Name" value={filterText}
-                       onChange={onFilter} inputProps={{
-                style: textFieldStyle.resize,
-            }}/>
-            <IconButton color="secondary" onClick={onClear}>
-                <Close/>
-            </IconButton>
-            {/*<ClearButton onClick={onClear}>X</ClearButton>*/}
-        </>);
 
 //------------------------ // this will really slow down program ----------------------------------------
     handleChangeDropDown = (event, data) => {
@@ -200,7 +265,20 @@ class Inventory extends Component {
 
     };
 
+    handleSelected = (type) => {
+        // send all items to the backend with ID's and new method or update each one at a time
+        let ids = [], names = [];
+
+        this.state.selectedRows.forEach(item => {
+            ids.push(item.id);
+            names.push(item.name);
+        });
+
+        this.bulkUpdate(ids, names, type);
+    }
+
     deleteSelected = data => console.log(data);
+
 
     SampleExpandedComponent = ({data}) => {
         // const {classes} = this.props;
@@ -234,7 +312,8 @@ class Inventory extends Component {
                                         fullWidth label="In Stock"
                                         color="secondary" type='number'
                                         value={data.quantity === null ? '' : data.quantity} name='qty_in_stock'
-                                        variant="standard" disabled={true}/>
+                                        variant="standard" disabled={true}
+                                    />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
                                     <TextField
@@ -362,16 +441,10 @@ class Inventory extends Component {
         </>
     };
 
-    saveItem = (data, e) => {
-
-        if (!this.state.sth_changed) {
-            console.log('NO changes');
-            return;
-        }
-
+    getItemStats = (data, e) => {
         let item = {};
-        item.id = data !== null ? data.id : 0;
-        item.name = e.target.item_name.value.charAt(0).toUpperCase() + e.target.item_name.value.trim().substring(1);
+        item.id = data !== null ? data.id : 0; // 0 : new item , else updating item
+        item.name = e.target.item_name.value.charAt(0).toUpperCase() + e.target.item_name.value.trim().toLowerCase().substring(1);
         item.pic = e.target.item_pic.value.trim();
         item.price = parseFloat(e.target.item_price.value);
         item.category_id = parseInt(e.target.item_category.value);
@@ -384,7 +457,7 @@ class Inventory extends Component {
             return;
         }
 
-        if (item.price === null || item.price < -5) {
+        if (item.price === null || item.price < -10) {
             alert('The item price can not less than 0.50.');
             return;
         }
@@ -394,54 +467,55 @@ class Inventory extends Component {
             return;
         }
 
+        return item;
+    };
+
+    saveItem = (data, e) => {
+        // console.log("data", data);
+
+        if (!this.state.sth_changed) {
+            console.log('NO changes');
+            return;
+        }
+
+        let item = this.getItemStats(data, e);
+
         // if (item.has_stock && item.min_stock_level < 1) {
         //     alert('This number can not be less 1.');
         //     return;
         // }
 
-        this.updateItem(item);
+        this.updateOrCreateItem(item, 1); // if it's an update up is 1
     };
 
-    updateItem = async (item) => {
+
+    updateOrCreateItem = async (item, up) => {
         // console.log(item)
+        let updatedOrAdded = 'failed';
         try {
             let res = await fetcher({
                 query: ITEM_UPDATE,
-                variables: item
+                variables: {...item, tp: parseInt(localStorage.getItem('tp'))}
             });
 // /*
             //---------------- not really needed ------------------// APA should help me on this
 
             // console.log(res);
-
-            if(res && res.errors && res.errors.length < 2 ){
+            if (res && res.errors) {
+                console.log(...res.errors);
+            }
+            if (res && res.errors && res.errors.length < 2) {
                 alert(res.errors[0].message);
                 return;
             }
-            // else if (res && res.errors && res.errors.length >1){
-            //     return;
-            // }
 
-
-            if (res) {
-
+            if (up === 1) { // item updated
+                updatedOrAdded = 'updated';
                 let items = [...this.state.items];
-
-                // const newItemsState = this.state.items.map((i) => {
-                //     if(i.id === item.id) {
-                //         i = {
-                //             ...item,
-                //             category: {
-                //                 id: item.category_id
-                //             }
-                //         };
-                //     }
-                //
-                //     return i;
-                // });
 
                 for (let i = 0; i < items.length; i++) {
                     if (items[i].id === item.id) {
+                        // console.log(items[i]);
                         items[i] = JSON.parse(JSON.stringify(items[i]));
                         items[i].id = item.id;
                         items[i].pic = item.pic;
@@ -449,19 +523,40 @@ class Inventory extends Component {
                         items[i].price = item.price;
                         items[i].category.id = item.category_id;
                         items[i].has_stock = item.has_stock;
-                        items[i].min_stock_level = !(item.min_stock_level > -1) ? null : item.min_stock_level;
-
                         items[i].status = item.status;
+                        items[i].min_stock_level = !(item.min_stock_level > -1) ? null : item.min_stock_level;
                         break;
                     }
                 }
+                this.setState({items, filteredItems: items, sth_changed: false})
+            } else {
+                updatedOrAdded = 'added';
+                // let items;
+                // for (let i = 0; i < items.length; i++) {
+                //     if (items[i].name === item.name) {
+                //         // alert("An item with this name already exist");
+                //         item.id = -1; // and item already exist
+                //         return item.id;
+                //     }
+                // }
+
+                let newItem = res.data.updateItem;
+
+                // console.log('item', items);
+                newItem.id = newItem.item.id;
+                newItem.name = newItem.item.name;
+                newItem.price = newItem.item.price;
+                newItem.pic = newItem.item.pic;
+                newItem.category = newItem.item.category;
+
+                const items = [...this.state.items, newItem];
 
                 this.setState({items, filteredItems: items, sth_changed: false})
             }
 
             const componentProps = {
                 type: "shipped",
-                message: item.name + ' updated.',
+                message: `${item.name} ${updatedOrAdded}.`,
                 variant: "contained",
                 color: "success",
             };
@@ -470,6 +565,93 @@ class Inventory extends Component {
                 {...componentProps}
                 className={classes.notificationComponent}
             />, toastOptions);
+
+        } catch (err) {
+            console.log(err);
+        }
+        return item.id;
+    };
+
+
+    bulkUpdate = async (ids, names, type) => {
+
+        if (type === 'price') {
+            type = (prompt(`Price:\r ${this.state.selectedRows.map(r => r.name)}?`));
+            if (isNaN(type)) {
+                alert("Not a number");
+                return;
+            } else if (type === null) {
+                return;
+            }
+            type = 'price: ' + type;
+        } else if (type === 'min_stock') {
+            type = (prompt(`Minimum Stock Level:\r ${this.state.selectedRows.map(r => r.name)}?`))
+            if (isNaN(type)) {
+                alert("Not a number");
+                return;
+            } else if (type === null) {
+                return;
+            } else if (parseInt(type) > 1000) {
+                alert("Minimum stock quantity too high");
+                return;
+            }
+            type = 'min_stock: ' + type;
+        }
+        // console.log(type);  return;
+        try {
+            let res = await fetcher({
+                query: BULK_ITEM_UPDATE,
+                variables: {ids, type, tp: parseInt(localStorage.getItem('tp'))}
+            });
+// /*
+            //---------------- not really needed ------------------// APA should help me on this
+
+            // console.log(res);
+            if (res && res.errors) {
+                console.log(...res.errors);
+            }
+            if (res && res.errors && res.errors.length < 2) {
+                alert(res.errors[0].message);
+                return;
+            }
+
+            const updated = res.data.bulkUpdate;
+
+            let itemsMap = new Map([...this.state.items].map(i => [i.id, i]));
+
+            updated.forEach((item) => {
+                if (itemsMap.has(item.item.id)) {
+                    item = { // to fix layout for table column data
+                        ...item,
+                        id: item.item.id,
+                        name: item.item.name,
+                        price: item.item.price,
+                        pic: item.item.pic,
+                        category: item.item.category
+                    };
+                    itemsMap.set(item.item.id, item)
+                }
+            });
+
+            const items = [...itemsMap.values()];
+
+            this.toggleCleared();
+            this.setState({items, filteredItems: items, sth_changed: false});
+
+            const updated_items = updated.reduce((prev, curr) => (prev.item ? prev.item.name : prev) + ', ' + curr.item.name);
+
+            const componentProps = {
+                type: "shipped",
+                message: `${updated.length < 2 ? updated[0].item.name : updated_items} ${type.toUpperCase()}.`,
+                variant: "contained",
+                color: "success",
+            };
+
+            toast(<Notification
+                {...componentProps}
+                className={classes.notificationComponent}
+            />, toastOptions);
+
         } catch (err) {
             console.log(err);
         }
@@ -572,10 +754,18 @@ class Inventory extends Component {
         }
     };
 
+    handleRowSelected = (sel) =>
+        // console.log(sel.selectedRows);
+        this.setState({selectedRows: sel.selectedRows})
 
     render() {
         return (
             <>
+                <FormDialog open={this.state.open}
+                            onClose={this.handleClose}
+                            handleSave={this.handleSave}
+                            saveNewItem={this.saveNewItem}/>
+
                 <ToastContainer/>
                 {/*<Grid container spacing={1} >*/}
                 {/*<PageTitle title='Inventory'/>*/}
@@ -586,8 +776,9 @@ class Inventory extends Component {
                     columns={columnsR}
                     data={this.state.filteredItems}
                     selectableRows // add for checkbox selection
+                    clearSelectedRows={this.state.toggleCleared}
                     // onRowSelected={this.handleRowSelectedChange}
-                    defaultSortField={'item'}
+                    defaultSortField={'name'}
                     expandableRows
                     highlightOnHover
                     pointerOnHover
@@ -596,7 +787,6 @@ class Inventory extends Component {
                     selectableRowsComponent={Checkbox}
                     sortIcon={arrowDownward}
                     // onRowClicked={this.handleRowClicked}
-                    contextActions={contextActions(this.deleteSelected)}
                     dense
                     // expand
                     fixedHeader
@@ -608,6 +798,8 @@ class Inventory extends Component {
                     // pagination
                     // paginationPerPage={15}
                     // paginationRowsPerPageOptions={[15, 30, 50, 100]}
+                    contextActions={contextActions(() => this.handleSelected('deleted'), () => this.handleSelected('disabled'), () => this.handleSelected('enabled'), () => this.handleSelected('tracking'), () => this.handleSelected('disable track'), () => this.handleSelected('price'), () => this.handleSelected('min_stock'))}
+                    onSelectedRowsChange={this.handleRowSelected}
                 />
                 {/*</Grid>*/}
             </>
