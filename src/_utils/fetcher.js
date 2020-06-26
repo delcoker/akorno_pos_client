@@ -57,7 +57,7 @@ export const convertArrayOfObjectsToPrint = (header, array, footer) => {
                 <td style="border:1px solid">${start}</td>
                 <td style="border:1px solid">${typeDelimiter}${array[i].type.substring(0, 1)}</td>
                 <td style="border:1px solid">${array[i].qty}</td>
-                <td style="border:1px solid" align="right">${array[i].subtotal}</td>
+                <td style="border:1px solid" align="right">${array[i].subtotal.toFixed(2)}</td>
         </tr>`;
     }
     result += "</tbody></table>";
@@ -544,6 +544,15 @@ export const GET_STUDENT_DETAIL = gql`
     query StudentDetailQuery($student_id: String!) {
         getStudentDetail(student_id: $student_id) {
             student_id
+            name
+        }
+    }
+`;
+
+export const GET_MOMO_DETAIL = gql`
+    query StudentDetailQuery($telephone_num_id: String!) {
+        getTelNumID(telephone_num_id: $telephone_num_id) {
+            tel_num_id
             name
         }
     }

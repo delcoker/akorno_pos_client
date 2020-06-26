@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
 import Img from 'react-image';
 // import styled from 'styled-components';
 import useStyles from './styles'
@@ -12,14 +12,14 @@ import {
 import DataTable from "react-data-table-component";
 import {
     Add, ArrowDownward, Delete, Close,
-    Save as SaveIcon, Cancel as ResetIcon
+    Save as SaveIcon, Cancel as ResetIcon, GpsFixed, GpsOff, RemoveCircleOutline, DeleteForeverSharp, CheckCircleOutline
 } from '@material-ui/icons';
 
 import moment from "moment";
 
 import {
     fetcher, ALL_USERS, CREATE_USER,
-    USER_UPDATE, ADMIN_RESET_PASSWORD
+    USER_UPDATE, ADMIN_RESET_PASSWORD, BULK_USER_UPDATE
 } from "../../_utils/fetcher";
 // import PageTitle from "../../components/PageTitle";
 // import {Typography} from "../../components/Wrappers";
@@ -32,6 +32,8 @@ import Notification from "../../components/Notification";
 import Widget from "../../components/Widget";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import AddUserFormDialog from "./compnonents/AddUserFormDialog";
+import Tooltip from "@material-ui/core/Tooltip";
+import FilterComponent from "../_shared_components/FilterComponent";
 
 const columnsR = [
     {name: 'First Name', selector: 'first_name', sortable: true, grow: 3,},
@@ -91,11 +93,34 @@ const columnsR = [
     {name: 'Vendor', selector: 'vendor.name', sortable: true,},
 ];
 
-
-const contextActions = memoize((deleteHandler) => (
-    <IconButton onClick={deleteHandler}>
-        <Delete color="secondary"/>
-    </IconButton>
+const contextActions = memoize((deleteHandler, disableHandler, enableHandler, adminDisabler, adminEnabler) => (
+    <span>
+        <Tooltip title="Admin">
+            <IconButton onClick={adminEnabler} color={'default'}>
+                <GpsFixed fontSize={'large'} style={{fill: "#2196F3"}}/>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Non Admin">
+            <IconButton onClick={adminDisabler} color={'default'}>
+                <GpsOff fontSize={'large'} /*style={{fill: "#2196F3"}}*//>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Enable">
+            <IconButton onClick={enableHandler} color={'default'}>
+                <CheckCircleOutline fontSize={'large'} style={{fill: "#4CAF50"}}/>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Disable">
+            <IconButton onClick={disableHandler}>
+                <RemoveCircleOutline fontSize={'large'} style={{fill: "#FF9800"}}/>
+            </IconButton>
+        </Tooltip>
+        <Tooltip title="Delete">
+            <IconButton onClick={deleteHandler} aria-label="delete">
+                <DeleteForeverSharp fontSize={'large'} style={{fill: "red"}}/>
+            </IconButton>
+        </Tooltip>
+    </span>
 ));
 
 
@@ -125,7 +150,9 @@ class Users extends Component {
             // setResetPaginationToggle: false,
             open: false,
             snackbar: {},
-            users: []
+            selectedRows: [],
+            toggleCleared: false,
+            tp: parseInt(localStorage.getItem('tp')),
         };
     };
 
@@ -133,22 +160,26 @@ class Users extends Component {
         this.fetchUsers();
     }
 
+    toggleCleared = () => this.setState({toggleCleared: !this.state.toggleCleared})
+
     actions = () => [
-        this.subHeaderComponentMemo(1),
-        <IconButton color="primary" key={2} onClick={this.handleClickOpen}>
-            <Add/>
-        </IconButton>
+        <FilterComponent
+            onFilter={e => this.setFilterText(e.target.value)}
+            onClear={this.handleClear}
+            filterText={this.state.filterText}
+            key={1}
+        />,
+        <Tooltip title="Add New" key={2}>
+            <IconButton color="secondary" onClick={this.handleClickOpen}>
+                <Add fontSize={'large'} style={{fill: "#4CAF50"}}/>
+            </IconButton>
+        </Tooltip>
     ];
 
     // save new item
-    handleClickOpen = () => {
-        // console.log('open new item dialog');
-        this.setState({open: true});
-    };
+    handleClickOpen = () =>this.setState({open: true});
 
-    handleClose = () => {
-        this.setState({open: false});
-    };
+    handleClose = () => this.setState({open: false});
 
     saveNewUser = async (e) => {
         let userStats = this.getUserStats(null, e);
@@ -160,7 +191,7 @@ class Users extends Component {
     };
 
     createUser = async userP => {
-
+        if (!userP) return;
         let user = null;
         try {
 
@@ -169,46 +200,37 @@ class Users extends Component {
                 query: CREATE_USER,
                 variables: userP
             });
-            console.log(res);
+            // console.log(res);
 
             if (res && res.errors && res.errors.length === 1) {
                 alert(res.errors[0].message);
                 return;
             }
+            user = res.data.createUser;
             // else if (res && res.errors && res.errors.length >1){
             //     return;
             // }
-
-            if (!res.data.createUser) {
-                alert("A user with this email already exists\n" +
-                    "");
-
-            } else {
-                user = res.data.createUser;
-                alert("New user added");
-                // console.log("saved");
-            }
         } catch (e) {
             console.log(e);
         }
+        let users = [...this.state.users, user];
+
+        this.setState({users, filteredUsers: users, sth_changed: false})
+        // }
+
+        const componentProps = {
+            type: "shipped",
+            message: userP.first_name + ' - ' + userP.email + " added.",
+            variant: "contained",
+            color: "success",
+        };
+
+        toast(<Notification
+            {...componentProps}
+            className={classes.notificationComponent}
+        />, toastOptions);
 
         return user;
-
-        // let users = [...this.state.users];
-        // for (let i = 0; i < users.length; i++) {
-        //     if (items[i].name === item.name) {
-        //         alert("An item with this name already exist");
-        //         item.id = -1; // and item already exist
-        //         return item.id;
-        //     }
-        // }
-        //
-        // const newItem = res.data.updateItem;
-        // console.log(newItem);
-        //
-        // users = [...this.state.items, newItem];
-        //
-        // this.setState({users, filteredItems: users, sth_changed: false})
     };
 
     // save new user done
@@ -258,25 +280,6 @@ class Users extends Component {
         this.setState({filterText: '', filteredItems: this.state.users})
     };
 
-    subHeaderComponentMemo = (key) => {
-        return <this.FilterComponent onFilter={e => this.setFilterText(e.target.value)}
-                                     onClear={this.handleClear}
-                                     filterText={this.state.filterText} key={key}/>;
-    };
-
-    FilterComponent = ({filterText, onFilter, onClear}) => (
-        <>
-            <TextField id="search" type="text" variant="standard"
-                       placeholder="Filter by Name" value={filterText}
-                       onChange={onFilter} inputProps={{
-                style: textFieldStyle.resize,
-            }}/>
-            <IconButton color="secondary" onClick={onClear}>
-                <Close/>
-            </IconButton>
-            {/*<ClearButton onClick={onClear}>X</ClearButton>*/}
-        </>);
-
     handleChange = () => { // not using  this
 
         // const {name, value} = e.target;
@@ -294,7 +297,7 @@ class Users extends Component {
                 variables: {user_id: data.user_id}
             });
 
-            if(res && res.errors){
+            if (res && res.errors) {
                 alert(res.errors[0].message);
                 return;
             }
@@ -330,7 +333,7 @@ class Users extends Component {
                         <Widget title={'User Details'} disableWidgetMenu>
                             <Grid container spacing={3} justify="space-around"
                                   className={classes.dashedBorder}>
-                                <Grid item xs={12} sm={4}>
+                                <Grid item xs={12} sm={3}>
                                     <TextField
                                         InputProps={{
                                             style: textFieldStyle.resize,
@@ -338,6 +341,15 @@ class Users extends Component {
                                         required label="First Name" color="primary" fullWidth
                                         autoComplete="i_name" name='first_name'
                                         defaultValue={data.first_name} onChange={this.handleChange}/>
+                                </Grid>
+                                <Grid item xs={12} sm={3}>
+                                    <TextField
+                                        label="Last Name"
+                                        inputProps={{style: textFieldStyle.resize}}
+                                        color="primary"
+                                        fullWidth autoComplete="i_price" required
+                                        defaultValue={(data.last_name)} name='last_name'
+                                        onChange={this.handleChange}/>
                                 </Grid>
                                 <Grid item xs={12} sm={4}>
                                     <TextField
@@ -348,25 +360,7 @@ class Users extends Component {
                                         autoComplete="i_name" name='other_names'
                                         defaultValue={data.other_names} onChange={this.handleChange}/>
                                 </Grid>
-                                <Grid item xs={12} sm={4}>
-                                    <TextField
-                                        label="Last Name"
-                                        inputProps={{style: textFieldStyle.resize}}
-                                        color="primary"
-                                        fullWidth autoComplete="i_price" required
-                                        defaultValue={(data.last_name)} name='last_name'
-                                        onChange={this.handleChange}/>
-                                </Grid>
-                                <Grid item xs={12} sm={9}>
-                                    <TextField
-                                        label="Email"
-                                        inputProps={{style: textFieldStyle.resize}}
-                                        color="primary"
-                                        fullWidth autoComplete="email" required
-                                        defaultValue={(data.email.email)} name='email'
-                                        onChange={this.handleChange}/>
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
+                                <Grid item xs={12} sm={2}>
                                     <FormControlLabel
                                         control={<Checkbox
                                             id="standard-secondary"
@@ -376,7 +370,17 @@ class Users extends Component {
                                         label="Is Admin"
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={4}>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        label="Email"
+                                        inputProps={{style: textFieldStyle.resize}}
+                                        color="primary"
+                                        fullWidth autoComplete="email" required
+                                        value={(data.email.email)} name='email'
+                                        // readOnly={true}
+                                        onChange={this.handleChange}/>
+                                </Grid>
+                                <Grid item xs={12} sm={3}>
                                     <TextField
                                         label="Telephone" type={'tel'}
                                         inputProps={{style: textFieldStyle.resize}}
@@ -385,7 +389,7 @@ class Users extends Component {
                                         defaultValue={(data.telephone)} name='telephone'
                                         onChange={this.handleChange}/>
                                 </Grid>
-                                <Grid item xs={12} sm={4}>
+                                <Grid item xs={12} sm={3}>
                                     <TextField
                                         label="Picture"
                                         inputProps={{style: textFieldStyle.resize}}
@@ -396,6 +400,16 @@ class Users extends Component {
                                 </Grid>
 
                                 <Grid item xs={12} sm={4}>
+                                    <TextField
+                                        label="Address" multiline={true}
+                                        rows={2} rowsMax={4}
+                                        inputProps={{style: textFieldStyle.resize}}
+                                        color="primary"
+                                        fullWidth autoComplete="i_price"
+                                        defaultValue={(data.postal_address)} name='postal_address'
+                                        onChange={this.handleChange}/>
+                                </Grid>
+                                <Grid item xs={12} sm={2}>
                                     <FormControl
                                         fullWidth
                                         style={{margin: 0, style: textFieldStyle.resize,}}>
@@ -413,16 +427,6 @@ class Users extends Component {
                                                       value={'deleted'}>Deleted</MenuItem>
                                         </Select>
                                     </FormControl>
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        label="Address" multiline={true}
-                                        rows={2} rowsMax={4}
-                                        inputProps={{style: textFieldStyle.resize}}
-                                        color="primary"
-                                        fullWidth autoComplete="i_price"
-                                        defaultValue={(data.postal_address)} name='postal_address'
-                                        onChange={this.handleChange}/>
                                 </Grid>
 
                                 <Grid item xs={12} sm={3}>
@@ -564,14 +568,8 @@ class Users extends Component {
                 for (let i = 0; i < users.length; i++) {
                     if (users[i].user_id === userP.user_id) {
                         users[i] = JSON.parse(JSON.stringify(users[i]));
-                        users[i].first_name = userP.first_name;
-                        users[i].last_name = userP.last_name;
-                        users[i].other_names = userP.other_names;
-                        users[i].isAdmin = userP.isAdmin;
-                        users[i].pic = userP.pic;
-                        users[i].telephone = userP.telephone;
+                        users[i].user = {...users[i].user, ...userP};
                         users[i].status = userP.status;
-                        users[i].postal_address = userP.postal_address;
 
                         message = userP.first_name + ' - ' + userP.email + " updated.";
                         color = 'success';
@@ -615,9 +613,91 @@ class Users extends Component {
         console.log('handleRowSelectedChange', data)
     };
 
+    handleRowSelected = (sel) => {
+        // console.log(sel.selectedRows);
+        this.setState({selectedRows: sel.selectedRows})
+    };
+
+    handleSelected = (type) => {
+        // send all items to the backend with ID's and new method or update each one at a time
+        let ids = [], names = [];
+
+        this.state.selectedRows.forEach(user => {
+            ids.push(user.user_id);
+            names.push(user.first_name);
+        });
+
+        this.bulkUpdate(ids, names, type);
+    }
+
+    bulkUpdate = async (ids, names, type) => {
+
+        try {
+            let res = await fetcher({
+                query: BULK_USER_UPDATE,
+                variables: {ids, type, tp: parseInt(localStorage.getItem('tp'))}
+            });
+// /*
+            //---------------- not really needed ------------------// APA should help me on this
+
+            // console.log(res);
+            if (res && res.errors) {
+                console.log(...res.errors);
+            }
+            if (res && res.errors && res.errors.length < 2) {
+                alert(res.errors[0].message);
+                return;
+            }
+
+            const updated = res.data.bulkUpdateUser;
+            // console.log(updated);
+
+            let usersMap = new Map([...this.state.users].map(u => [u.user_id, u]));
+            // console.log(usersMap);
+
+            updated.forEach((user) => {
+                if (usersMap.has(user.user.user_id)) {
+                    usersMap.set(user.user.user_id, user);
+                    // console.log(usersMap);
+                }
+            });
+
+            const users = [...usersMap.values()];
+            // console.log(users);
+
+            this.toggleCleared();
+            this.setState({users, filteredUsers: users, sth_changed: false});
+
+            const updated_users = updated.reduce((prev, curr) => {
+                return (prev.user ? prev.user.first_name : prev) + ', ' + curr.user.first_name;
+            });
+
+            // console.log(updated_users);
+
+            const componentProps = {
+                type: "shipped",
+                message: `${updated.length < 2 ? updated[0].user.first_name : updated_users} ${type.toUpperCase()}.`,
+                variant: "contained",
+                color: "success",
+            };
+
+            toast(<Notification
+                {...componentProps}
+                className={classes.notificationComponent}
+            />, toastOptions);
+
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    handleRowSelectedChange = (data) => {
+        console.log('handleRowSelectedChange', data)
+    };
+
     render() {
         return (
-            <>
+            <Fragment>
                 {this.state.saving
                 &&
                 <CustomizedSnackbars severity={'success'} message={'worked'}/>
@@ -627,17 +707,15 @@ class Users extends Component {
                                    handleSave={this.handleSave}
                                    saveNewUser={this.saveNewUser}/>
                 <ToastContainer/>
-                {/*<Grid container spacing={1} >*/}
-                {/*<PageTitle title='Users'/>*/}
+
                 <DataTable
-                    // style={{width: '100%'}}
-                    // title="Items"
                     actions={this.actions()}
                     columns={columnsR}
                     data={this.state.filteredUsers}
                     selectableRows // add for checkbox selection
+                    clearSelectedRows={this.state.toggleCleared}
                     // onRowSelected={this.handleRowSelectedChange}
-                    defaultSortField={'item'}
+                    defaultSortField={'user.first_name'}
                     expandableRows
                     highlightOnHover
                     pointerOnHover
@@ -646,20 +724,22 @@ class Users extends Component {
                     selectableRowsComponent={Checkbox}
                     sortIcon={arrowDownward}
                     // onRowClicked={this.handleRowClicked}
-                    contextActions={contextActions(this.deleteSelected)}
-                    pagination
                     dense
                     // expand
-                    // fixedHeader
+                    fixedHeader
+                    // fixedHeaderScrollHeight={'65vh'}
                     expandOnRowClicked
                     customStyles={cust}
                     // subHeader
                     // subHeaderComponent={this.actions()}
+                    // pagination
                     paginationPerPage={15}
                     paginationRowsPerPageOptions={[15, 30, 50, 100]}
+                    contextActions={contextActions(() => this.handleSelected('deleted'), () => this.handleSelected('disabled'), () => this.handleSelected('enabled'), () => this.handleSelected('notadmin'), () => this.handleSelected('admin'))}
+                    onSelectedRowsChange={this.handleRowSelected}
                 />
                 {/*</Grid>*/}
-            </>
+            </Fragment>
         );
     }
 }

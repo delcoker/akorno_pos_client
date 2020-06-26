@@ -284,60 +284,10 @@ class Inventory extends Component {
         // const {classes} = this.props;
         return <>
             <br/>
-            <Grid container spacing={3} direction="row"
-                  justify="center" alignItems="center">
-                <Grid item xs={7}>
-
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        this.handleAddStock(data, e);
-                    }}>
-
-                        <Widget title={data.name} disableWidgetMenu>
-                            <Grid container spacing={3} justify="center"
-                                  className={classes.dashedBorder2}>
-                                <Grid item xs={12} sm={3}>
-                                    <Typography variant="h5" color="secondary" className={classes.text}>
-                                        STOCK
-                                        <Checkbox id="standard-secondary" label="Track Stock"
-                                                  color="secondary" hidden
-                                                  name='has_stock' checked={data.has_stock}/>
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12} sm={2}>
-                                    <TextField
-                                        InputProps={{
-                                            style: textFieldStyle.resize,
-                                        }}
-                                        fullWidth label="In Stock"
-                                        color="secondary" type='number'
-                                        value={data.quantity === null ? '' : data.quantity} name='qty_in_stock'
-                                        variant="standard" disabled={true}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <TextField
-                                        fullWidth label="Quantity To Add" color="secondary"
-                                        inputProps={{step: "1", min: "0", style: textFieldStyle.resize,}}
-                                        variant="standard" type='number'
-                                        defaultValue={this.state.stock_add_value}
-                                        name='qty_to_add'
-                                        disabled={false}/>
-                                </Grid>
-                                <Grid item xs={12} sm={4}>
-                                    <Button type='submit' fullWidth color='secondary'
-                                            startIcon={<CloudUploadIcon/>}
-                                            style={textFieldStyle.resize}
-                                            variant="contained">Add Stock</Button>
-                                </Grid>
-                            </Grid>
-                        </Widget>
-                    </form>
-                </Grid>
-
-
-                <Grid item xs={7}>
-
+            <Grid container spacing={1} direction="row"
+                  justify="space-evenly" alignItems="flex-start">
+                {/*<Grid item md={12} xs={12}>*/}
+                <Grid item lg={6} md={7} xs={7}>
 
                     <form noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
@@ -346,97 +296,146 @@ class Inventory extends Component {
                         {/*{console.log(classes.textFieldStyle)}*/}
                         {/*{console.log(textFieldStyle.resize)}*/}
 
-                        <Widget title={'Item Details'} disableWidgetMenu>
-                            <Grid container spacing={3} justify="space-around"
-                                  className={classes.dashedBorder}>
-                                <Grid item xs={12} sm={8}>
-                                    <TextField
-                                        InputProps={{
-                                            style: textFieldStyle.resize,
-                                        }}
-                                        required label="Name" color="primary" fullWidth
-                                        autoComplete="i_name" name='item_name'
-                                        defaultValue={data.name} onChange={this.handleChange}/>
-                                </Grid>
-                                <Grid item xs={12} sm={4}>
-                                    <TextField
-                                        id="standard-secondar" label="Price"
-                                        inputProps={{step: "0.50", min: "-10.00", style: textFieldStyle.resize}}
-                                        color="primary" type='number'
-                                        fullWidth autoComplete="i_price" required
-                                        defaultValue={parseFloat(data.price).toFixed(2)} name='item_price'
-                                        onChange={this.handleChange}/>
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <FormControl fullWidth>
-                                        <InputLabel>Category</InputLabel>
-                                        <GetItemCategoriesDropDown
-                                            category_id={data.category.id}
-                                            changeHandler={(e) => {
-                                                this.handleChangeDropDown(e, data)
-                                            }}/>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        InputProps={{
-                                            style: textFieldStyle.resize,
-                                        }}
-                                        fullWidth id="standard-second" label="Picture"
-                                        color="primary" onChange={this.handleChange}
-                                        defaultValue={data.pic} name='item_pic'/>
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <FormControlLabel
-                                        control={<Checkbox
-                                            id="standard-secondary"
-                                            label="Track Stock" color="primary"
-                                            name='has_stock' onChange={this.handleChange}
-                                            defaultChecked={data.has_stock}/>}
-                                        label="Track Stock"
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <TextField
-                                        id="standard-second" label="Min Stock"
-                                        color="primary"
-                                        inputProps={{step: "1", min: "0", style: textFieldStyle.resize}}
-                                        onChange={this.handleChange}
-                                        defaultValue={data.min_stock_level} name='min_stock' type='number'/>
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <FormControl
-                                        fullWidth
-                                        style={{margin: 0, style: textFieldStyle.resize,}}>
-                                        <InputLabel>Status</InputLabel>
-                                        <Select style={textFieldStyle.resize}
-                                                id="standard-secondary" label="Status"
-                                                color="primary" onChange={this.handleChange}
-                                                defaultValue={data.status} name='status'>
-                                            <MenuItem
-                                                style={textFieldStyle.resize}
-                                                value={'enabled'}>Enabled</MenuItem>
-                                            <MenuItem style={textFieldStyle.resize}
-                                                      value={'disabled'}>Disabled</MenuItem>
-                                            <MenuItem style={textFieldStyle.resize}
-                                                      value={'deleted'}>Deleted</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <Button fullWidth type='submit'
-                                            style={textFieldStyle.resize}
-                                            color='primary' variant="contained"
-                                            startIcon={<SaveIcon/>}>Save</Button>
-                                </Grid>
+                        {/*<Widget title={'Item Details'} disableWidgetMenu>*/}
+                        <Grid container spacing={1} justify="space-around"
+                              className={classes.dashedBorder}>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    InputProps={{
+                                        style: textFieldStyle.resize,
+                                    }}
+                                    required label="Name" color="primary" fullWidth
+                                    autoComplete="i_name" name='item_name'
+                                    defaultValue={data.name} onChange={this.handleChange}/>
                             </Grid>
+                            <Grid item xs={12} sm={3}>
+                                <TextField
+                                    id="standard-secondar" label="Price"
+                                    inputProps={{step: "0.50", min: "-10.00", style: textFieldStyle.resize}}
+                                    color="primary" type='number'
+                                    fullWidth autoComplete="i_price" required
+                                    defaultValue={parseFloat(data.price).toFixed(2)} name='item_price'
+                                    onChange={this.handleChange}/>
+                            </Grid>
+                            <Grid item xs={12} sm={3}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Category</InputLabel>
+                                    <GetItemCategoriesDropDown
+                                        category_id={data.category.id}
+                                        changeHandler={(e) => {
+                                            this.handleChangeDropDown(e, data)
+                                        }}/>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={2}>
+                                <FormControlLabel
+                                    control={<Checkbox
+                                        id="standard-secondary"
+                                        label="Track Stock" color="primary"
+                                        name='has_stock' onChange={this.handleChange}
+                                        defaultChecked={data.has_stock}/>}
+                                    label="Track Stock"
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={3}>
+                                <TextField
+                                    InputProps={{
+                                        style: textFieldStyle.resize,
+                                    }}
+                                    fullWidth id="standard-second" label="Picture"
+                                    color="primary" onChange={this.handleChange}
+                                    defaultValue={data.pic} name='item_pic'/>
+                            </Grid>
+                            <Grid item xs={12} sm={2}>
+                                <TextField
+                                    id="standard-second" label="Min Stock"
+                                    color="primary"
+                                    inputProps={{step: "1", min: "0", style: textFieldStyle.resize}}
+                                    onChange={this.handleChange}
+                                    defaultValue={data.min_stock_level} name='min_stock' type='number'/>
+                            </Grid>
+                            <Grid item xs={12} sm={2}>
+                                <FormControl
+                                    fullWidth
+                                    style={{margin: 0, style: textFieldStyle.resize,}}>
+                                    <InputLabel>Status</InputLabel>
+                                    <Select style={textFieldStyle.resize}
+                                            id="standard-secondary" label="Status"
+                                            color="primary" onChange={this.handleChange}
+                                            defaultValue={data.status} name='status'>
+                                        <MenuItem
+                                            style={textFieldStyle.resize}
+                                            value={'enabled'}>Enabled</MenuItem>
+                                        <MenuItem style={textFieldStyle.resize}
+                                                  value={'disabled'}>Disabled</MenuItem>
+                                        <MenuItem style={textFieldStyle.resize}
+                                                  value={'deleted'}>Deleted</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={3}>
+                                <Button fullWidth type='submit'
+                                        style={textFieldStyle.resize}
+                                        color='primary' variant="contained"
+                                        startIcon={<SaveIcon/>}>Save</Button>
+                            </Grid>
+                        </Grid>
 
-                        </Widget>
-                        {/*    </Grid>*/}
-                        {/*</Grid>*/}
+                        {/*</Widget>*/}
+                    </form>
+                </Grid>
+
+                <Grid item lg={3} md={7} xs={7}>
+
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        this.handleAddStock(data, e);
+                    }}>
+
+                        {/*<Widget title={data.name} disableWidgetMenu>*/}
+                        <Grid container spacing={1} justify="center"
+                              className={classes.dashedBorder2}>
+                            <Grid item xs={12} sm={6}>
+                                <Typography variant={"h4"} color="secondary" className={classes.text}>
+                                    STOCK
+                                    <Checkbox id="standard-secondary" label="Track Stock"
+                                              color="secondary" hidden
+                                              name='has_stock' checked={data.has_stock}/>
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    InputProps={{
+                                        style: textFieldStyle.resize,
+                                    }}
+                                    fullWidth label="In Stock"
+                                    color="secondary" type='number'
+                                    value={data.quantity === null ? '' : data.quantity} name='qty_in_stock'
+                                    variant="standard" disabled={true}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth label="Quantity To Add" color="secondary"
+                                    inputProps={{step: "1", min: "0", style: textFieldStyle.resize,}}
+                                    variant="standard" type='number'
+                                    defaultValue={this.state.stock_add_value}
+                                    name='qty_to_add'
+                                    disabled={false}/>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Button type='submit' fullWidth color='secondary'
+                                        startIcon={<CloudUploadIcon/>}
+                                        style={textFieldStyle.resize}
+                                        variant="contained">Add Stock</Button>
+                            </Grid>
+                        </Grid>
+                        {/*</Widget>*/}
                     </form>
                 </Grid>
             </Grid>
+
+            {/*</Grid>*/}
             <br/>
         </>
     };
@@ -717,7 +716,7 @@ class Inventory extends Component {
             });
             // console.log(res);
 
-            if(res && res.errors){
+            if (res && res.errors) {
                 alert(res.errors[0].message);
                 return;
             }

@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {Button, Grid, TextField,} from "@material-ui/core";
 // components
 import Widget from "../../components/Widget";
@@ -18,6 +18,8 @@ import memoizeOne from "memoize-one";
 import $ from 'jquery'
 import {toast, ToastContainer} from "react-toastify";
 import Notification from "../../components/Notification";
+import SelectionOptions from "../_shared_components/SelectionOptions";
+import FilterComponent from "../_shared_components/FilterComponent";
 
 // styles
 // import useStyles from "./styles";
@@ -422,6 +424,22 @@ class Shifts extends Component {
 
     // #todo
     calculateLeftWithMP = (e, row) => {
+
+        if (row.status === 'enabled') {
+            const componentProps = {
+                type: "feedback",
+                message: `Shift has not ended.`,
+                variant: "contained",
+                color: "warning",
+            };
+
+            toast(<Notification
+                {...componentProps}
+                className={classes.notificationComponent}
+            />, toastOptions);
+            return;
+        }
+
         const {value} = e.target;
         // console.log("calculating MP minus", row);
         // console.log(name, value);
@@ -444,11 +462,14 @@ class Shifts extends Component {
         // value is Qty Sold MP
         const total = row.qty_during ? row.qty_during + row.qty_start : row.qty_start;
         const should_be_left = total - row.qty_sold_by_user - value;// + row.qty_mp_sold_on_cash_pc;
-        if (should_be_left < 0) {
+
+        // console.log('total', total, 'should_be_left', should_be_left, 'row.qty_sold_by_user', row.qty_sold_by_user, 'value', value);
+
+        if (should_be_left < 0 || (row.current_stock - value) < 0) {
 
             const componentProps = {
                 type: "feedback",
-                message: `The result will be less than 0.`,
+                message: `The result will be less than 0 or current stock`,
                 variant: "contained",
                 color: "info",
             };
@@ -457,7 +478,24 @@ class Shifts extends Component {
                 {...componentProps}
                 className={classes.notificationComponent}
             />, toastOptions);
-            // $('#mp_' + row.id).val(result);
+
+            const newShiftState = this.state.shifts.map((shift) => {
+                if (shift.id === row.id) {
+                    shift = {
+                        ...row,
+                    };
+                    shift.qty_mp_reconciliation = null;
+                    shift.qty_after_mp_reconciliation = null;
+                }
+                return shift;
+            });
+            // console.log(newShiftState);
+
+            $('#mp_' + row.id).val('');
+            // $('#mp').val('');
+
+            this.setState({shifts: newShiftState});
+
             return;
         }
 
@@ -481,7 +519,6 @@ class Shifts extends Component {
         /////////////////////////////////////////////////////////////////
 
 
-        //
         // console.log($('.after_meal_plan' + row.id).val());
         // console.log($('#mp_' + row.id).val());
 
@@ -589,14 +626,19 @@ This action cannot be undone`))) {
     };
 
     actions = () => [
-        <Button key={1} //fullWidth
+        <Button key={2} //fullWidth
                 onClick={this.reconciliation}
                 style={textFieldStyle.resize}
                 color='primary' variant="contained"
                 startIcon={<Lock/>}
                 endIcon={<Lock/>}>MP Reconciliation</Button>,
-        ' ',
-        this.subHeaderComponentMemo(2),
+        <span key={3}/>,
+        <FilterComponent
+            onFilter={e => this.setFilterText(e.target.value)}
+            onClear={this.handleClear}
+            filterText={this.state.filterText}
+            key={1}
+        />,
         // <IconButton color="primary" key={2} onClick={this.handleClickOpen}>
         //     <Add/>
         // </IconButton>,
@@ -614,139 +656,58 @@ This action cannot be undone`))) {
         this.setState({filterText: '', filteredItems: this.state.shifts})
     };
 
-    subHeaderComponentMemo = (key) => {
-        return <this.FilterComponent onFilter={e => this.setFilterText(e.target.value)}
-                                     onClear={this.handleClear}
-                                     filterText={this.state.filterText} key={key}/>;
-    };
-
-    FilterComponent = ({filterText, onFilter, onClear}) => (<>
-        &nbsp;&nbsp;
-        <TextField id="search" type="text" variant="standard"
-                   placeholder="Filter by Name" value={filterText}
-                   onChange={onFilter} inputProps={{
-            // className: classes.text,
-            style: textFieldStyle.resize,
-        }}
-        />
-        <IconButton color="secondary" onClick={onClear}>
-            <Close/>
-        </IconButton>
-    </>);
-
     render() {
         // const {classes, theme} = this.props;
         return (
-            <>
+            <Fragment>
                 <ToastContainer/>
-                {/*<PageTitle title=""/>*/}
 
-                <Grid container spacing={1}>
-
-                    <Grid container item spacing={1} xs={12}>
-                        <Grid item xs={12}>
-                            <Widget disableWidgetMenu>
-                                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                    <Grid container spacing={3} justify="space-around">
-                                        <Grid item lg={4} md={4} sm={6} xs={12}>
-                                            <KeyboardDateTimePicker
-                                                // disableToolbar
-                                                fullWidth
-                                                inputVariant="outlined"
-                                                variant="inline"
-                                                format="dd-MMM-yyyy hh:mm a"
-                                                margin="normal"
-                                                id="start_date"
-                                                label="Start Date"
-                                                value={this.state.startDate}
-                                                onChange={this.handleStartDateChange}
-                                                inputProps={{
-                                                    style: textFieldStyle.resize,
-                                                }}
-                                            />
-                                        </Grid>
-
-                                        <Grid item lg={4} md={4} sm={6} xs={12}>
-                                            <KeyboardDateTimePicker
-                                                fullWidth
-                                                label="End Date"
-                                                inputVariant="outlined"
-                                                variant="inline"
-                                                margin="normal"
-                                                id="end_date"
-                                                value={this.state.endDate}
-                                                onChange={this.handleEndDateChange}
-                                                format="dd-MMM-yyyy hh:mm a"
-                                                ampm={true}
-                                                inputProps={{
-                                                    style: textFieldStyle.resize,
-                                                }}
-                                            />
-                                        </Grid>
-
-                                        <Grid item lg={3} md={3} sm={6} xs={12}>
-                                            <GetUsersDropDown
-                                                loggedUserId={this.state.user_id}
-                                                handleDropDownChange={
-                                                    this.handleDropDownChange
-                                                }
-                                                handleDropDownHTML={this.handleDropDownHTML}
-                                            />
-                                        </Grid>
-
-                                        <Grid item xs={1}>
-
-                                            <IconButton size="medium"
-                                                        style={{
-                                                            height: "100px",
-                                                            width: "100px"
-                                                        }}
-                                                        onClick={this.runShiftReport}
-                                            >
-                                                <Print color="secondary"
-                                                       fontSize='large'/>
-                                            </IconButton>
-                                        </Grid>
-                                    </Grid>
-                                </MuiPickersUtilsProvider>
-                            </Widget>
-                        </Grid>
-                    </Grid>
-                    <Grid container item spacing={1} xs={12}>
-                        <Grid item xs={12}>
-                            <DataTable
-                                title={"Book Total: GH₵ " + this.state.book_total}
-                                columns={columnsR(this.calculateLeftWithMP, this.state.user_id > 0 && this.state.shifts[0] ? this.state.shifts[0].user_name : 'Everyone')}
-                                data={this.state.filteredItems}
-                                actions={this.actions()}
-                                // selectableRows // add for checkbox selection
-                                // selectableRowsComponent={Checkbox}
-                                // selectableRowsComponentProps={{ inkDisabled: true }}
-                                // onRowSelected={this.handleChange}
-                                defaultSortField={"item_name"}
-                                // clearSelectedRows={this.state.toggledClearRows}
-                                expandableRows={false}
-                                highlightOnHover
-                                pointerOnHover
-                                striped
-                                customStyles={dataTableFont}
-                                // onRowClicked={this.handleRowClicked}
-                                // contextActions={contextActions(this.deleteSelectedRows)}
-                                // pagination
-                                fixedHeader
-                                fixedHeaderScrollHeight='56vh'
-                            />
-                        </Grid>
-
-                    </Grid>
-                    <Grid container item spacing={1} xs={1}>
+                <Grid container item spacing={1}>
+                    <Grid item xs={12}>
+                        <SelectionOptions
+                            handlePaymentMethodChange={this.handlePaymentMethodChange}
+                            user_id={this.state.user_id}
+                            handleDropDownChange={this.handleDropDownChange}
+                            startDate={this.state.startDate}
+                            handleStartDateChange={this.handleStartDateChange}
+                            endDate={this.state.endDate}
+                            handleEndDateChange={this.handleEndDateChange}
+                            runReport={this.runShiftReport}
+                        />
                     </Grid>
                 </Grid>
+                <br/>
+                <br/>
+                <Grid item xs={12}>
+                    <DataTable
+                        title={"Book Total: GH₵ " + this.state.book_total}
+                        columns={columnsR(this.calculateLeftWithMP, this.state.user_id > 0 && this.state.shifts[0] ? this.state.shifts[0].user_name : 'Everyone')}
+                        data={this.state.filteredItems}
+                        actions={this.actions()}
+                        // selectableRows // add for checkbox selection
+                        // selectableRowsComponent={Checkbox}
+                        // selectableRowsComponentProps={{ inkDisabled: true }}
+                        // onRowSelected={this.handleChange}
+                        defaultSortField={"item_name"}
+                        // clearSelectedRows={this.state.toggledClearRows}
+                        expandableRows={false}
+                        highlightOnHover
+                        pointerOnHover
+                        striped
+                        customStyles={dataTableFont}
+                        // onRowClicked={this.handleRowClicked}
+                        // contextActions={contextActions(this.deleteSelectedRows)}
+                        // pagination
+                        fixedHeader
+                        fixedHeaderScrollHeight='56vh'
+                    />
+                </Grid>
+
 
                 <iframe title={'Print Report'} id="contents_to_print"
                         style={{height: "0px", width: "0px", position: "absolute"}}/>
 
-            </>
+            </Fragment>
         );
     }
 }

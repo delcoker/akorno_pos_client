@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {Button, FormControl, Grid, InputLabel, MenuItem, Select, Tab, Tabs} from "@material-ui/core";
 
 // components
@@ -15,10 +15,15 @@ import {Print} from "@material-ui/icons";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import useStyles from './styles'
 import moment from "moment";
+import PaymentOptions from "../_shared_components/PaymentOptions";
+import {toast} from "react-toastify";
+import Notification from "../../components/Notification";
+import SelectionOptions from "../_shared_components/SelectionOptions";
 // import {filterEventsOfChild} from "recharts/lib/util/ReactUtils";
 // import _ from "lodash"
 
 let classes = null;
+let toastOptions = null;
 
 const columnsR = [
     {name: "Item", selector: "item_name", sortable: true},
@@ -72,12 +77,16 @@ const columnsMPDeep = [
 
 const lineDelimiter = "<br>";
 const typeDelimiter = "-";
-const company_name = "AKORNO SERVICES LTD.";
+const company_name = "AKORNO";
 
 class Reports extends Component {
     constructor(props) {
         super(props);
         classes = this.props.classes;
+        toastOptions = {
+            className: classes.notification,
+            progressClassName: classes.progress,
+        };
         this.user = null;
         this.user_id = -1;
         this.state = {
@@ -87,7 +96,7 @@ class Reports extends Component {
             // startDate: new Date().setFullYear(2019, 10, 10), // set as six am
             startDate: new Date().setHours(2), // set as six am
             endDate: new Date(),
-            user_id: 0,
+            user_id: -1,
             total: 0,
             payment_method: 'cash',
             // payment_method: 'cash',
@@ -131,8 +140,6 @@ class Reports extends Component {
         //////////// --------------------------------
 
         this.fetchTransactions(this.state.startDate, date, transactionPoint, this.state.user_id, this.state.payment_method);
-
-
     };
 
     fetchTransactions = async (startDate, endDate, transactionPoint, user_id, payment_method) => {
@@ -160,7 +167,7 @@ class Reports extends Component {
                 }
             });
             // console.log(res);
-            let transactions = res.data.getDailyReport;
+            const transactions = res.data.getDailyReport;
             // console.log(transactions);
             let total = 0;
             for (let ite of transactions) {
@@ -587,102 +594,19 @@ class Reports extends Component {
     render() {
         // const {classes, theme} = this.props;
         return (
-            <>
+            <Fragment>
                 <Grid container spacing={1} className={classes.iconsContainer}>
                     <Grid item xs={12}>
-                        <Widget disableWidgetMenu>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                <Grid container spacing={3} justify="space-around">
-
-                                    <Grid item lg={2} md={5} sm={6} xs={12}>
-                                        <FormControl
-                                            fullWidth
-                                            style={{style: textFieldStyle.resize, marginTop: '10px'}}>
-                                            <InputLabel>Payment Method</InputLabel>
-                                            <Select style={textFieldStyle.resize}
-                                                    id="standard-secondary" label="Payment Method"
-                                                    color="primary"
-                                                    onChange={this.handlePaymentMethodChange}
-                                                    defaultValue={'cash'} name='payment_method'>
-                                                <MenuItem
-                                                    style={textFieldStyle.resize}
-                                                    value={'cash'}>Cash</MenuItem>
-                                                <MenuItem style={textFieldStyle.resize}
-                                                          value={'meal plan'}>Meal Plan</MenuItem>
-                                                <MenuItem style={textFieldStyle.resize}
-                                                          value={'visa'}>Visa</MenuItem>
-                                            </Select>
-                                        </FormControl>
-
-                                        {/*<GetUsersDropDown*/}
-                                        {/*    loggedUserId={this.state.user_id}*/}
-                                        {/*    handleDropDownChange={*/}
-                                        {/*        this.handleDropDownChange*/}
-                                        {/*    }*/}
-                                        {/*/>*/}
-                                    </Grid>
-
-                                    <Grid item lg={3} md={5} sm={6} xs={12}>
-                                        <KeyboardDateTimePicker
-                                            // disableToolbar
-                                            fullWidth
-                                            inputVariant="outlined"
-                                            variant="inline"
-                                            format="dd-MMM-yyyy hh:mm a"
-                                            margin="normal"
-                                            id="start_date"
-                                            label="Start Date"
-                                            value={this.state.startDate}
-                                            onChange={this.handleStartDateChange}
-                                            inputProps={{
-                                                style: textFieldStyle.resize,
-                                            }}
-                                        />
-                                    </Grid>
-
-                                    <Grid item lg={3} md={5} sm={6} xs={12}>
-                                        <KeyboardDateTimePicker
-                                            fullWidth
-                                            label="End Date"
-                                            inputVariant="outlined"
-                                            variant="inline"
-                                            margin="normal"
-                                            id="end_date"
-                                            value={this.state.endDate}
-                                            onChange={this.handleEndDateChange}
-                                            format="dd-MMM-yyyy hh:mm a"
-                                            ampm={true}
-                                            inputProps={{
-                                                style: textFieldStyle.resize,
-                                            }}
-                                        />
-                                    </Grid>
-
-                                    <Grid item lg={3} md={5} sm={6} xs={12}>
-                                        <GetUsersDropDown
-                                            loggedUserId={this.state.user_id}
-                                            handleDropDownChange={
-                                                this.handleDropDownChange
-                                            }
-                                        />
-                                    </Grid>
-
-                                    <Grid item xs={1}>
-
-                                        <IconButton size="medium"
-                                                    style={{
-                                                        height: "100px",
-                                                        width: "100px"
-                                                    }}
-                                                    onClick={this.runReport}
-                                        >
-                                            <Print color="secondary"
-                                                   fontSize='large'/>
-                                        </IconButton>
-                                    </Grid>
-                                </Grid>
-                            </MuiPickersUtilsProvider>
-                        </Widget>
+                        <SelectionOptions
+                            handlePaymentMethodChange={this.handlePaymentMethodChange}
+                            user_id={this.state.user_id}
+                            handleDropDownChange={this.handleDropDownChange}
+                            startDate={this.state.startDate}
+                            handleStartDateChange={this.handleStartDateChange}
+                            endDate={this.state.endDate}
+                            handleEndDateChange={this.handleEndDateChange}
+                            runReport={this.runReport}
+                        />
                     </Grid>
                     <Tabs indicatorColor="primary"
                           textColor="primary"
@@ -759,7 +683,7 @@ class Reports extends Component {
                 <iframe title={'Print Report'} id="contents_to_print"
                         style={{height: "0px", width: "0px", position: "absolute"}}/>
 
-            </>
+            </Fragment>
         );
     }
 }

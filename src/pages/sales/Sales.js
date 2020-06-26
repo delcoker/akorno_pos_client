@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {
     FormControl,
     Grid, InputLabel, MenuItem, Select,
@@ -23,19 +23,21 @@ import {
     CHECK_USER_SESSION,
     convertArrayOfObjectsToPrint,
     ENABLED_ITEMS,
-    fetcher, GET_STUDENT_DETAIL,
+    fetcher, GET_MOMO_DETAIL, GET_STUDENT_DETAIL,
     getUser,
     isAnyShiftActive, SAVE_TRANSACTIONS, START_SHIFT
 } from "../../_utils/fetcher";
 
 import {withStyles} from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
-import SaleList from "./compnonents/SaleList";
+import SaleList from "./components/SaleList";
 // import {YourAwesomeComponent} from "../../components/FAB/YourAwesomeComponent";
 import {toast} from "react-toastify";
 import Notification from "../../components/Notification";
 import moment from "moment";
 import {textFieldStyle} from "../../_utils/inlineStyles";
+import CardItem from "./components/CardItem";
+import PaymentOptions from "../_shared_components/PaymentOptions";
 
 const useStyles = (theme => ({
     dashedBorder: {
@@ -67,7 +69,7 @@ let toastOptions = null;
 // var theme = useTheme();
 
 
-const company_name = "AKORNO SERVICES LTD.";
+const company_name = "AKORNO";
 
 // let API_KEY = "AIzaSyDXAm8fyR9alMVpg_Gq0-JfO6Yw_Kq7wQg";
 // let ENGINE_ID = "012568330619765078995:hgynjoenxeu";
@@ -91,6 +93,16 @@ class Sales extends Component {
             payment_detail: '',
             student_details: {name: ''},
             student_number_txt: "",
+
+            tp_name: localStorage.getItem("tp_name"),
+            tp: parseInt(localStorage.getItem('tp')),
+
+            numberTextBox: "",
+            // numberTextBoxPlaceHolder : "Student Number",
+            nameTextBox: "",
+            // nameTextBoxPlaceHolder : "Student Number",
+            txtBoxDisabled: true,
+            txtBoxVisible: false,
         };
         // this.myRef = React.createRef();
     }
@@ -185,6 +197,21 @@ class Sales extends Component {
         });
     };
 
+    updateList(item_id, qty) {
+        const items = this.state.items;
+        items.map(i => {
+            if (i.id === item_id) {
+                i.quantity -= qty;
+            }
+            return i;
+        });
+
+        this.setState({
+            items
+        });
+    }
+
+
     handleItemDelete2 = (indices) => {
         // console.log('map', indices);
         const map = this.state.items_list;
@@ -261,10 +288,13 @@ class Sales extends Component {
             quantity_clicked: ''
         });
 
+        const a = $('#paying');
+        // console.log(a);
+        a.focus();
+        a.select();
     };
 
     getClickedItemsAsArray = (mp) => {
-
         let mDataSet = [];
         let tot = 0;
         mp.forEach((value, key) => {
@@ -272,21 +302,20 @@ class Sales extends Component {
                 mDataSet.push({
                     pic: key.pic,
                     item: key.name,
-                    price: key.price.toFixed(2),
+                    price: (key.price).toFixed(2),
                     type: key.category.name,
                     qty: value,
-                    subtotal: (value * key.price).toFixed(2),
+                    subtotal: Math.round((value * key.price) * 100) / 100,
                     id: key.id
                 });
             }
             tot += value * key.price;
-
         });
         // console.log(mDataSet);
         this.setState({
-            totalNii: tot,
-            changeNii: this.state.payingNii - tot,
-            payingNii: tot,
+            totalNii: (Math.round(tot * 100) / 100).toFixed(2),
+            changeNii: (Math.round((this.state.payingNii - tot) * 100) / 100).toFixed(2),
+            payingNii: (Math.round(tot * 100) / 100),
             dataSet: mDataSet
         });
         // return mDataSet;
@@ -318,7 +347,7 @@ class Sales extends Component {
               })//.then();
   */
         // console.log(`../../images/${item_name}`);
-        return `images/${item_name}`;
+        return item_name.includes("%") ? "": `images/${item_name}`;
     };
 
     handlePayingChangeNii = (paying) => {
@@ -355,13 +384,132 @@ class Sales extends Component {
 
     handlePaymentMethodChange = (e) => {
         const {value} = e.target;
-        this.setState({payment_method: value});
-        if (this.myRef.value > 6) {
+        // console.log(this.myRef);
+        if (this.myRef && this.myRef.value > 6) {
             this.myRef.value = this.myRef.value.substring(0, 6);
             // this.student_name_ref.value = '';
         }
+
+        // console.log(value);
+
+        if (value === 'cash') {
+            this.setState({
+                txtBoxDisabled: true,
+                txtBoxVisible: false,
+                numberTextBox: '',
+                nameTextBox: "",
+            })
+        } else if (value === 'meal plan') {
+            this.setState({
+                txtBoxDisabled: false,
+                txtBoxVisible: true,
+                numberTextBox: 'Student #',
+                nameTextBox: "Student Name"
+            })
+        } else if (value === 'visa') {
+            this.setState({
+                txtBoxDisabled: true,
+                txtBoxVisible: true,
+                numberTextBox: 'Visa #',
+                nameTextBox: "Name"
+            })
+        } else if (value === 'momo') {
+            this.setState({
+                txtBoxDisabled: false,
+                txtBoxVisible: true,
+                numberTextBox: 'MoMo #',
+                nameTextBox: "Momo Name"
+            })
+        }
+        this.setState({payment_method: value});
     };
 
+    handleNumberTextBox = async e => {
+        if (this.state.payment_method === "meal plan") {
+            //     this.myRef.value = "";
+
+            const student_id = e.target.value;
+            if (student_id.length < 7) return;
+            // try to get student details
+            try {
+                let res = await fetcher({
+                    query: GET_STUDENT_DETAIL,
+                    variables: {
+                        student_id,
+                    }
+                });
+
+                const client_details = res.data.getStudentDetail;
+                // console.log(client_details);
+                // this.student_name_ref.value = client_details.name;
+
+                this.setState({client_details});
+
+            } catch (err) {
+                console.log(err);
+            }
+        } else if (this.state.payment_method === "visa") {
+            //     this.myRef.value = "";
+
+            const student_id = e.target.value;
+            if (student_id.length < 7) return;
+            // try to get student details
+            try {
+                let res = await fetcher({
+                    query: GET_STUDENT_DETAIL,
+                    variables: {
+                        student_id,
+                    }
+                });
+
+                const client_details = res.data.getStudentDetail;
+                // console.log(client_details);
+                // this.student_name_ref.value = client_details.name;
+
+                this.setState({client_details});
+
+            } catch (err) {
+                console.log(err);
+            }
+        } else if (this.state.payment_method === "momo") {
+            //     this.myRef.value = "";
+
+            const telephone_num_id = e.target.value;
+            if (telephone_num_id.length < 7) return;
+            // try to get client details
+            try {
+                let res = await fetcher({
+                    query: GET_MOMO_DETAIL,
+                    variables: {
+                        telephone_num_id,
+                    }
+                });
+
+                const client_details = res.data.getTelNumID;
+                // console.log(client_details);
+                // this.student_name_ref.value = client_details.name;
+
+                this.setState({client_details});
+
+            } catch (err) {
+                console.log(err);
+            }
+        } else {
+            // reset everything
+        }
+    };
+
+    handleNameTextBox = async e => {
+        // console.log('here);
+        if (this.state.payment_method === "visa") return;
+        let a = e.target.value;
+
+
+        // console.log(a);
+        this.setState({client_details: {name: a}});
+        // this.student_name_ref.value = e.target.value;
+    };
+    /*
     handleStudentNumber = async e => {
         if (this.state.payment_method === "cash" || this.state.payment_method === "visa") {
             this.myRef.value = "";
@@ -407,7 +555,7 @@ class Sales extends Component {
         // console.log(a);
         this.setState({student_details: {name: a}});
         // this.student_name_ref.value = e.target.value;
-    };
+    };*/
 
     printey = async () => {
 
@@ -415,7 +563,7 @@ class Sales extends Component {
         if (this.state.payment_method === "meal plan" && this.myRef.value.length < 8) {
             const componentProps = {
                 type: "defence",
-                message: 'Student number too short.',
+                message: 'Student number too short ref.',
                 variant: "contained",
                 color: "info",
             };
@@ -451,8 +599,6 @@ class Sales extends Component {
             throw new Error("Could not get user.\nTransaction not saved");
         }
 
-        // console.log(user);
-
         if (!user.isAdmin) {
 
             //check if user has started a shift
@@ -463,9 +609,11 @@ class Sales extends Component {
                 if (window.confirm("You haven't started a SHIFT so you cannot make this sale.\n" +
                     "Would you like to start one now")) {
 
-                    let active_shift = await isAnyShiftActive();
+                    let active_shift = await isAnyShiftActive(this.state.tp);
 
-                    if (active_shift !== null) {
+                    console.log('active_shift', active_shift);
+
+                    if (active_shift) {
                         alert(`${active_shift.user.first_name} ${active_shift.user.last_name} is already on a shift`);
                         return;
                     }
@@ -485,7 +633,8 @@ class Sales extends Component {
                     return;
                 }
             }
-
+        } else if (user.isAdmin) {
+            console.warn('Admin should be able to start a shift non?')
         }
 
         const chan = this.state.payingNii - this.state.totalNii;
@@ -506,6 +655,7 @@ class Sales extends Component {
                 {...componentProps} />, toastOptions);
             return;
         }
+
         if (chan < 0) {
 
             const componentProps = {
@@ -524,19 +674,20 @@ class Sales extends Component {
         const columnDelimiter = "&emsp;";
         const lineDelimiter = "<br>";
 
-        let company = company_name + lineDelimiter;
+        let company = company_name + " - " + localStorage.getItem("tp_name") + lineDelimiter;
         let vendor = 1;
-        let transaction_point = null;
+        let transaction_point = parseInt(localStorage.getItem("tp"));
         let cashier_name =
             "Cashier: " +
             (user.first_name + " " + user.last_name).substr(-company.length);
         let head = company + cashier_name;
         head += lineDelimiter + this.state.payment_method.toUpperCase();
-        this.state.payment_method === "meal plan" ? head += lineDelimiter + this.state.payment_detail : head += null;
+        this.state.payment_method === "meal plan" ? head += lineDelimiter + this.state.payment_detail : head += "";
 
         let foot =
-            `${lineDelimiter}Total:${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.totalNii.toFixed(2)}${lineDelimiter}Paid :${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.payingNii.toFixed(2)}${lineDelimiter}Change:${columnDelimiter}${columnDelimiter}${columnDelimiter}<strong>${this.state.changeNii.toFixed(2)}</strong>${lineDelimiter}050-248-0435${lineDelimiter}delcoker@gmail.com`;
+            `${lineDelimiter}Total:${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.totalNii}${lineDelimiter}Paid :${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.payingNii.toFixed(2)}${lineDelimiter}Change:${columnDelimiter}${columnDelimiter}${columnDelimiter}<strong>${this.state.changeNii.toFixed(2)}</strong>${lineDelimiter}050-248-0435${lineDelimiter}delcoker@gmail.com`;
 
+        // foot += lineDelimiter + "Location: " + localStorage.getItem("tp_name");
         foot += lineDelimiter + moment((new Date())).format("llll");
         foot += lineDelimiter + "Items are valid for the day.";
 
@@ -565,9 +716,9 @@ class Sales extends Component {
 
         if (
             window.confirm(`Are you sure you want to print:
-                Total     ₵:     ${this.state.totalNii.toFixed(2)}
                 Paying  ₵:     ${this.state.payingNii.toFixed(2)}
-                Change₵:     ${this.state.changeNii.toFixed(2)}`)
+                Total     ₵:     ${this.state.totalNii}
+                Change₵:     ${this.state.changeNii}`)
         ) {
             let ids = [],
                 qty = [];
@@ -579,6 +730,12 @@ class Sales extends Component {
 
             // ------------------- save transaction // saves as GMT
 
+            // console.log(ids, qty, vendor,
+            //     transaction_point,
+            //     user.user_id,
+            //     this.state.payment_method,
+            //     this.state.payment_detail)
+
             let res = await this.saveTransactions(
                 ids, qty, vendor,
                 transaction_point,
@@ -587,11 +744,23 @@ class Sales extends Component {
                 this.state.payment_detail
             );
 
-            if (res === 0) {
+            if (res && res.errors) {
+                const componentProps = {
+                    type: "report",
+                    message: res.errors[0].message,
+                    color: "secondary",
+                };
+                componentProps.variant = "contained";
+
+                toast(<Notification
+                    {...componentProps}
+                    className={classes.notificationComponent}
+                />, toastOptions);
+                return;
+            } else if (res.data.saveTransaction === 0) {
                 const componentProps = {
                     type: "feedback",
                     message: 'One of the items will go below the quantity left',
-                    variant: "contained",
                     color: "info",
                 };
 
@@ -606,6 +775,11 @@ class Sales extends Component {
             pri.focus();
             pri.print();
 
+            this.state.dataSet.forEach(item => {
+                // console.log("here", item);
+                this.updateList(item.id, item.qty)
+            });
+
             this.deleteAllRows(ids);
 
             const componentProps = {
@@ -619,8 +793,8 @@ class Sales extends Component {
                 className={classes.notificationComponent}
                 {...componentProps} />, toastOptions);
 
-            this.myRef.value = '';
-            this.setState({payingNii: 0, changeNii: 0, student_details: {name: ''}});
+            if (this.myRef) this.myRef.value = '';
+            this.setState({payingNii: 0, changeNii: 0, client_details: {name: ''}});
         }
     };
 
@@ -652,7 +826,7 @@ class Sales extends Component {
                 }
             });
 
-            return (res.data.saveTransaction);
+            return (res);
         } catch (err) {
             console.log(err);
         }
@@ -663,51 +837,17 @@ class Sales extends Component {
         const qty = 1;
         if (this.state.items && this.state.items.length > 0) {
             return this.state.items.map((item, i) => {
-                let i_qty = item.has_stock ? " : " + item.quantity : '';
+                let i_qty = item.has_stock ? ` : ${item.quantity}` : '';
                 return (
-                    <Grid item lg={4} md={4} sm={6} xs={12} className='filterable'
-                          key={i} onClick={() => this.handleCardClickChild(item, qty)}
-                    >
-                        <Widget
-                            title={item.price.toFixed(2)}
-                            item_name=
-                                {<Img width={'43px'}
-                                      src={[
-                                          (this.getItemImage(item.pic) + '.svg'),
-                                          this.getItemImage(item.pic) + '.gif',
-                                          this.getItemImage(item.pic) + '.png',
-                                          this.getItemImage(item.pic) + ".jpg",
-                                          this.getItemImage(item.pic) + '.jpeg',
-                                          logo]}
-                                />}
-                            upperTitle bodyClass={classes.fullHeightBody}
-                            className={classes.card}>
-                            <div className={classes.visitsNumberContainer}>
-                                <Typography size="md" weight="medium">
-                                    {item.name}
-                                </Typography>
-                            </div>
-                            <Grid container direction="column"
-                                  justify="space-between" alignItems="flex-start">
-                                {i_qty
-                                && <Grid item>
-                                    <Typography
-                                        color="text"
-                                        colorBrightness="secondary">
-                                        Stock {i_qty}
-                                    </Typography>
-
-                                </Grid>
-                                }
-                                <Grid item>
-                                    <Typography color="text"
-                                                colorBrightness="secondary">
-                                        {item.category.name}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-                        </Widget>
-                    </Grid>
+                    <CardItem
+                        handleCardClickChild={this.handleCardClickChild}
+                        i_qty={i_qty}
+                        item={item}
+                        getItemImage={this.getItemImage}
+                        classes={classes}
+                        qty={qty}
+                        key={i}
+                    />
                 )
             });
         }
@@ -716,67 +856,67 @@ class Sales extends Component {
     render() {
         // console.log(this.state);
         return (
-            <>
+            <Fragment>
                 <Grid container item spacing={1} sm={7} xs={12}>
                     <Grid item sm={3} xs={12}>
                         <h2>Find Anything</h2>
-                        <TextField id="myInput" placeholder="Search" type='text' color='primary'
-                                   autoComplete='' fullWidth variant={"outlined"}
-                                   inputProps={{style: textFieldStyle.resize}}
-                                   name="search"
+                        <TextField
+                            id="myInput" placeholder="Search" type='text' color='primary'
+                            autoComplete='' fullWidth variant={"outlined"}
+                            inputProps={{style: textFieldStyle.resize}}
+                            name="search"
                             // helperText={'Type in here to find what you want'}
                         />
                     </Grid>
                     <Grid item sm={2} xs={12}>
                         <h2>Method</h2>
-                        <FormControl
-                            fullWidth
-                            style={{margin: 0, style: textFieldStyle.resize,}}>
-                            <InputLabel>Status</InputLabel>
-                            <Select style={textFieldStyle.resize}
-                                    id="standard-secondary" label="Payment Method"
-                                    color="primary" onChange={this.handlePaymentMethodChange}
-                                    defaultValue={'cash'} name='payment_method'>
-                                <MenuItem
-                                    style={textFieldStyle.resize}
-                                    value={'cash'}>Cash</MenuItem>
-                                <MenuItem style={textFieldStyle.resize}
-                                          value={'meal plan'}>Meal Plan</MenuItem>
-                                <MenuItem style={textFieldStyle.resize}
-                                          value={'visa'}>Visa</MenuItem>
-                            </Select>
-                        </FormControl>
+                        <PaymentOptions
+                            handlePaymentMethodChange={this.handlePaymentMethodChange}
+                            selectStyle={textFieldStyle.resize}
+                            formStyle={{style: textFieldStyle.resize, marginTop: '0px'}}
+                            // numberTextBox={this.state.numberTextBox}
+                            // nameTextBox={this.state.nameTextBox}
+                        />
                     </Grid>
                     <Grid container item spacing={1} sm={7} xs={12}>
 
                         <Grid container item sm={5} xs={12}>
-                            <h2>Student #</h2>
-                            <TextField placeholder="Student Number" type='text' color='secondary'
-                                       autoComplete='' fullWidth variant={"outlined"}
-                                       inputProps={{style: textFieldStyle.resize}}
-                                       label="Student Number" name="student_number"
+                            <h2>{this.state.numberTextBox}</h2>
+                            {this.state.txtBoxVisible &&
+                            <TextField
+                                label={this.state.numberTextBox}
+                                placeholder={this.state.numberTextBox}
+                                type='text' color='secondary'
+                                autoComplete='' fullWidth variant={"outlined"}
+                                inputProps={{style: textFieldStyle.resize}}
+                                name="student_number"
                                 // value={this.state.student_number_txt}
-                                       onChange={this.handleStudentNumber}
+                                onBlur={this.handleNumberTextBox}
                                 // ref={this.myRef}
-                                       inputRef={input => (this.myRef = input)}
+                                inputRef={input => (this.myRef = input)}
                                 // ref={'stud_num'}
+                                disabled={this.state.txtBoxDisabled}
                             />
+                            }
 
                         </Grid>
 
                         <Grid container item sm={7} xs={12}>
-                            <h2>Student Name</h2>
+                            <h2>{this.state.nameTextBox}</h2>
+                            {this.state.txtBoxVisible &&
                             <TextField
-                                label="Student Name"
-                                placeholder="Name"
+                                label={this.state.nameTextBox}
+                                placeholder={this.state.nameTextBox}
                                 type='text' color='primary'
                                 fullWidth variant={"standard"}
                                 inputProps={{style: textFieldStyle.resize}}
                                 inputRef={input => (this.student_name_ref = input)}
-                                value={this.state.student_details ? this.state.student_details.name : ''}
+                                value={this.state.client_details ? this.state.client_details.name : ''}
                                 name={'student_name'}
-                                onChange={this.handleStudentName}
+                                onChange={this.handleNameTextBox}
+                                disabled={this.state.txtBoxDisabled}
                             />
+                            }
                         </Grid>
                     </Grid>
                 </Grid>
@@ -816,12 +956,11 @@ class Sales extends Component {
                         </Grid>
                     </Grid>
                 </div>
-            </>
+            </Fragment>
         );
     }
 }
 
-// export default withStyles(useStyles, {withTheme: true})(MyLoginPage);
 export default withStyles(useStyles, {withTheme: true})(Sales);
 
 

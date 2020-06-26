@@ -7,6 +7,7 @@ import {
     Filter7, Filter8, Filter9, ExposureZero, Print, HighlightOff
 } from "@material-ui/icons";
 import InputAdornment from "@material-ui/core/InputAdornment";
+import $ from "jquery";
 
 const containerStyle = {
     right: '-1.5vw',
@@ -85,7 +86,7 @@ export class YourAwesomeComponent extends Component {
                                 }}
                                 type='number'
                                 color='primary'
-                                value={totalNii.toFixed(2)}
+                                value={totalNii}
                                 disabled
                             />
                         </Grid>

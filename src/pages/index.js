@@ -11,7 +11,7 @@ export default {
     Sales:Sales,
     Reports,
     Shifts,
-    Items,
+    // Items,
     Inventory,
     Users,
     // Bills,
