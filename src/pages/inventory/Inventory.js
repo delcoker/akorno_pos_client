@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
 import Img from 'react-image';
 // import styled from 'styled-components';
 import useStyles from './styles'
@@ -282,7 +282,7 @@ class Inventory extends Component {
 
     SampleExpandedComponent = ({data}) => {
         // const {classes} = this.props;
-        return <>
+        return <Fragment>
             <br/>
             <Grid container spacing={1} direction="row"
                   justify="space-evenly" alignItems="flex-start">
@@ -437,7 +437,7 @@ class Inventory extends Component {
 
             {/*</Grid>*/}
             <br/>
-        </>
+        </Fragment>
     };
 
     getItemStats = (data, e) => {
@@ -487,7 +487,6 @@ class Inventory extends Component {
         this.updateOrCreateItem(item, 1); // if it's an update up is 1
     };
 
-
     updateOrCreateItem = async (item, up) => {
         // console.log(item)
         let updatedOrAdded = 'failed';
@@ -516,7 +515,7 @@ class Inventory extends Component {
                     if (items[i].id === item.id) {
                         // console.log(items[i]);
                         items[i] = JSON.parse(JSON.stringify(items[i]));
-                        items[i].id = item.id;
+                        // items[i].id = item.id;
                         items[i].pic = item.pic;
                         items[i].name = item.name;
                         items[i].price = item.price;
@@ -542,11 +541,11 @@ class Inventory extends Component {
                 let newItem = res.data.updateItem;
 
                 // console.log('item', items);
-                newItem.id = newItem.item.id;
-                newItem.name = newItem.item.name;
-                newItem.price = newItem.item.price;
-                newItem.pic = newItem.item.pic;
-                newItem.category = newItem.item.category;
+                // newItem.id = newItem.id;
+                // newItem.name = newItem.name;
+                // newItem.price = newItem.item.price;
+                // newItem.pic = newItem.item.pic;
+                // newItem.category = newItem.item.category;
 
                 const items = [...this.state.items, newItem];
 
@@ -571,8 +570,9 @@ class Inventory extends Component {
         return item.id;
     };
 
-
     bulkUpdate = async (ids, names, type) => {
+
+        if (ids.length > 10 && !window.confirm(`Are you sure you want to update ${ids.length} items?`)) return;
 
         if (type === 'price') {
             type = (prompt(`Price:\r ${this.state.selectedRows.map(r => r.name)}?`));
@@ -619,16 +619,16 @@ class Inventory extends Component {
             let itemsMap = new Map([...this.state.items].map(i => [i.id, i]));
 
             updated.forEach((item) => {
-                if (itemsMap.has(item.item.id)) {
+                if (itemsMap.has(item.id)) {
                     item = { // to fix layout for table column data
                         ...item,
-                        id: item.item.id,
-                        name: item.item.name,
-                        price: item.item.price,
-                        pic: item.item.pic,
-                        category: item.item.category
+                        // id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        pic: item.pic,
+                        category: item.category
                     };
-                    itemsMap.set(item.item.id, item)
+                    itemsMap.set(item.id, item)
                 }
             });
 
@@ -637,11 +637,11 @@ class Inventory extends Component {
             this.toggleCleared();
             this.setState({items, filteredItems: items, sth_changed: false});
 
-            const updated_items = updated.reduce((prev, curr) => (prev.item ? prev.item.name : prev) + ', ' + curr.item.name);
+            const updated_items = updated.reduce((prev, curr) => (prev ? prev.name : prev) + ', ' + curr.name);
 
             const componentProps = {
                 type: "shipped",
-                message: `${updated.length < 2 ? updated[0].item.name : updated_items} ${type.toUpperCase()}.`,
+                message: `${updated.length < 2 ? updated[0].name : updated_items} ${type.toUpperCase()}.`,
                 variant: "contained",
                 color: "success",
             };
@@ -759,7 +759,7 @@ class Inventory extends Component {
 
     render() {
         return (
-            <>
+            <Fragment>
                 <FormDialog open={this.state.open}
                             onClose={this.handleClose}
                             handleSave={this.handleSave}
@@ -801,7 +801,7 @@ class Inventory extends Component {
                     onSelectedRowsChange={this.handleRowSelected}
                 />
                 {/*</Grid>*/}
-            </>
+            </Fragment>
         );
     }
 }

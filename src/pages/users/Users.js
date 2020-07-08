@@ -316,12 +316,12 @@ class Users extends Component {
 
     SampleExpandedComponent = ({data}) => {
         // const {classes} = this.props;
-        return <>
+        return <Fragment>
             <br/>
             <Grid container spacing={3} direction="row"
                   justify="center" alignItems="center">
 
-                <Grid item xs={7}>
+                <Grid item lg={6} md={7} xs={7}>
 
                     <form noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
@@ -331,7 +331,7 @@ class Users extends Component {
                         {/*{console.log(textFieldStyle.resize)}*/}
 
                         <Widget title={'User Details'} disableWidgetMenu>
-                            <Grid container spacing={3} justify="space-around"
+                            <Grid container spacing={1} justify="space-around"
                                   className={classes.dashedBorder}>
                                 <Grid item xs={12} sm={3}>
                                     <TextField
@@ -454,7 +454,7 @@ class Users extends Component {
                     </form>
                 </Grid>
 
-                <Grid item xs={7}>
+                <Grid item lg={2} md={7} xs={7}>
 
                     <form onSubmit={(e) => {
                         e.preventDefault();
@@ -462,9 +462,9 @@ class Users extends Component {
                     }}>
 
                         <Widget title={"Vendor Details"} disableWidgetMenu>
-                            <Grid container spacing={3} justify="center"
+                            <Grid container spacing={0} justify="center"
                                   className={classes.dashedBorder2}>
-                                <Grid item xs={12} sm={5}>
+                                <Grid item xs={12} >
                                     <TextField
                                         label="Vendor"
                                         inputProps={{style: textFieldStyle.resize}}
@@ -473,7 +473,7 @@ class Users extends Component {
                                         defaultValue={(data.vendor.name)} name='vendor_name'
                                         onChange={this.handleChange}/>
                                 </Grid>
-                                <Grid item xs={12} sm={4}>
+                                <Grid item xs={12}>
                                     <TextField
                                         fullWidth label="Vendor Telephone" color="secondary"
                                         inputProps={{step: "1", min: "0", style: textFieldStyle.resize,}}
@@ -482,7 +482,7 @@ class Users extends Component {
                                         name='vendor_telephone'
                                         disabled={false}/>
                                 </Grid>
-                                <Grid item xs={12} sm={3}>
+                                <Grid item xs={12}>
                                     <TextField
                                         fullWidth label="Vendor Website" color="secondary"
                                         inputProps={{style: textFieldStyle.resize,}}
@@ -491,17 +491,17 @@ class Users extends Component {
                                         name='vendor_telephone'
                                         disabled={false}/>
                                 </Grid>
-                                <Grid item xs={12} sm={5}>
-                                    <TextField
-                                        InputProps={{
-                                            style: textFieldStyle.resize,
-                                        }}
-                                        fullWidth label="Email"
-                                        color="secondary" type='email'
-                                        value={data.vendor.email} name='vendor_email'
-                                        variant="standard"/>
-                                </Grid>
-                                <Grid item xs={12} sm={7}>
+                                {/*<Grid item xs={12} sm={3}>*/}
+                                {/*    <TextField*/}
+                                {/*        InputProps={{*/}
+                                {/*            style: textFieldStyle.resize,*/}
+                                {/*        }}*/}
+                                {/*        fullWidth label="Email"*/}
+                                {/*        color="secondary" type='email'*/}
+                                {/*        value={data.vendor.email} name='vendor_email'*/}
+                                {/*        variant="standard"/>*/}
+                                {/*</Grid>*/}
+                                <Grid item xs={12} >
                                     <TextField
                                         fullWidth label="Vendor Address" color="secondary"
                                         inputProps={{style: textFieldStyle.resize,}}
@@ -517,7 +517,7 @@ class Users extends Component {
 
             </Grid>
             <br/>
-        </>
+        </Fragment>
     };
 
     updateOldUser = (data, e) => {
@@ -656,8 +656,8 @@ class Users extends Component {
             // console.log(usersMap);
 
             updated.forEach((user) => {
-                if (usersMap.has(user.user.user_id)) {
-                    usersMap.set(user.user.user_id, user);
+                if (usersMap.has(user.user_id)) {
+                    usersMap.set(user.user_id, user);
                     // console.log(usersMap);
                 }
             });
@@ -669,14 +669,14 @@ class Users extends Component {
             this.setState({users, filteredUsers: users, sth_changed: false});
 
             const updated_users = updated.reduce((prev, curr) => {
-                return (prev.user ? prev.user.first_name : prev) + ', ' + curr.user.first_name;
+                return (prev.user ? prev.first_name : prev) + ', ' + curr.first_name;
             });
 
             // console.log(updated_users);
 
             const componentProps = {
                 type: "shipped",
-                message: `${updated.length < 2 ? updated[0].user.first_name : updated_users} ${type.toUpperCase()}.`,
+                message: `${updated.length < 2 ? updated[0].first_name : updated_users} ${type.toUpperCase()}.`,
                 variant: "contained",
                 color: "success",
             };

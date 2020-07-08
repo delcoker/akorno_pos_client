@@ -15,7 +15,7 @@ export default {
     Inventory,
     Users,
     // Bills,
-    Orders,
+    // Orders,
 }
 
 

@@ -23,7 +23,7 @@ import {
     CHECK_USER_SESSION,
     convertArrayOfObjectsToPrint,
     ENABLED_ITEMS,
-    fetcher, GET_MOMO_DETAIL, GET_STUDENT_DETAIL,
+    fetcher, GET_CUSTOMER_DETAIL, GET_MOMO_DETAIL, GET_STUDENT_DETAIL,
     getUser,
     isAnyShiftActive, SAVE_TRANSACTIONS, START_SHIFT
 } from "../../_utils/fetcher";
@@ -98,11 +98,16 @@ class Sales extends Component {
             tp: parseInt(localStorage.getItem('tp')),
 
             numberTextBox: "",
+            numberTextBoxValue: "",
             // numberTextBoxPlaceHolder : "Student Number",
             nameTextBox: "",
+            nameTextBoxValue: "",
             // nameTextBoxPlaceHolder : "Student Number",
             txtBoxDisabled: true,
             txtBoxVisible: false,
+            detailNeeded: '',
+
+            clientDetails: {}
         };
         // this.myRef = React.createRef();
     }
@@ -210,7 +215,6 @@ class Sales extends Component {
             items
         });
     }
-
 
     handleItemDelete2 = (indices) => {
         // console.log('map', indices);
@@ -347,7 +351,7 @@ class Sales extends Component {
               })//.then();
   */
         // console.log(`../../images/${item_name}`);
-        return item_name.includes("%") ? "": `images/${item_name}`;
+        return item_name.includes("%") ? "" : `images/${item_name}`;
     };
 
     handlePayingChangeNii = (paying) => {
@@ -387,7 +391,7 @@ class Sales extends Component {
         // console.log(this.myRef);
         if (this.myRef && this.myRef.value > 6) {
             this.myRef.value = this.myRef.value.substring(0, 6);
-            // this.student_name_ref.value = '';
+            this.student_name_ref.value = '';
         }
 
         // console.log(value);
@@ -404,27 +408,30 @@ class Sales extends Component {
                 txtBoxDisabled: false,
                 txtBoxVisible: true,
                 numberTextBox: 'Student #',
-                nameTextBox: "Student Name"
+                nameTextBox: "Student Name",
+                detailNeeded: "student_id"
             })
         } else if (value === 'visa') {
             this.setState({
                 txtBoxDisabled: true,
                 txtBoxVisible: true,
                 numberTextBox: 'Visa #',
-                nameTextBox: "Name"
+                nameTextBox: "Name",
+                detailNeeded: "visa_id"
             })
         } else if (value === 'momo') {
             this.setState({
                 txtBoxDisabled: false,
                 txtBoxVisible: true,
                 numberTextBox: 'MoMo #',
-                nameTextBox: "Momo Name"
+                nameTextBox: "Momo Name",
+                detailNeeded: "telephone_id"
             })
         }
         this.setState({payment_method: value});
     };
 
-    handleNumberTextBox = async e => {
+    handleNumberTextBox = async e => {// as number changes get try find user
         if (this.state.payment_method === "meal plan") {
             //     this.myRef.value = "";
 
@@ -435,15 +442,16 @@ class Sales extends Component {
                 let res = await fetcher({
                     query: GET_STUDENT_DETAIL,
                     variables: {
-                        student_id,
+                        student_id: student_id,
+                        type: this.state.payment_method
                     }
                 });
 
-                const client_details = res.data.getStudentDetail;
+                const nameTextBoxValue = res.data.getStudentDetail;
                 // console.log(client_details);
-                // this.student_name_ref.value = client_details.name;
-
-                this.setState({client_details});
+                this.student_name_ref.value = nameTextBoxValue ? nameTextBoxValue.name : "";
+                // console.log(client_details);
+                this.setState({nameTextBoxValue});
 
             } catch (err) {
                 console.log(err);
@@ -462,34 +470,37 @@ class Sales extends Component {
                     }
                 });
 
-                const client_details = res.data.getStudentDetail;
+                const nameTextBoxValue = res.data.getStudentDetail;
                 // console.log(client_details);
-                // this.student_name_ref.value = client_details.name;
-
-                this.setState({client_details});
+                this.student_name_ref.value = nameTextBoxValue ? nameTextBoxValue.name : "";
+                // console.log(client_details);
+                this.setState({nameTextBoxValue});
 
             } catch (err) {
                 console.log(err);
             }
         } else if (this.state.payment_method === "momo") {
-            //     this.myRef.value = "";
+
 
             const telephone_num_id = e.target.value;
+            // this.setState({numberTextBoxValue: telephone_num_id});
             if (telephone_num_id.length < 7) return;
+
             // try to get client details
             try {
                 let res = await fetcher({
-                    query: GET_MOMO_DETAIL,
+                    query: GET_CUSTOMER_DETAIL,
                     variables: {
-                        telephone_num_id,
+                        customer_id: telephone_num_id,
+                        type: this.state.payment_method
                     }
                 });
 
-                const client_details = res.data.getTelNumID;
+                const nameTextBoxValue = res.data.getCustomerDetail;
+                // console.log(e.target.value,'getting');
+                this.student_name_ref.value = nameTextBoxValue ? nameTextBoxValue.name : "";
                 // console.log(client_details);
-                // this.student_name_ref.value = client_details.name;
-
-                this.setState({client_details});
+                this.setState({nameTextBoxValue});
 
             } catch (err) {
                 console.log(err);
@@ -501,66 +512,16 @@ class Sales extends Component {
 
     handleNameTextBox = async e => {
         // console.log('here);
-        if (this.state.payment_method === "visa") return;
-        let a = e.target.value;
-
-
-        // console.log(a);
-        this.setState({client_details: {name: a}});
-        // this.student_name_ref.value = e.target.value;
+        if (this.state.payment_method === "cash") return;
+        this.student_name_ref.value = this.state.nameTextBoxValue === null ?  e.target.value : this.state.nameTextBoxValue.name
+        // this.setState({typedNameTextBoxValue: e.target.value});
     };
-    /*
-    handleStudentNumber = async e => {
-        if (this.state.payment_method === "cash" || this.state.payment_method === "visa") {
-            this.myRef.value = "";
-            const componentProps = {
-                type: "defence",
-                message: 'Choose meal plan first.',
-                variant: "contained",
-                color: "info",
-            };
-
-            toast(<Notification
-                className={classes.notificationComponent}
-                {...componentProps} />, toastOptions);
-            return;
-        }
-        const student_id = e.target.value;
-        if (student_id.length < 7) return;
-        // try to get student details
-        try {
-            let res = await fetcher({
-                query: GET_STUDENT_DETAIL,
-                variables: {
-                    student_id,
-                }
-            });
-
-            const student_details = res.data.getStudentDetail;
-            // console.log(student_details);
-            // this.student_name_ref.value = student_details.name;
-
-            this.setState({student_details});
-
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    handleStudentName = async e => {
-        if (this.state.payment_method === "cash" || this.state.payment_method === "visa") return;
-        let a = e.target.value;
-
-
-        // console.log(a);
-        this.setState({student_details: {name: a}});
-        // this.student_name_ref.value = e.target.value;
-    };*/
 
     printey = async () => {
 
-        // console.log(this.student_name_ref.value );
-        if (this.state.payment_method === "meal plan" && this.myRef.value.length < 8) {
+        let payment_detail = this.state.payment_detail;
+
+        if (this.state.payment_method !== "cash" && this.myRef.value.length < 8) {
             const componentProps = {
                 type: "defence",
                 message: 'Student number too short ref.',
@@ -574,7 +535,7 @@ class Sales extends Component {
             return;
         }
 
-        if (this.state.payment_method === "meal plan" && this.student_name_ref.value.length < 3) {
+        if (this.state.payment_method !== "cash" && this.student_name_ref.value.length < 3) {
             const componentProps = {
                 type: "defence",
                 message: 'Student name too short.',
@@ -589,9 +550,15 @@ class Sales extends Component {
         }
 
         if (this.state.payment_method === "meal plan") {
-            this.state.payment_detail = `${this.myRef.value} - ${this.student_name_ref.value}`
+            payment_detail = `${this.myRef.value} - ${this.student_name_ref.value}`
+            this.setState({payment_detail});
+        } else if (this.state.payment_method === "momo") {
+            payment_detail = `${this.myRef.value} - ${this.student_name_ref.value}`
+            // payment_detail = `${this.myRef.value} - ${this.student_name_ref.value}`
+            this.setState({payment_detail});
         }
 
+        // console.log(payment_detail);
         // get cashier at time of sale
         const user = await getUser(localStorage.getItem("token"));
 
@@ -682,7 +649,7 @@ class Sales extends Component {
             (user.first_name + " " + user.last_name).substr(-company.length);
         let head = company + cashier_name;
         head += lineDelimiter + this.state.payment_method.toUpperCase();
-        this.state.payment_method === "meal plan" ? head += lineDelimiter + this.state.payment_detail : head += "";
+        this.state.payment_method !== "cash" ? head += lineDelimiter + payment_detail : head += "";
 
         let foot =
             `${lineDelimiter}Total:${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.totalNii}${lineDelimiter}Paid :${columnDelimiter}${columnDelimiter}${columnDelimiter}${columnDelimiter}${this.state.payingNii.toFixed(2)}${lineDelimiter}Change:${columnDelimiter}${columnDelimiter}${columnDelimiter}<strong>${this.state.changeNii.toFixed(2)}</strong>${lineDelimiter}050-248-0435${lineDelimiter}delcoker@gmail.com`;
@@ -730,9 +697,7 @@ class Sales extends Component {
 
             // ------------------- save transaction // saves as GMT
 
-            // console.log(ids, qty, vendor,
-            //     transaction_point,
-            //     user.user_id,
+            // console.log(
             //     this.state.payment_method,
             //     this.state.payment_detail)
 
@@ -741,7 +706,7 @@ class Sales extends Component {
                 transaction_point,
                 user.user_id,
                 this.state.payment_method,
-                this.state.payment_detail
+                payment_detail
             );
 
             if (res && res.errors) {
@@ -890,7 +855,7 @@ class Sales extends Component {
                                 autoComplete='' fullWidth variant={"outlined"}
                                 inputProps={{style: textFieldStyle.resize}}
                                 name="student_number"
-                                // value={this.state.student_number_txt}
+                                // value={this.state.numberTextBoxValue}
                                 onBlur={this.handleNumberTextBox}
                                 // ref={this.myRef}
                                 inputRef={input => (this.myRef = input)}
@@ -910,10 +875,11 @@ class Sales extends Component {
                                 type='text' color='primary'
                                 fullWidth variant={"standard"}
                                 inputProps={{style: textFieldStyle.resize}}
-                                inputRef={input => (this.student_name_ref = input)}
-                                value={this.state.client_details ? this.state.client_details.name : ''}
+                                // value={this.state.nameTextBoxValue ? this.state.nameTextBoxValue.name : this.state.typedNameTextBoxValue}
                                 name={'student_name'}
                                 onChange={this.handleNameTextBox}
+                                // onBlur={this.handleNameTextBox}
+                                inputRef={input => (this.student_name_ref = input)}
                                 disabled={this.state.txtBoxDisabled}
                             />
                             }

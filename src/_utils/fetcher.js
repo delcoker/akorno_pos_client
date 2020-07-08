@@ -204,7 +204,6 @@ export const GET_REPORT = gql`
 `;
 
 
-
 export const GET_MEAL_PLAN_BREAKDOWN = gql`
     query MealPlanBreakdownQuery(
         $user_id: Int!
@@ -228,6 +227,36 @@ export const GET_MEAL_PLAN_BREAKDOWN = gql`
             transaction_point
             student_detail{
                 student_id
+                name
+            }
+            createdAt
+        }
+    }
+`;
+
+export const GET_DEEP_MOMO_BREAKDOWN = gql`
+    query momoDeepBreakdownQuery(
+        $user_id: Int!
+        $startDate: String!
+        $endDate: String!
+        $payment_method: String!
+    ) {
+        momoDeepBreakdown(
+            user_id: $user_id
+            startDate: $startDate
+            endDate: $endDate
+            payment_method: $payment_method
+        ) {
+            user_id
+            vendor_id
+            item_name
+            qty_sold
+            item_category
+            item_price
+            inv
+            transaction_point
+            momo_detail{
+                momo_id
                 name
             }
             createdAt
@@ -265,6 +294,36 @@ export const GET_COMPACT_MP_BREAKDOWN = gql`
     }
 `;
 
+export const GET_COMPACT_MOMO_BREAKDOWN = gql`
+    query MoMoSmallBreakdownQuery(
+        $user_id: Int!
+        $startDate: String!
+        $endDate: String!
+        $payment_method: String!
+    ) {
+        momoCompactBreakdown(
+            user_id: $user_id
+            startDate: $startDate
+            endDate: $endDate
+            payment_method: $payment_method
+        ) {
+            user_id
+            #            vendor_id
+            #            item_name
+            qty_sold
+            #            item_category
+            item_price
+            #            inv
+            #            transaction_point
+            momo_detail{
+                momo_id
+                name
+            }
+            createdAt
+        }
+    }
+`;
+
 export const BULK_ITEM_UPDATE = gql`
     mutation BulkUpdate(
         $ids: [Int!]!
@@ -280,16 +339,16 @@ export const BULK_ITEM_UPDATE = gql`
             type: $type
             transaction_point_id: $tp
         ) {
-            item{
+            #            item{
+            id
+            name
+            price
+            pic
+            category {
                 id
                 name
-                price
-                pic
-                category {
-                    id
-                    name
-                }
             }
+            #            }
             min_stock_level
             has_stock
             quantity
@@ -315,32 +374,32 @@ export const BULK_USER_UPDATE = gql`
             type: $type
             transaction_point_id: $tp
         ) {
-            user{
-                user_id
-                first_name
-                last_name
-                other_names
-                telephone
-                pic
-                status
-                isAdmin
-                email {
-                    email
-                }
-                postal_address
-                vendor {
-                    name
-                    email
-                    telephone
-                    postal_address
-                    website_url
-                }
-            }
+            #            user{
+            user_id
+            first_name
+            last_name
+            other_names
+            telephone
+            pic
             status
-            transaction_point{
-                id
-                name
+            isAdmin
+            email {
+                email
             }
+            postal_address
+            vendor {
+                name
+                email
+                telephone
+                postal_address
+                website_url
+            }
+            #            }
+            status
+            #            transaction_point{
+            #                id
+            #                name
+            #            }
             createdAt
             updatedAt
 
@@ -540,6 +599,16 @@ export const USERS = gql`
     }
 `;
 
+// student_id, telephone_id, visa_id
+export const GET_CUSTOMER_DETAIL = gql`
+    query CustomerDetailQuery($customer_id: String!, $type: String!) {
+        getCustomerDetail(customer_id: $customer_id, type: $type) {
+            momo_id
+            name
+        }
+    }
+`;
+
 export const GET_STUDENT_DETAIL = gql`
     query StudentDetailQuery($student_id: String!) {
         getStudentDetail(student_id: $student_id) {
@@ -550,9 +619,13 @@ export const GET_STUDENT_DETAIL = gql`
 `;
 
 export const GET_MOMO_DETAIL = gql`
-    query StudentDetailQuery($telephone_num_id: String!) {
-        getTelNumID(telephone_num_id: $telephone_num_id) {
-            tel_num_id
+    query MoMoDetailQuery($telephone_num_id: String!) {
+        #        getTelNumID(telephone_num_id: $telephone_num_id) {
+        #            tel_num_id
+        #            name
+        #        }
+        getStudentDetail(student_id: $telephone_num_id) {
+            student_id
             name
         }
     }

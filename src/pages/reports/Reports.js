@@ -1,11 +1,29 @@
 import React, {Component, Fragment} from "react";
-import {Button, FormControl, Grid, InputLabel, MenuItem, Select, Tab, Tabs} from "@material-ui/core";
+import {
+    Button,
+    FormControl,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Select,
+    Tab,
+    Tabs,
+} from "@material-ui/core";
 
 // components
 import Widget from "../../components/Widget";
 
-import {fetcher, GET_COMPACT_MP_BREAKDOWN, GET_MEAL_PLAN_BREAKDOWN, GET_REPORT, getUser} from "../../_utils/fetcher";
-import {MuiPickersUtilsProvider, KeyboardDateTimePicker} from "@material-ui/pickers";
+import {
+    fetcher, GET_COMPACT_MOMO_BREAKDOWN,
+    GET_COMPACT_MP_BREAKDOWN, GET_DEEP_MOMO_BREAKDOWN,
+    GET_MEAL_PLAN_BREAKDOWN,
+    GET_REPORT,
+    getUser,
+} from "../../_utils/fetcher";
+import {
+    MuiPickersUtilsProvider,
+    KeyboardDateTimePicker,
+} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 
 import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
@@ -13,12 +31,13 @@ import DataTable from "react-data-table-component";
 import IconButton from "@material-ui/core/IconButton";
 import {Print} from "@material-ui/icons";
 import {textFieldStyle} from "../../_utils/inlineStyles";
-import useStyles from './styles'
+import useStyles from "./styles";
 import moment from "moment";
 import PaymentOptions from "../_shared_components/PaymentOptions";
 import {toast} from "react-toastify";
 import Notification from "../../components/Notification";
 import SelectionOptions from "../_shared_components/SelectionOptions";
+import memoizeOne from "memoize-one";
 // import {filterEventsOfChild} from "recharts/lib/util/ReactUtils";
 // import _ from "lodash"
 
@@ -35,27 +54,75 @@ const columnsR = [
         sortable: true,
         cell: row => {
             return `${(row.qty_sold * row.item_price).toFixed(2)}`;
-        }
+        },
     },
-    {name: "Left In Stock", selector: "inv", sortable: true}
+    {name: "Left In Stock", selector: "inv", sortable: true},
 ];
 
-const columnsMPCompact = [
-    {name: "Student Name", selector: "student_detail.name", sortable: true, cell: row => row.student_detail.name},
-    {name: "ID", selector: "student_detail.student_id", sortable: true},
-    {name: "Total", selector: "subtotal", cell: row => row.subtotal.toFixed(2)},
+const columnsMPCompact = memoizeOne((payment_method) => {
+    return [
+        {
+            name: payment_method === 'meal plan' ? 'Student Name' : 'Momo Name',
+            selector: payment_method === 'meal plan' ? 'student_detail.name' : 'momo_detail.name',
+            sortable: true,
+            // cell: row => {
+            //     let a = (payment_method === 'meal plan' ? row : row);
+            //     // console.log(row);
+            //
+            //     return "a"
+            // }
+        },
+        {
+            name: "ID",
+            selector: payment_method === 'meal plan' ? "student_detail.student_id" : "momo_detail.momo_id",
+            sortable: true,
+            // cell: row => {
+            //     let a = (payment_method === 'meal plan' ? row : row);
+            //     // console.log(row);
+            //
+            //     return "a"
+            // }
+        },
+        {name: "Total", selector: "subtotal", cell: row => row.subtotal.toFixed(2)},
+        {
+            name: "Date",
+            selector: "createdAt",
+            sortable: true,
+            format: d => moment(parseInt(d.createdAt)).format("dd-Do-MM-YY"),
+        },
+    ]
+});
+
+const columnsMPDeep = memoizeOne((payment_method) => [
     {
-        name: "Date",
-        selector: "createdAt",
+        name: payment_method === 'meal plan' ? 'Student Name' : 'Momo Name',
+        selector: payment_method === 'meal plan' ? 'student_detail.name' : 'momo_detail.name',
         sortable: true,
-        format: d => moment(parseInt(d.createdAt)).format("dd-Do-MM-YY"),
+        // cell: row => payment_method === 'meal plan' ? "row.student_detail.name ": "row.momo_detail.name",
+        // cell: row => {
+        //     let a = (payment_method === 'meal plan' ? row : row);
+        //     // console.log(row);
+        //
+        //     return "a"
+        // }
     },
-];
-
-const columnsMPDeep = [
-    {name: "Student Name", selector: "student_detail.name", sortable: true, cell: row => row.student_detail.name},
-    {name: "ID", selector: "student_detail.student_id", sortable: true},
-    {name: "Item", selector: "item_name", sortable: true, cell: row => row.item_name},
+    {
+        name: "ID",
+        selector: payment_method === 'meal plan' ? "student_detail.student_id" : "momo_detail.momo_id",
+        sortable: true,
+        // cell: row => {
+        //     let a = (payment_method === 'meal plan' ? row : row);
+        //     // console.log(row);
+        //
+        //     return "a"
+        // }
+    },
+    {
+        name: "Item",
+        selector: "item_name",
+        sortable: true,
+        cell: row => row.item_name,
+    },
     {name: "Type", selector: "item_category", sortable: true},
     {name: "Quantity Sold", selector: "qty_sold", sortable: true},
     {
@@ -64,7 +131,7 @@ const columnsMPDeep = [
         sortable: true,
         cell: row => {
             return `${(row.qty_sold * row.item_price).toFixed(2)}`;
-        }
+        },
     },
     {
         name: "Bought On",
@@ -73,7 +140,7 @@ const columnsMPDeep = [
         cell: d => moment(parseInt(d.createdAt)).format("llll"),
     },
     // {name: "Left In Stock", selector: "inv", sortable: true}
-];
+]);
 
 const lineDelimiter = "<br>";
 const typeDelimiter = "-";
@@ -92,15 +159,14 @@ class Reports extends Component {
         this.state = {
             transactions: [],
             mpBreakdown: [],
-            mpCompactBreakdown: [],
+            compactBreakdown: [],
             // startDate: new Date().setFullYear(2019, 10, 10), // set as six am
-            startDate: new Date().setHours(2), // set as six am
+            startDate: new Date().setHours(-50, 0), // set as 2 am
             endDate: new Date(),
             user_id: -1,
             total: 0,
-            payment_method: 'cash',
-            // payment_method: 'cash',
-            selected_user_name: null,// localStorage.getItem("username"),
+            payment_method: "cash",
+            selected_user_name: null, // localStorage.getItem("username"),
             activeTabId: 0,
         };
         // console.log(user_id, startDate, endDate)
@@ -109,62 +175,30 @@ class Reports extends Component {
 
         // console.log(this.state.user)
         // _.pick();
-    };
+    }
 
     async componentDidMount() {
         let user = await getUser(localStorage.getItem("token"));
-        // this.handleDropDownChange();
-        // console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhh", user)
-        // this.user_id = this.user ? this.user.user_id : 0;
-        this.setState({user_id: user.user_id});
-
-        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.state.user_id, this.state.payment_method);
+        this.setState({user_id: user.user_id}, this.fetchTransactions);
     }
 
-    handleStartDateChange = date => {
-        this.setState({startDate: date});
+    handleStartDateChange = date => this.setState({startDate: date}, (this.handleReloadChanges));
 
-        // comment this out on deployment
-        /////////// -------------------fix this #todo
-        let transactionPoint = null;
-        //////////// --------------------------------
+    handleEndDateChange = date => this.setState({endDate: date}, (this.handleReloadChanges));
 
-        this.fetchTransactions(date, this.state.endDate, transactionPoint, this.state.user_id, this.state.payment_method);
-    };
+    handleReloadChanges = () => (this.fetchTransactions(), [1, 2].includes(this.state.activeTabId) ? (this.fetchCompactMealTransactions(), this.fetchDetailedMealTransactions()) : "")
 
-    handleEndDateChange = date => {
-        this.setState({endDate: date});
-
-        /////////// -------------------fix this #todo
-        let transactionPoint = null;
-        //////////// --------------------------------
-
-        this.fetchTransactions(this.state.startDate, date, transactionPoint, this.state.user_id, this.state.payment_method);
-    };
-
-    fetchTransactions = async (startDate, endDate, transactionPoint, user_id, payment_method) => {
-
-        this.fetchMealTransactions(startDate, endDate, transactionPoint, user_id, "meal plan");
-
-        this.fetchCompactMealTransactions(startDate, endDate, transactionPoint, user_id, "meal plan");
-
-        // console.log(startDate, endDate, transactionPoint, user_id, payment_method);
-        if (this.state.activeTabId !== 0) return;
-
-        if (!this.state.user_id) return;
-
-        startDate = new Date(startDate);
-        // endDate = new
+    fetchTransactions = async () => {
         try {
             let res = await fetcher({
                 query: GET_REPORT,
                 variables: {
-                    user_id: user_id,
-                    startDate,
-                    endDate,
-                    transactionPoint,
-                    payment_method
-                }
+                    user_id: this.state.user_id,
+                    startDate: new Date(this.state.startDate),
+                    endDate: new Date(this.state.endDate),
+                    // transactionPoint,
+                    payment_method: this.state.payment_method,
+                },
             });
             // console.log(res);
             const transactions = res.data.getDailyReport;
@@ -178,50 +212,129 @@ class Reports extends Component {
             // sort alphabetically
             transactions.sort(this.compare);
 
-            // console.log(total);
-            this.setState({transactions, total});
-
-
+            // console.log('total');
+            this.setState({
+                transactions,
+                total,
+                // compactBreakdown:[],
+                // mpBreakdown:[]
+            },);
         } catch (err) {
             console.log(err);
         }
     };
 
-    fetchMealTransactions = async (startDate, endDate, transactionPoint, user_id, payment_method) => {
-        // console.log(startDate, endDate, transactionPoint, user_id, payment_method);
-        if (this.state.activeTabId < 1) return;
-
-        if (!this.state.user_id) return;
-
-        startDate = new Date(startDate);
-        // endDate = new
+    fetchCompactMealTransactions = async () => {
+        let query = null;
+        if (this.state.payment_method === 'meal plan') query = GET_COMPACT_MP_BREAKDOWN;
+        else if (this.state.payment_method === 'momo') query = GET_COMPACT_MOMO_BREAKDOWN;
         try {
             let res = await fetcher({
-                query: GET_MEAL_PLAN_BREAKDOWN,
+                query: query,
                 variables: {
-                    user_id: user_id,
-                    startDate,
-                    endDate,
-                    transactionPoint,
-                    payment_method
-                }
+                    user_id: this.state.user_id,
+                    startDate: new Date(this.state.startDate),
+                    endDate: new Date(this.state.endDate),
+                    // transactionPoint,
+                    payment_method: this.state.payment_method,
+                },
             });
-            // console.log(res);
-            let mpBreakdown = res.data.mealPlanBreakdown;
-            // console.log(transactions);
+            let compactBreakdown = [];
+            let total = 0;
+            let newState = null;
+
+            if (this.state.payment_method === 'meal plan') {
+                compactBreakdown = res.data.mPSmallBreakdown
+
+                newState = compactBreakdown.map(userItem => {
+                    userItem.subtotal = userItem.qty_sold * userItem.item_price;
+                    userItem.student_id = userItem.student_detail.student_id;
+                    userItem.student_name = userItem.student_detail.name;
+
+                    return userItem;
+                });
+                compactBreakdown = newState.reduce((prev, next) => {
+                    if (next.student_id in prev) {
+                        prev[next.student_id].subtotal += next.subtotal;
+                    } else {
+                        prev[next.student_id] = next;
+                    }
+                    return prev;
+                }, {});
+
+            } else if (this.state.payment_method === 'momo') {
+                compactBreakdown = res.data.momoCompactBreakdown;
+
+                newState = compactBreakdown.map(userItem => {
+                    userItem.subtotal = userItem.qty_sold * userItem.item_price;
+                    userItem.momo_id = userItem.momo_detail.momo_id;
+                    userItem.momo_name = userItem.momo_detail.name;
+
+                    return userItem;
+                });
+                compactBreakdown = newState.reduce((prev, next) => {
+                    if (next.momo_id in prev) {
+                        prev[next.momo_id].subtotal += next.subtotal;
+                    } else {
+                        prev[next.momo_id] = next;
+                    }
+                    return prev;
+                }, {});
+            }
+
+            // source: https://stackoverflow.com/questions/50338082/group-by-and-sum-and-generate-a-object-for-each-array-javascript
+
+
+            compactBreakdown = Object.values(compactBreakdown);
+
+            for (let ite of compactBreakdown) {
+                total += ite.subtotal;
+            }
+
+            this.setState({
+                compactBreakdown,
+                total
+            },);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    fetchDetailedMealTransactions = async () => {
+
+        let query = null;
+        if (this.state.payment_method === 'meal plan') query = GET_MEAL_PLAN_BREAKDOWN;
+        else if (this.state.payment_method === 'momo') {
+            query = GET_DEEP_MOMO_BREAKDOWN;
+        }
+
+        try {
+            let res = await fetcher({
+                query: query,
+                variables: {
+                    user_id: this.state.user_id,
+                    startDate: new Date(this.state.startDate),
+                    endDate: new Date(this.state.endDate),
+                    // transactionPoint,
+                    payment_method: this.state.payment_method,
+                },
+            });
+
+            let mpBreakdown = [];
+
+            if (this.state.payment_method === 'meal plan') {
+                mpBreakdown = res.data.mealPlanBreakdown;
+            } else if (this.state.payment_method === 'momo') {
+                mpBreakdown = res.data.momoDeepBreakdown;
+            }
+
             let total = 0;
             for (let ite of mpBreakdown) {
                 // console.log(ite);
                 total += ite.qty_sold * ite.item_price;
             }
-
-            // console.log(mpBreakdown);
-
-            // sort alphabetically
-            // mpBreakdown.sort(this.compare);
-
-            // console.log(total);
             this.setState({mpBreakdown, total});
+            // console.log(mpBreakdown);
         } catch (err) {
             console.log(err);
         }
@@ -239,20 +352,19 @@ class Reports extends Component {
         // console.log(array.target.value);
         let result;
 
-        const columnDelimiter = ',';
-        const lineDelimiter = '\n';
+        const columnDelimiter = ",";
+        const lineDelimiter = "\n";
         // const keys = this.state.activeTabId === 1 ? Object.keys(this.state.mpCompactBreakdown[0]) : Object.keys(this.state.mpBreakdown[0]);
-        const mpCompact = this.state.mpCompactBreakdown;
+        const mpCompact = this.state.compactBreakdown;
         const mpDeep = this.state.mpBreakdown;
         // const usingKeys = this.state.activeTabId === 1 ? (mpCompact) : (mpDeep);
         //
         // console.log(usingKeys);
         // console.log(Object.values(this.state.mpBreakdown));
-        result = '';
+        result = "";
         if (this.state.activeTabId === 1) {
-
             if (mpCompact.length < 1) return;
-            result += ['Name', 'ID', 'Subtotal', 'Date'].join(columnDelimiter);
+            result += ["Name", "ID", "Subtotal", "Date"].join(columnDelimiter);
             result += lineDelimiter;
 
             for (let i = 0; i < mpCompact.length; i++) {
@@ -260,26 +372,50 @@ class Reports extends Component {
                 let id = mpCompact[i].student_detail.student_id;
                 let tot = mpCompact[i].qty_sold * mpCompact[i].item_price;
                 let date = moment(parseInt(mpDeep[i].createdAt)).format("lll");
-                result += name + columnDelimiter + id + columnDelimiter + tot + columnDelimiter + date + lineDelimiter;
+                result +=
+                    name +
+                    columnDelimiter +
+                    id +
+                    columnDelimiter +
+                    tot +
+                    columnDelimiter +
+                    date +
+                    lineDelimiter;
             }
         } else if (this.state.activeTabId === 2) {
             if (mpDeep.length < 1) return;
-            result += ['Name', 'ID', 'Item', 'Qty Purchased', 'Subtotal', 'Date'].join(columnDelimiter);
+            result += [
+                "Name",
+                "ID",
+                "Item",
+                "Qty Purchased",
+                "Subtotal",
+                "Date",
+            ].join(columnDelimiter);
             result += lineDelimiter;
 
-
             for (let i = 0; i < mpDeep.length; i++) {
-
                 let name = mpDeep[i].student_detail.name;
                 let id = mpDeep[i].student_detail.student_id;
                 let item = mpDeep[i].item_name;
                 let qty = mpDeep[i].qty_sold;
                 let tot = mpDeep[i].qty_sold * mpDeep[i].item_price;
                 let date = moment(parseInt(mpDeep[i].createdAt)).format("lll");
-                result += name + columnDelimiter + id + columnDelimiter + item + columnDelimiter + qty + columnDelimiter + tot + columnDelimiter + date + lineDelimiter;
+                result +=
+                    name +
+                    columnDelimiter +
+                    id +
+                    columnDelimiter +
+                    item +
+                    columnDelimiter +
+                    qty +
+                    columnDelimiter +
+                    tot +
+                    columnDelimiter +
+                    date +
+                    lineDelimiter;
             }
         }
-
 
         // usingKeys.forEach(item => {
         //     let ctr = 0;
@@ -298,109 +434,25 @@ class Reports extends Component {
         return result;
     };
 
-// Blatant "inspiration" from https://codepen.io/Jacqueline34/pen/pyVoWr
-    exportToCSV = (array) => {
-        const link = document.createElement('a');
+    // Blatant "inspiration" from https://codepen.io/Jacqueline34/pen/pyVoWr
+    exportToCSV = array => {
+        const link = document.createElement("a");
         let csv = this.convertArrayOfObjectsToCSV(array);
         if (csv == null) return;
 
-        const filename = 'export.csv';
+        const filename = "export.csv";
 
         if (!csv.match(/^data:text\/csv/i)) {
             csv = `data:text/csv;charset=utf-8,${csv}`;
         }
 
-        link.setAttribute('href', encodeURI(csv));
-        link.setAttribute('download', filename);
+        link.setAttribute("href", encodeURI(csv));
+        link.setAttribute("download", filename);
         link.click();
     };
 
-    fetchCompactMealTransactions = async (startDate, endDate, transactionPoint, user_id, payment_method) => {
-
-        if (this.state.activeTabId < 1) return;
-
-        if (!this.state.user_id) return;
-
-        startDate = new Date(startDate);
-        // endDate = new
-        try {
-            let res = await fetcher({
-                query: GET_COMPACT_MP_BREAKDOWN,
-                variables: {
-                    user_id: user_id,
-                    startDate,
-                    endDate,
-                    transactionPoint,
-                    payment_method
-                }
-            });
-            // console.log(res);
-            let mpCompactBreakdown = res.data.mPSmallBreakdown;
-
-            const newState = mpCompactBreakdown.map((userItem) => {
-                userItem.subtotal = userItem.qty_sold * userItem.item_price;
-                userItem.student_id = userItem.student_detail.student_id;
-                userItem.student_name = userItem.student_detail.name;
-
-                return userItem;
-            });
-
-
-            // source: https://stackoverflow.com/questions/50338082/group-by-and-sum-and-generate-a-object-for-each-array-javascript
-            // let data =[
-            //     {"id":"2018", "name":"test", "total":1200},
-            //     {"id":"2019", "name":"wath", "total":1500},
-            //     {"id":"2019", "name":"wath", "total":1800},
-            //     {"id":"2020", "name":"zooi", "total":1000},
-            // ];
-            //
-            // let map = data.reduce((prev, next) =>{
-            //     if (next.id in prev) {
-            //         prev[next.id].total += next.total;
-            //     } else {
-            //         prev[next.id] = next;
-            //     }
-            //     return prev;
-            // }, {});
-            //
-            // let result = Object.keys(map).map(id => map[id]);
-            //
-            // console.log(result);
-
-
-            // console.log(newState);
-
-            mpCompactBreakdown = newState.reduce((prev, next) => {
-                if (next.student_id in prev) {
-                    prev[next.student_id].subtotal += next.subtotal;
-                } else {
-                    prev[next.student_id] = next;
-                }
-                return prev;
-            }, {});
-            // console.log(mpCompactBreakdown);
-
-            // console.log(result);
-
-            mpCompactBreakdown = Object.values(mpCompactBreakdown);
-
-            let total = 0;
-
-            for (let ite of mpCompactBreakdown) {
-                total += ite.subtotal;
-            }
-
-            // sort alphabetically
-            // mpBreakdown.sort(this.compare);
-
-            // console.log(mpCompactBreakdown);
-            this.setState({mpCompactBreakdown, total});
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    compare = (a, b) => { // source: https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
+    compare = (a, b) => {
+        // source: https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
         // Use toUpperCase() to ignore character casing
         const item_nameA = a.item_name.toUpperCase();
         const item_nameB = b.item_name.toUpperCase();
@@ -418,16 +470,18 @@ class Reports extends Component {
         console.log("handleRowSelectedChange", data, value.rowData, d, e);
     };
 
-    handleDropDownChange = (e) => {
+    handleDropDownChange = e => { // user drop down
         // console.log(e.target);
         // console.log(e.nativeEvent.target);
         // console.log(e.nativeEvent.toElement.innerText);
         // console.log(e.nativeEvent.toElement.innerHTML);
         // console.log(e.nativeEvent.toElement.textContent);
-        const {value} = e.target;
-        this.user_id = e.target.value;
-        this.setState({user_id: value, selected_user_name: e.nativeEvent.toElement.textContent});
-        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.user_id, this.state.payment_method);
+
+        this.setState({
+                user_id: e.target.value,
+                selected_user_name: e.nativeEvent.toElement.textContent,
+            },
+            this.handleReloadChanges);
     };
 
     convertArrayOfObjectsToPrint = (header, array, footer) => {
@@ -447,16 +501,22 @@ class Reports extends Component {
 
             let start = array[i].item_name.substr(0, itemNameLength);
             result += `<tr><td style="border:1px solid; max-width: 80px">${start}</td>
-                 <td style="border:1px solid">${typeDelimiter}${array[i].item_category.substring(0, 1)}</td>
+                 <td style="border:1px solid">${typeDelimiter}${array[
+                i
+                ].item_category.substring(0, 1)}</td>
                 <td style="border:1px solid">${array[i].qty_sold}</td>
                 <td align="right" style="border:1px solid">${subtotal}</td>
-                <td style="border:1px solid">${array[i].inv ? array[i].inv : '-'} </td>
+                <td style="border:1px solid">${
+                array[i].inv ? array[i].inv : "-"
+            } </td>
                 </tr>`;
         }
         result += `<tr style="border:1px solid"><td></td><td></td>
                     <td></td><td></td><td></td></tr><tr>
                     <td><strong>Total:</strong></td><td></td><td>
-                    </td><td style="border:1px solid"><strong>${this.state.total.toFixed(2)}</strong></td><td></td></tr></table>`;
+                    </td><td style="border:1px solid"><strong>${this.state.total.toFixed(
+            2,
+        )}</strong></td><td></td></tr></table>`;
         // console.log(result)
         result += footer;
 
@@ -465,8 +525,7 @@ class Reports extends Component {
 
     runReport = async () => {
         // console.log("here", this.state.transactions);
-        if (!this.state.transactions || this.state.transactions.length < 1)
-            return;
+        if (!this.state.transactions || this.state.transactions.length < 1) return;
 
         // get cashier at time of sale
         let user = await getUser(localStorage.getItem("token"));
@@ -479,18 +538,28 @@ class Reports extends Component {
         let company = company_name + lineDelimiter;
         // let vendor = 1;
         // let transaction_point = null;
-        let report_runner = (user.first_name + " " + user.last_name);//.substr(-company.length);
+        let report_runner = user.first_name + " " + user.last_name; //.substr(-company.length);
 
         // let report_on1 =  this.state.user_id === -1 ? "Everyone" : "await getUser(this.state.user_id)";
         // console.log(report_on1);return;
-        let report_on = this.state.selected_user_name ? this.state.selected_user_name : localStorage.getItem("username");
-        let head = company + "Run By: " + report_runner + lineDelimiter + "Report On: " + report_on;
-        head += lineDelimiter + "Start: " + moment((this.state.startDate)).format("llll");
-        head += lineDelimiter + "End  : " + moment((this.state.endDate)).format("llll");
+        let report_on = this.state.selected_user_name
+            ? this.state.selected_user_name
+            : localStorage.getItem("username");
+        let head =
+            company +
+            "Run By: " +
+            report_runner +
+            lineDelimiter +
+            "Report On: " +
+            report_on;
+        head +=
+            lineDelimiter + "Start: " + moment(this.state.startDate).format("llll");
+        head +=
+            lineDelimiter + "End  : " + moment(this.state.endDate).format("llll");
         head += lineDelimiter + this.state.payment_method.toUpperCase();
 
-        let foot = "";// lineDelimiter + "Report On:" + report_on;
-        foot += lineDelimiter + moment((new Date())).format("llll");
+        let foot = ""; // lineDelimiter + "Report On:" + report_on;
+        foot += lineDelimiter + moment(new Date()).format("llll");
         //     columnDelimiter +
         //     columnDelimiter +
         //     columnDelimiter +
@@ -517,7 +586,7 @@ class Reports extends Component {
         let content = this.convertArrayOfObjectsToPrint(
             head,
             this.state.transactions,
-            foot
+            foot,
         );
         if (content == null) return;
 
@@ -558,26 +627,28 @@ class Reports extends Component {
     };
 
     handlePaymentMethodChange = e => {
-        const payment_method = e.target.value;
-        this.setState({payment_method});
-        // console.log(payment_method);
-        this.fetchTransactions(this.state.startDate, this.state.endDate, null, this.state.user_id, payment_method);
+        this.setActiveTabId(0);
+        this.setState({
+            payment_method: e.target.value,
+            compactBreakdown: [],
+            mpBreakdown: []
+        }, this.handleReloadChanges);
     };
 
-    setActiveTabId = id => {
-        this.setState({activeTabId: id});
-        if (id === 1 || id === 2) this.setState({payment_method: 'meal plan'})
-    };
+    setActiveTabId = id => this.setState({activeTabId: id}, this.handleReloadChanges);
 
     actions = () => [
-
-        <Button key={0} //fullWidth
-                onClick={this.exportToCSV}
-                style={textFieldStyle.resize}
-                color='primary' variant="contained">
+        <Button
+            key={0} //fullWidth
+            onClick={this.exportToCSV}
+            style={textFieldStyle.resize}
+            color="primary"
+            variant="contained"
+        >
             {/*startIcon={<Lock/>}*/}
             {/*endIcon={<Lock/>}>*/}
-            Export To Excel</Button>,
+            Export To Excel
+        </Button>,
         // <Button key={1} //fullWidth
         //         onClick={this.print}
         //         style={textFieldStyle.resize}
@@ -600,7 +671,7 @@ class Reports extends Component {
                         <SelectionOptions
                             handlePaymentMethodChange={this.handlePaymentMethodChange}
                             user_id={this.state.user_id}
-                            handleDropDownChange={this.handleDropDownChange}
+                            handleDropDownChange={this.handleDropDownChange} // user
                             startDate={this.state.startDate}
                             handleStartDateChange={this.handleStartDateChange}
                             endDate={this.state.endDate}
@@ -608,14 +679,24 @@ class Reports extends Component {
                             runReport={this.runReport}
                         />
                     </Grid>
-                    <Tabs indicatorColor="primary"
-                          textColor="primary"
-                          value={this.state.activeTabId}
-                          onChange={(e, id) => this.setActiveTabId(id)}
-                          className={classes.iconsBar}>
-                        <Tab label="Reports" classes={{root: classes.tab}}/>
-                        <Tab label="MP Compact Breakdown" classes={{root: classes.tab}}/>
-                        <Tab label="MP Deep Breakdown" classes={{root: classes.tab}}/>
+                    <Tabs
+                        indicatorColor="secondary"
+                        textColor="secondary"
+                        value={this.state.activeTabId}
+                        onChange={(e, id) => {
+                            this.setActiveTabId(id);
+                        }}
+                        className={classes.iconsBar}>
+
+                        <Tab label={`${this.state.payment_method} Daily Report`} classes={{root: classes.tab}}/>
+                        {(this.state.payment_method === "meal plan" || this.state.payment_method === "momo") &&
+                        <Tab label={`${this.state.payment_method} Breakdown`} classes={{root: classes.tab}}/>}
+                        {(this.state.payment_method === "meal plan" || this.state.payment_method === "momo") &&
+                        <Tab label={`${this.state.payment_method} Deep Breakdown`} classes={{root: classes.tab}}/>}
+                        {/*{this.state.payment_method === 'momo' &&*/}
+                        {/*<Tab label={`${this.state.payment_method} Breakdown`} classes={{root: classes.tab}}/>}*/}
+                        {/*{this.state.payment_method === 'momo' &&*/}
+                        {/*<Tab label={`${this.state.payment_method} Deep Breakdown`} classes={{root: classes.tab}}/>}*/}
                     </Tabs>
                     {this.state.activeTabId === 0 && (
                         <Grid item xs={12}>
@@ -632,39 +713,33 @@ class Reports extends Component {
                                 // contextActions={contextActions(this.deleteSelectedRows)}
                                 // pagination
                                 fixedHeader
-                                fixedHeaderScrollHeight='53vh'
+                                fixedHeaderScrollHeight="53vh"
                             />
                         </Grid>
                     )}
-
                     {this.state.activeTabId === 1 && (
-
                         <Grid item xs={12}>
                             <DataTable
                                 title={"Total: GH₵ " + this.state.total.toFixed(2)}
                                 actions={this.actions()}
-                                columns={columnsMPCompact}
-                                data={this.state.mpCompactBreakdown}
+                                columns={columnsMPCompact(this.state.payment_method)}
+                                data={this.state.compactBreakdown}
                                 expandableRows={false}
                                 highlightOnHover
                                 pointerOnHover
                                 striped
                                 customStyles={dataTableFont}
                                 fixedHeader
-                                fixedHeaderScrollHeight='53vh'
+                                fixedHeaderScrollHeight="53vh"
                             />
                         </Grid>
-
-
                     )}
-
                     {this.state.activeTabId === 2 && (
-
                         <Grid item xs={12}>
                             <DataTable
                                 title={"Total: GH₵ " + this.state.total.toFixed(2)}
                                 actions={this.actions()}
-                                columns={columnsMPDeep}
+                                columns={columnsMPDeep(this.state.payment_method)}
                                 data={this.state.mpBreakdown}
                                 expandableRows={false}
                                 highlightOnHover
@@ -672,17 +747,17 @@ class Reports extends Component {
                                 striped
                                 customStyles={dataTableFont}
                                 fixedHeader
-                                fixedHeaderScrollHeight='53vh'
+                                fixedHeaderScrollHeight="53vh"
                             />
                         </Grid>
-
-
                     )}
                 </Grid>
 
-                <iframe title={'Print Report'} id="contents_to_print"
-                        style={{height: "0px", width: "0px", position: "absolute"}}/>
-
+                <iframe
+                    title={"Print Report"}
+                    id="contents_to_print"
+                    style={{height: "0px", width: "0px", position: "absolute"}}
+                />
             </Fragment>
         );
     }
@@ -691,12 +766,10 @@ class Reports extends Component {
 const dataTableFont = {
     cells: {
         style: {
-            fontSize: '17px', // override the cell padding for data cells
+            fontSize: "17px", // override the cell padding for data cells
             // paddingRight: '8px',
         },
     },
 };
 // export default withStyles(useStyles, {withTheme: true})(MyLoginPage);
 export default useStyles(Reports);
-
-
