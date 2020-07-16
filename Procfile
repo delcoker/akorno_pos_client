@@ -1,1 +1,2 @@
-web: install -g serve
+install -g serve
+web: serve -s build
