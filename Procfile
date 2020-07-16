@@ -1,2 +1,2 @@
-install -g serve
+npm install -g serve
 web: serve -s build
