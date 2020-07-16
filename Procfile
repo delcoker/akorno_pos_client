@@ -1,2 +1,1 @@
-npm install -g serve
-web: serve -s build
+web: npm install -g serve && serve -s build
