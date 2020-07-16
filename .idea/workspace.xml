@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e2e3853a-2bcc-4672-b0fb-82c4df0e1c3a" name="Default Changelist" comment="git_ignore... /.idea files&#10;&#10;components&#10;&#10;math.round instead of toFixed(2)&#10;&#10;config instead of constants">
+      <change afterPath="$PROJECT_DIR$/Procfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/inventory/Inventory.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/inventory/Inventory.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/reports/Reports.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/reports/Reports.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/sales/Sales.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/sales/Sales.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/sales/components/YourAwesomeComponent.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/sales/components/YourAwesomeComponent.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/shifts/Shifts.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/shifts/Shifts.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/users/Users.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/users/Users.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -172,7 +166,7 @@
       <workItem from="1582305774352" duration="3779000" />
       <workItem from="1582329484273" duration="98000" />
       <workItem from="1582329604342" duration="10707000" />
-      <workItem from="1594881744905" duration="2479000" />
+      <workItem from="1594881744905" duration="2871000" />
     </task>
     <task id="LOCAL-00001" summary="git_ignore... /.idea files&#10;&#10;compnonents&#10;&#10;math.round instead of toFixed(2)&#10;&#10;config instead of constants">
       <created>1593140489433</created>
