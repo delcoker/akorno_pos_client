@@ -142,7 +142,7 @@ class Reports extends Component {
             mpBreakdown: [],
             compactBreakdown: [],
             // startDate: new Date().setFullYear(2019, 10, 10), // set as six am
-            startDate: new Date().setHours(-50, 0), // set as 2 am
+            startDate: new Date().setHours(2, 0), // set as 2 am
             endDate: new Date(),
             user_id: -1,
             total: 0,

@@ -199,13 +199,15 @@ class Users extends Component {
                 query: CREATE_USER,
                 variables: userP
             });
-            // console.log(res);
+            console.log(res, userP);
 
             if (res && res.errors && res.errors.length === 1) {
                 alert(res.errors[0].message);
                 return;
             }
             user = res.data.createUser;
+            user = {...user, ...userP};
+            console.log(user);
             // else if (res && res.errors && res.errors.length >1){
             //     return;
             // }
@@ -214,7 +216,7 @@ class Users extends Component {
         }
         let users = [...this.state.users, user];
 
-        this.setState({users, filteredUsers: users, sth_changed: false})
+        this.setState({users, filteredUsers: users, sth_changed: false});
         // }
 
         const componentProps = {
@@ -714,7 +716,7 @@ class Users extends Component {
                     selectableRows // add for checkbox selection
                     clearSelectedRows={this.state.toggleCleared}
                     // onRowSelected={this.handleRowSelectedChange}
-                    defaultSortField={'user.first_name'}
+                    defaultSortField={'first_name'}
                     expandableRows
                     highlightOnHover
                     pointerOnHover

@@ -330,7 +330,7 @@ export const BULK_ITEM_UPDATE = gql`
         #        $names: [String!]!
         #        $category_ids: [Int!]!
         $type: String!
-        $tp: Int!,
+        $tp: Int,
     ) {
         bulkUpdate(
             item_ids: $ids
@@ -365,7 +365,7 @@ export const BULK_USER_UPDATE = gql`
         #        $names: [String!]!
         #        $category_ids: [Int!]!
         $type: String!
-        $tp: Int!,
+        $tp: Int,
     ) {
         bulkUpdateUser(
             user_ids: $ids
@@ -516,9 +516,24 @@ export const CREATE_USER = gql`
             user_id
             first_name
             last_name
+            other_names
+            telephone
+            pic
+            status
             email {
                 email
             }
+            postal_address
+            vendor {
+                name
+                email
+                telephone
+                postal_address
+                website_url
+            }
+            isAdmin
+            createdAt
+            updatedAt
         }
     }
 `;
