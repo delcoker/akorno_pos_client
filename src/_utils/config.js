@@ -1,6 +1,7 @@
 const prod = {
     url: {
-        API_URL: '/graphql',
+        API_URL: 'https://pos-inventory-shift.herokuapp.com/graphiql',
+        // API_URL: '/graphql',
     }
 };
 const dev = {
