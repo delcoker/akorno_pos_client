@@ -11,8 +11,6 @@ import {
 import DataTable from "react-data-table-component";
 import {
     ArrowDownward,
-    Delete,
-    Close,
     Save as SaveIcon,
     CloudUpload as CloudUploadIcon,
     Add,
@@ -32,7 +30,6 @@ import {Typography} from "../../components/Wrappers";
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Notification from "../../components/Notification";
-import Widget from "../../components/Widget";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import Tooltip from "@material-ui/core/Tooltip";
 import FilterComponent from "../_shared_components/FilterComponent";

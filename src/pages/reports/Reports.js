@@ -1,18 +1,12 @@
 import React, {Component, Fragment} from "react";
 import {
     Button,
-    FormControl,
     Grid,
-    InputLabel,
-    MenuItem,
-    Select,
     Tab,
     Tabs,
 } from "@material-ui/core";
 
 // components
-import Widget from "../../components/Widget";
-
 import {
     fetcher, GET_COMPACT_MOMO_BREAKDOWN,
     GET_COMPACT_MP_BREAKDOWN, GET_DEEP_MOMO_BREAKDOWN,
@@ -20,29 +14,16 @@ import {
     GET_REPORT,
     getUser,
 } from "../../_utils/fetcher";
-import {
-    MuiPickersUtilsProvider,
-    KeyboardDateTimePicker,
-} from "@material-ui/pickers";
-import DateFnsUtils from "@date-io/date-fns";
-
-import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
 import DataTable from "react-data-table-component";
-import IconButton from "@material-ui/core/IconButton";
-import {Print} from "@material-ui/icons";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import useStyles from "./styles";
 import moment from "moment";
-import PaymentOptions from "../_shared_components/PaymentOptions";
-import {toast} from "react-toastify";
-import Notification from "../../components/Notification";
 import SelectionOptions from "../_shared_components/SelectionOptions";
 import memoizeOne from "memoize-one";
-// import {filterEventsOfChild} from "recharts/lib/util/ReactUtils";
 // import _ from "lodash"
 
 let classes = null;
-let toastOptions = null;
+// let toastOptions = null;
 
 const columnsR = [
     {name: "Item", selector: "item_name", sortable: true},
@@ -150,10 +131,10 @@ class Reports extends Component {
     constructor(props) {
         super(props);
         classes = this.props.classes;
-        toastOptions = {
-            className: classes.notification,
-            progressClassName: classes.progress,
-        };
+        // toastOptions = {
+        //     className: classes.notification,
+        //     progressClassName: classes.progress,
+        // };
         this.user = null;
         this.user_id = -1;
         this.state = {
@@ -186,7 +167,11 @@ class Reports extends Component {
 
     handleEndDateChange = date => this.setState({endDate: date}, (this.handleReloadChanges));
 
-    handleReloadChanges = () => (this.fetchTransactions(), [1, 2].includes(this.state.activeTabId) ? (this.fetchCompactMealTransactions(), this.fetchDetailedMealTransactions()) : "")
+    handleReloadChanges = () => {
+        this.fetchTransactions();
+        return ([1, 2].includes(this.state.activeTabId) ? (this.fetchCompactMealTransactions(), this.fetchDetailedMealTransactions()) : "");
+
+    }
 
     fetchTransactions = async () => {
         try {

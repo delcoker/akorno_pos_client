@@ -1,15 +1,10 @@
 import React, {Component, Fragment} from "react";
 import {Button, Grid, TextField,} from "@material-ui/core";
 // components
-import Widget from "../../components/Widget";
 import {fetcher, GET_SHIFT, getUser, MP_RECONCILIATION} from "../../_utils/fetcher";
-import {KeyboardDateTimePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
-import DateFnsUtils from "@date-io/date-fns";
 
-import GetUsersDropDown from "../_shared_components/GetUsersDropDown";
 import DataTable from "react-data-table-component";
-import IconButton from "@material-ui/core/IconButton";
-import { Close, Lock, Print} from "@material-ui/icons";
+import {Lock} from "@material-ui/icons";
 import useStyles from './styles'
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import moment from "moment";

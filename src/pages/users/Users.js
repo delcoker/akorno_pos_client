@@ -11,8 +11,9 @@ import {
 } from "@material-ui/core";
 import DataTable from "react-data-table-component";
 import {
-    Add, ArrowDownward, Delete, Close,
-    Save as SaveIcon, Cancel as ResetIcon, GpsFixed, GpsOff, RemoveCircleOutline, DeleteForeverSharp, CheckCircleOutline
+    Add, ArrowDownward, GpsOff, RemoveCircleOutline,
+    Save as SaveIcon, Cancel as ResetIcon, GpsFixed,
+    CheckCircleOutline, DeleteForeverSharp,
 } from '@material-ui/icons';
 
 import moment from "moment";
@@ -21,8 +22,6 @@ import {
     fetcher, ALL_USERS, CREATE_USER,
     USER_UPDATE, ADMIN_RESET_PASSWORD, BULK_USER_UPDATE
 } from "../../_utils/fetcher";
-// import PageTitle from "../../components/PageTitle";
-// import {Typography} from "../../components/Wrappers";
 
 import CustomizedSnackbars from "../../components/myNotification/DelNotifcation";
 
@@ -160,7 +159,7 @@ class Users extends Component {
         this.fetchUsers();
     }
 
-    toggleCleared = () => this.setState({toggleCleared: !this.state.toggleCleared})
+    toggleCleared = () => this.setState({toggleCleared: !this.state.toggleCleared});
 
     actions = () => [
         <FilterComponent

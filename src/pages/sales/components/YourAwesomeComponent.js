@@ -7,7 +7,6 @@ import {
     Filter7, Filter8, Filter9, ExposureZero, Print, HighlightOff
 } from "@material-ui/icons";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import $ from "jquery";
 
 const containerStyle = {
     right: '-1.5vw',

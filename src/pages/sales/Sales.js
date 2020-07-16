@@ -1,8 +1,5 @@
 import React, {Component, Fragment} from "react";
-import {
-    FormControl,
-    Grid, InputLabel, MenuItem, Select,
-} from "@material-ui/core";
+import {Grid} from "@material-ui/core";
 
 // styles
 // import useStyles from "./styles";
@@ -10,20 +7,18 @@ import {
 
 // import "../../del_css.css";
 
-import Img from 'react-image';
+// import Img from 'react-image';
 
-import logo from '../../images/google.svg';
 // components
-import Widget from "../../components/Widget";
 // import PageTitle from "../../components/PageTitle";
-import {Typography} from "../../components/Wrappers";
+// import {Typography} from "../../components/Wrappers";
 import $ from 'jquery' // const $ = require('jquery'); // commonJS
 
 import {
     CHECK_USER_SESSION,
     convertArrayOfObjectsToPrint,
     ENABLED_ITEMS,
-    fetcher, GET_CUSTOMER_DETAIL, GET_MOMO_DETAIL, GET_STUDENT_DETAIL,
+    fetcher, GET_CUSTOMER_DETAIL, GET_STUDENT_DETAIL,
     getUser,
     isAnyShiftActive, SAVE_TRANSACTIONS, START_SHIFT
 } from "../../_utils/fetcher";
