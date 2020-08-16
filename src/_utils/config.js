@@ -6,7 +6,8 @@ const prod = {
 };
 const dev = {
     url: {
-        API_URL: 'http://localhost:3333/graphql'
+        // API_URL: 'http://192.168.2.20:3333/graphql' // bowmanville
+        API_URL: 'http://localhost:3333/graphql' //
     }
 };
 

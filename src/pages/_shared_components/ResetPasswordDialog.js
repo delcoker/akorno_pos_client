@@ -80,6 +80,7 @@ export default function ResetPasswordFormDialog(props) {
                 query: CHANGE_PASSWORD,
                 variables: {user_id: user.user_id, old, newP, conf}
             });
+
             // console.log(res);
 
             if (res && res.errors) {

@@ -33,8 +33,8 @@ const messages = [
     {
         id: 0,
         variant: "warning",
-        name: "Jane Hew",
-        message: "Hey! How is it going?",
+        name: "Kingston Coker",
+        message: "Contact Kingston Coker +1 289 996 8088?",
         time: "9:32",
     },
     {
@@ -62,7 +62,7 @@ const messages = [
 
 
 const notifications = [
-    {id: 0, color: "warning", message: "Check out this awesome ticket"},
+    {id: 0, color: "warning", message: "Contact Kingston Coker"},
     {
         id: 1,
         color: "success",
@@ -107,6 +107,7 @@ export default function Header(props) {
 
     const [open, setOpen] = React.useState(false);
 
+    // open change password dialog
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -162,27 +163,6 @@ export default function Header(props) {
                     <div className={classes.grow}/>
                     <Button component={Link} /*href="https://flatlogic.com/templates/react-material-admin-full"*/
                             variant={"outlined"} color={"secondary"} style={{marginRight: 24}}>{user.username}</Button>
-                    {/*<div*/}
-                    {/*    className={classNames(classes.search, {*/}
-                    {/*        [classes.searchFocused]: isSearchOpen,*/}
-                    {/*    })}*/}
-                    {/*>*/}
-                    {/*    <div*/}
-                    {/*        className={classNames(classes.searchIcon, {*/}
-                    {/*            [classes.searchIconOpened]: isSearchOpen,*/}
-                    {/*        })}*/}
-                    {/*        onClick={() => setSearchOpen(!isSearchOpen)}*/}
-                    {/*    >*/}
-                    {/*        <SearchIcon classes={{root: classes.headerIcon}}/>*/}
-                    {/*    </div>*/}
-                    {/*    <InputBase*/}
-                    {/*        placeholder="Search…"*/}
-                    {/*        classes={{*/}
-                    {/*            root: classes.inputRoot,*/}
-                    {/*            input: classes.inputInput,*/}
-                    {/*        }}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
                     <IconButton
                         color="inherit"
                         aria-haspopup="true"
@@ -376,7 +356,7 @@ export default function Header(props) {
                                 color="primary"
                                 variant={'h5'}
                             >
-                                Reset Password
+                                Change Password
                             </Typography>
                         </MenuItem>
                         <MenuItem

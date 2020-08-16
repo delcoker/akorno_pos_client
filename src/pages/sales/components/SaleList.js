@@ -119,6 +119,7 @@ class SaleList extends Component {
             selectedRows: [],
             toggleCleared: false,
         };
+        // console.log(props.bar, props.val, props)
     }
 
     handleChange = table => {

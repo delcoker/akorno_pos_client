@@ -14,7 +14,7 @@ import MyLoginPage from "../pages/login/MyLoginPage";
 
 export default function App() {
     // global
-    var { isAuthenticated } = useUserState(); //
+    let { isAuthenticated } = useUserState(); //
     // var isAuthenticated  = localStorage.getItem("id_token"); //
 
     // console.log('isAuthenticated', isAuthenticated);

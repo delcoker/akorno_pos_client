@@ -1,8 +1,8 @@
 import React from "react";
 import {fetcher, END_SHIFT,} from "../_utils/fetcher";
 
-var UserStateContext = React.createContext();
-var UserDispatchContext = React.createContext();
+let UserStateContext = React.createContext();
+let UserDispatchContext = React.createContext();
 
 function userReducer(state, action) {
     // console.log(action);
@@ -18,7 +18,7 @@ function userReducer(state, action) {
 }
 
 function UserProvider({children}) {
-    var [state, dispatch] = React.useReducer(userReducer, {
+    let [state, dispatch] = React.useReducer(userReducer, {
         isAuthenticated: !!localStorage.getItem("token"),
     });
 
@@ -32,7 +32,7 @@ function UserProvider({children}) {
 }
 
 function useUserState() {
-    var context = React.useContext(UserStateContext);
+    let context = React.useContext(UserStateContext);
     // console.log('useUserState', 'context', context);
     // var context = (UserStateContext);
     // console.log('context', context);

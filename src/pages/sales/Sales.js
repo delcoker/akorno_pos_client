@@ -33,6 +33,21 @@ import moment from "moment";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import CardItem from "./components/CardItem";
 import PaymentOptions from "../_shared_components/PaymentOptions";
+import Box from "@material-ui/core/Box";
+
+import purple from '@material-ui/core/colors/purple';
+import red from '@material-ui/core/colors/red';
+
+const primary = red[500]; // #f44336
+const accent = purple['A200']; // #e040fb
+// const accent = purple.A200; // #e040fb (alternative method)
+
+// const defaultProps = {
+//     bgcolor: 'background.paper',
+//     m: 1,
+//     style: { width: '15.8rem', height: '10rem' },
+//     borderColor: 'text.primary',
+// };
 
 const useStyles = (theme => ({
     dashedBorder: {
@@ -57,6 +72,8 @@ const useStyles = (theme => ({
         visibility: "hidden",
     },
 }));
+
+
 
 let classes = null;
 let toastOptions = null;
@@ -813,7 +830,13 @@ class Sales extends Component {
         }
     };
 
+
     render() {
+        const data = {
+            bar: 4,
+            val: null
+        };
+
         // console.log(this.state);
         return (
             <Fragment>
@@ -899,6 +922,7 @@ class Sales extends Component {
 
                                 {/*<Grid item xs={12}>*/}
                                 <SaleList
+                                    {...data}
                                     mData={this.state.dataSet}
                                     totalNii={this.state.totalNii}
                                     payingNii={this.state.payingNii}

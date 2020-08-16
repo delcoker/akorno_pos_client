@@ -59,7 +59,8 @@ class MyLoginPage extends Component {
 
         this.state = {
             registerUsername: '',
-            registerEmail: 'delcoker@gmail.com',
+            registerEmail: 'noadmin@yahoo.com',
+            notAdminPassword: '1234',
             registerPassword: '',
             registerAgree: false,
             submitted: false,
@@ -121,7 +122,7 @@ class MyLoginPage extends Component {
         // console.log(name,value,'fsfadf');
         this.setState({[name]: value});
 
-        if (value === '123') this.createDummyUsers(value);
+        // if (value === '123') this.createDummyUsers(value);
     }
 
     tokenSuccess = (token) => {
@@ -134,7 +135,7 @@ class MyLoginPage extends Component {
         fetcher({
             query: LOGGED_USER,
         }).then(res => {
-                localStorage.setItem('username', res.data.me.first_name + " " + res.data.me.last_name.charAt(0)+'.');
+                localStorage.setItem('username', res.data.me.first_name + " " + res.data.me.last_name.charAt(0) + '.');
                 localStorage.setItem('pic', res.data.me.pic);
 
                 this.setState({loggedIn: true});
@@ -212,7 +213,9 @@ class MyLoginPage extends Component {
                         <LockOutlinedIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign In to <strong>Akorno POS</strong>
+                        Sign In to <strong>POS</strong>
+                        <br/>user: <strong>Not Admin</strong>
+                        <br/>password: <strong>1234</strong>
                     </Typography>
                     <form className={classes.form} noValidate onSubmit={this.handleSubmit}>
 
@@ -236,7 +239,7 @@ class MyLoginPage extends Component {
                             disabled
                             inputProps={{
                                 className: classes.text,
-                                style:textFieldStyle.resize
+                                style: textFieldStyle.resize
                             }}
                         />
                         <TextField
@@ -252,7 +255,7 @@ class MyLoginPage extends Component {
                             value={registerPassword} onChange={this.handleChange}
                             inputProps={{
                                 className: classes.text,
-                                style:textFieldStyle.resize
+                                style: textFieldStyle.resize
                             }}
                         />
 
