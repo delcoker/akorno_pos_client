@@ -23,16 +23,7 @@ const textFieldStyle = {
 export class YourAwesomeComponent extends Component {
     constructor(props) {
         super(props);
-        // console.log(props);
-        // this.tot = 0;
-        // this.amount_paying = 0;
         this.change = 0;
-
-        // this.yacTotal=this.props.slTotal;
-        // this.yacAmtPaying=this.props.slAmtPaying;
-        // this.yacChange = this.props.slChange;
-        //
-        // console.log(this.yacTotal, this.yacAmtPaying, this.yacChange);
     }
 
     handlePayingValueChange = (e) => {
@@ -42,22 +33,11 @@ export class YourAwesomeComponent extends Component {
 
     handleClick = (e) => {
         e.target.select();
-        // input type number does not support selection
-        // const {target} = e;
-        // console.log(e.());
-        // console.log(e.nativeEvent.toElement.focus());
-
-        // const extensionStarts = target.value.lastIndexOf('.');
-        // target.highlight();
-        // target.setSelectionRange(0, 1);
-        // target.select();
     };
 
     calculateChange = () => {
         const {totalNii} = this.props;
         let {payingNii} = this.props;
-
-        // console.log(payingNii);
 
         if (!(payingNii > 0)) payingNii = 0;
 
@@ -125,15 +105,7 @@ export class YourAwesomeComponent extends Component {
                                 type='number'
                                 color='secondary'
                                 value={this.calculateChange()}
-                                // autoFocus={true}
-                                // helperText={"Amount in change to customer"}
                             />
-                            {/*<br/>*/}
-                            {/*<Button*/}
-                            {/*    tooltip="The big plus button!"*/}
-                            {/*    icon={HomeIcon}*/}
-                            {/*    rotate={true}*/}
-                            {/*    onClick={() => alert('FAB Rocks!')}/>*/}
                         </Grid>
                     </Grid>
 
@@ -204,11 +176,6 @@ export class YourAwesomeComponent extends Component {
                                 <HighlightOff fontSize='large' color={"error"}/>
                             </IconButton>
                         </Grid>
-                        {/*<Grid item xs={1}>*/}
-                        {/*    <IconButton color="secondary" onClick={e => this.props.handleNumberClick(e, 0)}>*/}
-                        {/*        <Close/>*/}
-                        {/*    </IconButton>*/}
-                        {/*</Grid>*/}
                     </Grid>
                 </Grid>
             </Container>

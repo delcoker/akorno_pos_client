@@ -6,6 +6,6 @@ import React from "react";
 export default {
     page: ReportPage,
     icon: <AssignmentIcon/>,
-    label: 'Reports', // used for sidebar and page title
+    label: 'Reports',
     route: "/app/reports"
 };

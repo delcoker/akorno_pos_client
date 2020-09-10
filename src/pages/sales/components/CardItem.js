@@ -9,25 +9,14 @@ export default function CardItem(props) {
     return (
 
         <Grid item lg={4} md={4} sm={6} xs={12} className='filterable'
-            // key={props.key}
               onClick={() => {
                   props.handleCardClickChild(props.item, props.qty);
-
-                  // a.setSelectionRange(0, 99);
-                  // console.log(props.i);
-
-                  // const input = document.getElementById('paying');
-                  // console.log(input);
-                  // input.focus();
-                  // input.select();
-              }}
-        >
+              }}>
             <Widget
                 title={props.item.price.toFixed(2)}
                 item_name={
                      <Img width={'43px'}
                          src={[
-                             // console.log(props.getItemImage(props.item)),
                              (props.getItemImage(props.item.pic) + '.svg'),
                              props.getItemImage(props.item.pic) + '.gif',
                              props.getItemImage(props.item.pic) + '.png',

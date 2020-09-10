@@ -9,15 +9,10 @@ import Checkbox from "@material-ui/core/Checkbox";
 import {YourAwesomeComponent} from "./YourAwesomeComponent";
 import {ToastContainer} from "react-toastify";
 
-// import MaterialDatatable from "material-datatable"; // ES6
-// const MaterialDatatable = require('material-datatable'); // ES5
-// import Notification from "../../../components/Notification";
-
 const cust = {
     cells: {
         style: {
-            fontSize: '16px', // override the cell padding for data cells
-            // paddingRight: '8px',
+            fontSize: '16px',
         },
     },
 };
@@ -31,24 +26,19 @@ const columnsR = deleteOrAddOneMore => [
         right: true,
         maxWidth: "100px"
     },
-    // {name: "Typ", selector: "type", width: "55px"}, // max wi
     {
         name: "Qty", selector: "qty", center: true, compact: true, grow: 5,
 
         cell: (row) => {
             const addIcon = <IconButton size={"medium"} onClick={() => {
                 deleteOrAddOneMore(row.id, 1);
-            }}
-                // onMouseDown={() => console.log("+ being pressed")}
-            >
+            }}            >
                 <Add color="secondary"/>
             </IconButton>;
 
             const minusIcon = <IconButton size={"medium"} onClick={() => {
-                // console.log(row);
                 deleteOrAddOneMore(row.id, -1)
             }}
-                // onMouseDown={() => console.log("- being pressed")}
             >
                 <Remove color="primary"/>
             </IconButton>;
@@ -71,17 +61,13 @@ const columnsR = deleteOrAddOneMore => [
         compact: true,
         maxWidth: "90px",
         cell: (row) => {
-            // let a = e=>deleteItem(row.id);
-            const closeIcon = <IconButton size={"medium"} onClick={() => (deleteOrAddOneMore(row))}
-                // onKeyPress={() => console.log("- being pressed")}
-            >
+            const closeIcon = <IconButton size={"medium"} onClick={() => (deleteOrAddOneMore(row))}            >
                 <HighlightOff color="error"/>
             </IconButton>;
 
             return <table>
                 <tbody>
                 <tr>
-                    {/*<td>{addIcon}</td>*/}
                     <td>{(row.qty * row.price).toFixed(2)}</td>
                     <td>{closeIcon}</td>
                 </tr>
@@ -90,11 +76,6 @@ const columnsR = deleteOrAddOneMore => [
         }
     }
 ];
-
-// const spaceDelimiter = "&nbsp;";
-// const columnDelimiter = "&emsp;";
-// const lineDelimiter = "<br>";
-// const typeDelimiter = "-";
 
 const contextActions = memoize(deleteHandler => (
     <IconButton
@@ -107,10 +88,6 @@ const contextActions = memoize(deleteHandler => (
 
 let arrowDownward = <ArrowDownward/>;
 
-// let classes = null;
-
-// Blatant "inspiration" from https://codepen.io/Jacqueline34/pen/pyVoWr
-
 class SaleList extends Component {
     constructor(props) {
         super(props);
@@ -119,28 +96,15 @@ class SaleList extends Component {
             selectedRows: [],
             toggleCleared: false,
         };
-        // console.log(props.bar, props.val, props)
     }
 
     handleChange = table => {
-        // let ch = this.state.amount - this.props.mTotal;
-        // this.change = ch;
-        // console.log('Selected Rows: ', table.selectedRows);
-        // You can use setState or dispatch with something like Redux so we can use the retrieved data
         this.setState({
             selectedRows: table.selectedRows,
-            // data: this.props.mData
         });
     };
 
-    // handleClearRows = () => {
-    //     this.setState({toggledClearRows: !this.state.toggledClearRows})
-    // };
-
     handleRowClicked = row => {
-
-        // this.props.del_handleDelete(row, null, 1); // if there's a one, delete one item
-
         console.log(`${row.item} was clicked!`);
     };
 
@@ -159,15 +123,12 @@ class SaleList extends Component {
         else
             this.props.del_handleDelete([row.id], null);
 
-        // console.log("oooooooooooooooooooomg");
-
         this.setState(state => ({toggleCleared: !state.toggleCleared}));
     };
 
 
     render() {
         const {toggleCleared} = this.state;
-        // console.log(toggleCleared);
         return (
             <>
                 <ToastContainer/>
@@ -191,12 +152,10 @@ class SaleList extends Component {
                     sortIcon={arrowDownward}
                     onRowClicked={this.handleRowClicked}
                     contextActions={contextActions(this.deleteSelectedRows)}
-                    // pagination
                     fixedHeader
                     fixedHeaderScrollHeight={'55vh'}
                     paginationPerPage={10}
                     customStyles={cust}
-                    // onRowDoubleClicked={this.deleteSelectedRow}
                 />
 
 
@@ -214,20 +173,4 @@ class SaleList extends Component {
         );
     }
 }
-
-// const Example = () => {
-//     const componentRef = useRef();
-//     return (
-//         <div>
-//             <ReactToPrint
-//                 trigger={() => <button>Print this out!</button>}
-//                 content={() => componentRef.current}
-//             />
-//             <SaleList ref={componentRef}/>
-//         </div>
-//     );
-// };
-
-// SaleList('Material UI', module)
-//     // .add('Override Default Components', () => <MaterialTable />);
 export default SaleList;

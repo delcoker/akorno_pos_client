@@ -18,13 +18,6 @@ import memoizeOne from "memoize-one";
 import $ from 'jquery'
 import {toast, ToastContainer} from "react-toastify";
 import Notification from "../../components/Notification";
-// import InputAdornment from "@material-ui/core/InputAdornment";
-
-// styles
-// import useStyles from "./styles";
-// import {withStyles} from "@material-ui/core/styles"
-// import PageTitle from "../../components/PageTitle";
-// import InputAdornment from "@material-ui/core/InputAdornment";
 
 const columnsR = memoizeOne((calculateLeftMPHandler, /**, after_mp**/) => [ // cause infinite rerender i think using state
     {name: "Item", selector: "item_name", sortable: true, grow: 4,},
@@ -42,7 +35,6 @@ const columnsR = memoizeOne((calculateLeftMPHandler, /**, after_mp**/) => [ // c
         name: "Total GH₵",
         selector: "item_price * qty_sold",
         sortable: true,
-        // right: true,
         cell: row => {
             const quantity_sold = (row.qty_start + (row.qty_during ? row.qty_during : 0) - (row.qty_end ? row.qty_end : 0));
             return `${(row.item_price * quantity_sold).toFixed(2)}`;
@@ -54,7 +46,6 @@ const columnsR = memoizeOne((calculateLeftMPHandler, /**, after_mp**/) => [ // c
         selector: "mp",
         sortable: true,
         cell: row => {
-            // console.log(row);
             return <TextField
                 id="mp" name={'meal_plan' + row.id} // label="Total ₵" placeholder="Total ₵"
                 inputProps={{style: textFieldStyle.resize, min: 0, max: row.qty_end}}
@@ -63,7 +54,7 @@ const columnsR = memoizeOne((calculateLeftMPHandler, /**, after_mp**/) => [ // c
                 defaultValue={0}
                 onChange={(e) => calculateLeftMPHandler(e, row)}
             />;
-        }, grow: 1, //button:true
+        }, grow: 1,
     },
     {
         name: "Left After MP",
@@ -77,9 +68,6 @@ const columnsR = memoizeOne((calculateLeftMPHandler, /**, after_mp**/) => [ // c
                     inputProps={{style: textFieldStyle.resize, readOnly: true, min: "0"}}
                     type='number'
                     color='secondary'
-                    // inputRef={ref => reff = ref}
-                    // disabled
-                    // value={after_mp} // cause infinite rerender i think
                     defaultValue={row.qty_end}
                     onChange={(e) => console.log(e.target.name)}
                 />
@@ -140,17 +128,12 @@ class ShiftReconciliation extends Component {
         this.setState({user_id: user.user_id});
 
         this.fetchShifts(this.state.startDate, this.state.endDate, null, this.state.user_id);
-        // console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhh", user)
-        // this.user_id = this.user ? this.user.user_id : 0;
     }
 
     handleStartDateChange = date => {
         this.setState({startDate: date});
 
-        // comment this out on deployment
-        /////////// -------------------fix this #todo
         let transactionPoint = null;
-        //////////// --------------------------------
 
         this.fetchShifts(date, this.state.endDate, transactionPoint, this.state.user_id);
     };
@@ -158,21 +141,16 @@ class ShiftReconciliation extends Component {
     handleEndDateChange = date => {
         this.setState({endDate: date});
 
-        /////////// -------------------fix this #todo
         const transactionPoint = null;
-        // const vendor = 1;
-        //////////// --------------------------------
 
         this.fetchShifts(this.state.startDate, date, transactionPoint, this.state.user_id);
     };
 
     fetchShifts = async (startDate, endDate, transactionPoint, user_id, status) => {
-        // console.log(startDate, endDate, transactionPoint, user_id);
 
         if (!this.state.user_id) return;
 
         startDate = new Date(startDate);
-        // endDate = new
         try {
             let res = await fetcher({
                 query: GET_SHIFT,
@@ -190,7 +168,6 @@ class ShiftReconciliation extends Component {
             let book_total = 0;
             for (let shift of shiftsReceived) {
                 for (let shift_det of shift.shift_details) {
-                    // console.log(shift_det);
                     book_total += shift_det.item.price * shift_det.qty_sold_during_shift_time_by_anyone;
 
                     shifts.push({
@@ -199,8 +176,7 @@ class ShiftReconciliation extends Component {
                         item_price: shift_det.item.price,
                         qty_start: shift_det.qty_start,
                         qty_during: shift_det.qty_during,
-                        qty_sold: shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0, // should come from db transaction table
-                        // qty_sold_by_user: shift_det.qty_sold_by_user,
+                        qty_sold: shift_det.qty_sold_during_shift_time_by_anyone ? shift_det.qty_sold_during_shift_time_by_anyone : 0,
                         qty_end: shift_det.qty_end,
                         current_stock: shift_det.item.quantity,
                         user_name: `${shift.user.first_name} ${shift.user.last_name}`,
@@ -212,7 +188,6 @@ class ShiftReconciliation extends Component {
             }
             // sort alphabetically
             shifts.sort(this.compare);
-            // console.log(shifts);
 
             this.setState({shifts, book_total: book_total.toFixed(2)});
         } catch (err) {
@@ -220,8 +195,7 @@ class ShiftReconciliation extends Component {
         }
     };
 
-    compare = (a, b) => { // source: https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
-        // Use toUpperCase() to ignore character casing
+    compare = (a, b) => {
         const item_nameA = a.item_name.toUpperCase();
         const item_nameB = b.item_name.toUpperCase();
 
@@ -242,20 +216,12 @@ class ShiftReconciliation extends Component {
         const {value} = e.target;
         this.user_id = e.target.value;
         this.setState({user_id: value});
-        // console.log(e.nativeEvent.target);
-
         this.fetchShifts(this.state.startDate, this.state.endDate, null, this.user_id);
 
     };
 
     handleDropDownHTML = e => {
-        // const {value} = e.target;
-        // // this.user_id = e.target.value;
-        // // this.setState({user_id: value});
         console.log(e.target);
-
-        // this.fetchShifts(this.state.startDate, this.state.endDate, null, this.user_id);
-
     };
 
     convertArrayOfObjectsToPrint = (header, array, footer) => {
@@ -267,7 +233,6 @@ class ShiftReconciliation extends Component {
         result += `<table border="1px"><tr><th align="left">Item</th><th>St</th><th>Top</th><th>End</th><th>Sld</th><th>Lft</th><th>Cash</th></tr>`;
 
         for (let i = 0; i < array.length; i++) {
-            // console.log(array[i].item_name);
             let start = array[i].item_name.substr(0, itemNameLength);
             let cashierCrop = array[i].user_name.substr(0, cashierCropLength);
 
@@ -279,14 +244,12 @@ class ShiftReconciliation extends Component {
 <td>${cashierCrop}</td></tr>`;
         }
         result += "</table>";
-        // console.log(result);
         result += footer;
 
         return result;
     };
 
     runShiftReport = async () => {
-        // console.log("here", this.state.transactions);
         if (!this.state.shifts || this.state.shifts.length < 1)
             return;
 
@@ -297,8 +260,6 @@ class ShiftReconciliation extends Component {
             throw new Error("Could not get user.\nTransaction not saved");
 
         let company = "AKORNO CATERING SERVICES<br> ";
-        // let vendor = 1;
-        // let transaction_point = null;
         let cashier_name = (user.first_name + " " + user.last_name).substr(
             -company.length
         );
@@ -322,18 +283,11 @@ class ShiftReconciliation extends Component {
 
         pri.focus();
         pri.print();
-
-
-        // this.deleteSelectedRows(null, ids);
-        // this.setState({ amount: 0 });
-        // }
     };
 
     // #todo
     calculateLeftWithMP = (e, row) => {
         const {value} = e.target;
-        // console.log("calculating MP minus", row);
-        // console.log(name, value);
 
         if (value < 0) {
             const componentProps = {
@@ -366,17 +320,7 @@ class ShiftReconciliation extends Component {
             return;
         }
         const result = row.qty_end - value;
-        //
-        // console.log($('.after_meal_plan' + row.id).val());
-        // console.log($('#mp_' + row.id).val());
-
         $('#mp_' + row.id).val(result);
-
-        // this.setState({after_meal_plan:result}); // causes infinite rerender i think using state
-        // console.log(result);
-
-        // return value;
-        // this.setState({meal_plan: value});
     };
 
     reconciliation = () => {
@@ -384,26 +328,19 @@ class ShiftReconciliation extends Component {
     };
 
     actions = () => [
-        // this.subHeaderComponentMemo(1),
-        // <IconButton color="primary" key={1} onClick={this.reconciliation}>
-        <Button key={1} //fullWidth
+        <Button key={1}
                 onClick={this.reconciliation}
                 style={textFieldStyle.resize}
                 color='primary' variant="contained"
                 startIcon={<Lock/>}
                 endIcon={<Lock/>}>MP Reconciliation</Button>
-
-        // </IconButton>
     ];
 
 
     render() {
-        // const {classes, theme} = this.props;
         return (
             <>
                 <ToastContainer/>
-                {/*<PageTitle title=""/>*/}
-
                 <Grid container spacing={1}>
 
                     <Grid container item spacing={1} xs={12}>
@@ -413,7 +350,6 @@ class ShiftReconciliation extends Component {
                                     <Grid container spacing={3} justify="space-around">
                                         <Grid item lg={4} md={4} sm={6} xs={12}>
                                             <KeyboardDateTimePicker
-                                                // disableToolbar
                                                 fullWidth
                                                 inputVariant="outlined"
                                                 variant="inline"
@@ -464,8 +400,7 @@ class ShiftReconciliation extends Component {
                                                             height: "100px",
                                                             width: "100px"
                                                         }}
-                                                        onClick={this.runShiftReport}
-                                            >
+                                                        onClick={this.runShiftReport}>
                                                 <Print color="secondary"
                                                        fontSize='large'/>
                                             </IconButton>
@@ -482,22 +417,13 @@ class ShiftReconciliation extends Component {
                                 columns={columnsR(this.calculateLeftWithMP, this.ref)}
                                 data={this.state.shifts}
                                 actions={this.actions()}
-                                // selectableRows // add for checkbox selection
-                                // selectableRowsComponent={Checkbox}
-                                // selectableRowsComponentProps={{ inkDisabled: true }}
-                                // onRowSelected={this.handleChange}
                                 defaultSortField={"start_date"}
-                                // clearSelectedRows={this.state.toggledClearRows}
                                 expandableRows={false}
                                 highlightOnHover
                                 pointerOnHover
                                 striped
                                 customStyles={dataTableFont}
-                                // onRowClicked={this.handleRowClicked}
-                                // contextActions={contextActions(this.deleteSelectedRows)}
-                                // pagination
                                 fixedHeader
-                                // fixedHeaderScrollHeight='500px'
                             />
                         </Grid>
 
@@ -523,7 +449,6 @@ const dataTableFont = {
     },
 };
 
-// export default withStyles(useStyles, {withTheme: true})(MyLoginPage);
 export default useStyles(ShiftReconciliation);
 
 

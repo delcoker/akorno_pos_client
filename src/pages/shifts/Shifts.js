@@ -16,12 +16,6 @@ import Notification from "../../components/Notification";
 import SelectionOptions from "../_shared_components/SelectionOptions";
 import FilterComponent from "../_shared_components/FilterComponent";
 
-// styles
-// import useStyles from "./styles";
-// import {withStyles} from "@material-ui/core/styles"
-// import PageTitle from "../../components/PageTitle";
-// import InputAdornment from "@material-ui/core/InputAdornment";
-
 let backG = 'rgba(63, 195, 128, 0.9)';
 let sthBackG = 'rgba(200, 195, 128, 0.9)';
 let yellowG = 'rgba(242, 217, 132, 1)';
@@ -57,13 +51,6 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
             color: col
         },
     },
-    // {  // does not actually work because not recorded in real-time
-    //     name: "Qty Sold Start-End (Cash)", selector: "qty_start_minus_end", sortable: true, grow: 1,
-    //     style: {
-    //         backgroundColor: backG,
-    //         color: col
-    //     }, //omit: true,
-    // },
     {
         name: "MP Sold (Cash-PC)", selector: "qty_mp_sold_on_cash_pc", sortable: true,
         grow: 1, width: '80px',
@@ -77,21 +64,8 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
         name: "Total Cash GH₵",
         selector: "subtotal_cash_sales",
         sortable: true,
-        // right: true,
-        // cell: row => {
-        //     // const quantity_sold = (row.qty_start + (row.qty_during ? row.qty_during : 0) - (row.qty_end ? row.qty_end : 0));
-        //     return `${(row.item_price * row.qty_start_minus_end).toFixed(2)}`;
-        // },
         grow: 1
     },
-    // {
-    //     name: "Old End Real-Time", selector: "qty_end", sortable: true, grow: 1,
-    //     // cell:row=> row.qty_end,
-    //     style: {
-    //         backgroundColor: sthBackG,
-    //         color: col
-    //     },
-    // },
     {
         name: "End", selector: "qty_end_2", sortable: true, grow: 1, width: '90px',
         cell: row => {
@@ -106,14 +80,10 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
     {
         name: "Qty Sold (MP)",
         selector: "qty_mp_reconciliation",
-        sortable: true, width: '90px', //compact: true,
+        sortable: true, width: '90px',
         cell: row => {
-            // if (row.qty_mp_reconciliation > 0) {
-            //     backG = yellowG;
-            // }
-            // console.log(row);
             return <TextField
-                id="mp" name={'meal_plan' + row.id} // label="Total ₵" placeholder="Total ₵"
+                id="mp" name={'meal_plan' + row.id}
                 inputProps={{
                     style: textFieldStyle.resize,
                     min: 0,
@@ -126,10 +96,8 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
                     calculateLeftMPHandler(e, row);
                 }}
             />;
-        }, grow: 1, //button:true
-        // when: row => row.qty_mp_reconciliation ,
+        }, grow: 1,
         style: {
-            // backgroundColor: 'rgba(255, 195, 128, 0.9)',
             backgroundColor: sthBackG,
             color: 'white',
             '&:hover': {
@@ -149,9 +117,6 @@ const columnsR = memoizeOne((calculateLeftMPHandler, username,/**, after_mp**/) 
                     inputProps={{style: textFieldStyle.resize, readOnly: true, min: "0"}}
                     type='number'
                     color='secondary'
-                    // inputRef={ref => reff = ref}
-                    // disabled
-                    // value={after_mp} // cause infinite rerender i think
                     defaultValue={row.qty_after_mp_reconciliation}
                     onChange={(e) => console.log(e.target.name)}
                 />
@@ -218,17 +183,12 @@ class Shifts extends Component {
         this.setState({user_id: user.user_id});
 
         this.fetchShifts(this.state.startDate, this.state.endDate, null, this.state.user_id);
-        // console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhh", user)
-        // this.user_id = this.user ? this.user.user_id : 0;
     }
 
     handleStartDateChange = date => {
         this.setState({startDate: date});
 
-        // comment this out on deployment
-        /////////// -------------------fix this #todo
         let transactionPoint = null;
-        //////////// --------------------------------
 
         this.fetchShifts(date, this.state.endDate, transactionPoint, this.state.user_id);
     };
@@ -236,21 +196,17 @@ class Shifts extends Component {
     handleEndDateChange = date => {
         this.setState({endDate: date});
 
-        /////////// -------------------fix this #todo
         const transactionPoint = null;
-        // const vendor = 1;
-        //////////// --------------------------------
 
         this.fetchShifts(this.state.startDate, date, transactionPoint, this.state.user_id);
     };
 
     fetchShifts = async (startDate, endDate, transactionPoint, user_id, status) => {
-        // console.log(startDate, endDate, transactionPoint, user_id);
 
         if (!this.state.user_id) return;
 
         startDate = new Date(startDate);
-        // endDate = new
+
         try {
             let res = await fetcher({
                 query: GET_SHIFT,
@@ -262,14 +218,14 @@ class Shifts extends Component {
                     status,
                 }
             });
-            // console.log(res);
+
             const shiftsReceived = res.data.getShift;
 
             let shifts = [];
             let book_total = 0;
             for (let shift of shiftsReceived) {
                 for (let shift_det of shift.shift_details) {
-                    // console.log(shift_det);
+
                     book_total += shift_det.item.price * (shift_det.qty_sold_by_user ? shift_det.qty_sold_by_user : 0);
 
                     shifts.push({
@@ -291,8 +247,8 @@ class Shifts extends Component {
                         start_date: shift.createdAt,
                         end_date: shift.updatedAt,
 
-                        qty_mp_reconciliation: shift_det.mp_reconciliation,// ? shift_det.mp_reconciliation : 0,
-                        qty_after_mp_reconciliation: shift_det.after_mp_reconciliation, // ? shift_det.after_mp_reconciliation : shift_det.qty_end,
+                        qty_mp_reconciliation: shift_det.mp_reconciliation,
+                        qty_after_mp_reconciliation: shift_det.after_mp_reconciliation,
                         mp_reconciliation_status: shift_det.mp_reconciliation_status,
                         qty_mp_sold_on_cash_pc: shift_det.qty_mp_sold_on_cash_pc ? shift_det.qty_mp_sold_on_cash_pc : 0,
                     });
@@ -300,7 +256,7 @@ class Shifts extends Component {
             }
             // sort alphabetically
             shifts.sort(this.compare);
-            // console.log(shifts);
+
 
             this.setState({shifts, book_total: book_total.toFixed(2), filteredItems: shifts});
         } catch (err) {
@@ -308,8 +264,7 @@ class Shifts extends Component {
         }
     };
 
-    compare = (a, b) => { // source: https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
-        // Use toUpperCase() to ignore character casing
+    compare = (a, b) => {
         const item_nameA = a.item_name.toUpperCase();
         const item_nameB = b.item_name.toUpperCase();
 
@@ -330,20 +285,13 @@ class Shifts extends Component {
         const {value} = e.target;
         this.user_id = e.target.value;
         this.setState({user_id: value});
-        // console.log(e.nativeEvent.target);
 
         this.fetchShifts(this.state.startDate, this.state.endDate, null, this.user_id);
 
     };
 
     handleDropDownHTML = e => {
-        // const {value} = e.target;
-        // // this.user_id = e.target.value;
-        // // this.setState({user_id: value});
         console.log(e.target);
-
-        // this.fetchShifts(this.state.startDate, this.state.endDate, null, this.user_id);
-
     };
 
     convertArrayOfObjectsToPrint = (header, array, footer) => {
@@ -367,14 +315,12 @@ class Shifts extends Component {
 <td>${cashierCrop}</td></tr>`;
         }
         result += "</table>";
-        // console.log(result);
         result += footer;
 
         return result;
     };
 
     runShiftReport = async () => {
-        // console.log("here", this.state.transactions);
         if (!this.state.shifts || this.state.shifts.length < 1)
             return;
 
@@ -385,8 +331,7 @@ class Shifts extends Component {
             throw new Error("Could not get user.\nTransaction not saved");
 
         let company = "AKORNO CATERING SERVICES<br> ";
-        // let vendor = 1;
-        // let transaction_point = null;
+
         let cashier_name = (user.first_name + " " + user.last_name).substr(
             -company.length
         );
@@ -411,10 +356,6 @@ class Shifts extends Component {
         pri.focus();
         pri.print();
 
-
-        // this.deleteSelectedRows(null, ids);
-        // this.setState({ amount: 0 });
-        // }
     };
 
     // #todo
@@ -436,9 +377,6 @@ class Shifts extends Component {
         }
 
         const {value} = e.target;
-        // console.log("calculating MP minus", row);
-        // console.log(name, value);
-
         if (value < 0) {
             const componentProps = {
                 type: "feedback",
@@ -456,9 +394,7 @@ class Shifts extends Component {
 
         // value is Qty Sold MP
         const total = row.qty_during ? row.qty_during + row.qty_start : row.qty_start;
-        const should_be_left = total - row.qty_sold_by_user - value;// + row.qty_mp_sold_on_cash_pc;
-
-        // console.log('total', total, 'should_be_left', should_be_left, 'row.qty_sold_by_user', row.qty_sold_by_user, 'value', value);
+        const should_be_left = total - row.qty_sold_by_user - value;
 
         if (should_be_left < 0 || (row.current_stock - value) < 0) {
 
@@ -484,8 +420,6 @@ class Shifts extends Component {
                 }
                 return shift;
             });
-            // console.log(newShiftState);
-
             $('#mp_' + row.id).val('');
             // $('#mp').val('');
 
@@ -497,7 +431,6 @@ class Shifts extends Component {
         const result = should_be_left;
 
         /////////////////// update shift state///////////////////////////
-        // let shifts = [...this.state.shifts];
         const newShiftState = this.state.shifts.map((shift) => {
             if (shift.id === row.id) {
                 shift = {
@@ -508,24 +441,13 @@ class Shifts extends Component {
             }
             return shift;
         });
-        // console.log(newShiftState);
-        // console.log(shifts);
-        // console.log(row.id);
+
         /////////////////////////////////////////////////////////////////
-
-
-        // console.log($('.after_meal_plan' + row.id).val());
-        // console.log($('#mp_' + row.id).val());
 
         $('#mp_' + row.id).val(result);  // changing with vanillaJS
 
         this.setState({shifts: newShiftState});
 
-        // this.setState({after_meal_plan:result}); // causes infinite rerender i think using state
-        // console.log(result);
-
-        // return value;
-        // this.setState({meal_plan: value});
     };
 
     reconciliation = async () => {
@@ -558,10 +480,8 @@ This action cannot be undone`))) {
                 mp_item_ids[i] = shift.item_id;
                 shift_ids[i] = shift.shift_id;
                 i++;
-                // if (i===5) break;
             }
         }
-        // console.log(shift_detail_ids.length );
 
         if (shift_detail_ids.length < 1) {
             componentProps = {
@@ -576,7 +496,6 @@ This action cannot be undone`))) {
             />, toastOptions);
             return;
         }
-        // console.log(shift_detail_ids, mp_rec_status, mp_qtys_sold, mp_qtys_left);
 
         try {
             let res = await fetcher({
@@ -606,10 +525,7 @@ This action cannot be undone`))) {
                 };
             }
 
-
-            // console.log(res);
         } catch (e) {
-
 
         }
 
@@ -621,7 +537,7 @@ This action cannot be undone`))) {
     };
 
     actions = () => [
-        <Button key={2} //fullWidth
+        <Button key={2}
                 onClick={this.reconciliation}
                 style={textFieldStyle.resize}
                 color='primary' variant="contained"
@@ -634,13 +550,9 @@ This action cannot be undone`))) {
             filterText={this.state.filterText}
             key={1}
         />,
-        // <IconButton color="primary" key={2} onClick={this.handleClickOpen}>
-        //     <Add/>
-        // </IconButton>,
     ];
 
     setFilterText = (text) => {
-        // console.log(this.state.shifts);
         this.setState({
             filterText: text,
             filteredItems: this.state.shifts.filter(item => item.item_name && item.item_name.toLowerCase().includes(text.toLowerCase()))
@@ -652,7 +564,6 @@ This action cannot be undone`))) {
     };
 
     render() {
-        // const {classes, theme} = this.props;
         return (
             <Fragment>
                 <ToastContainer/>
@@ -679,29 +590,18 @@ This action cannot be undone`))) {
                         columns={columnsR(this.calculateLeftWithMP, this.state.user_id > 0 && this.state.shifts[0] ? this.state.shifts[0].user_name : 'Everyone')}
                         data={this.state.filteredItems}
                         actions={this.actions()}
-                        // selectableRows // add for checkbox selection
-                        // selectableRowsComponent={Checkbox}
-                        // selectableRowsComponentProps={{ inkDisabled: true }}
-                        // onRowSelected={this.handleChange}
                         defaultSortField={"item_name"}
-                        // clearSelectedRows={this.state.toggledClearRows}
                         expandableRows={false}
                         highlightOnHover
                         pointerOnHover
                         striped
                         customStyles={dataTableFont}
-                        // onRowClicked={this.handleRowClicked}
-                        // contextActions={contextActions(this.deleteSelectedRows)}
-                        // pagination
                         fixedHeader
                         fixedHeaderScrollHeight='56vh'
                     />
                 </Grid>
-
-
                 <iframe title={'Print Report'} id="contents_to_print"
                         style={{height: "0px", width: "0px", position: "absolute"}}/>
-
             </Fragment>
         );
     }
@@ -710,13 +610,11 @@ This action cannot be undone`))) {
 const dataTableFont = {
     cells: {
         style: {
-            fontSize: '18px', // override the cell padding for data cells
-            // paddingRight: '8px',
+            fontSize: '18px',
         },
     },
 };
 
-// export default withStyles(useStyles, {withTheme: true})(MyLoginPage);
 export default useStyles(Shifts);
 
 

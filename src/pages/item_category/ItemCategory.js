@@ -13,22 +13,18 @@ import {
     Add, ArrowDownward, Close, Delete,
     Save as SaveIcon
 } from '@material-ui/icons';
-// import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDropDown";
 import moment from "moment";
 
 import {
     fetcher,
-    // ITEM_UPDATE,
-    // ALL_ITEMS,
     GET_CATEGORIES,
     CATEGORY_ADD,
     ITEM_CATEGORY_UPDATE,
 } from "../../_utils/fetcher";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 
-import {toast, ToastContainer} from 'react-toastify';
+import { ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Notification from "../../components/Notification";
 import Widget from "../../components/Widget";
 import FormDialog from "./compnonents/FormDialog";
 
@@ -111,7 +107,6 @@ class ItemCategory extends Component {
         <TextField id="search" type="text" variant="standard"
                    placeholder="Filter by Name" value={filterText}
                    onChange={onFilter} inputProps={{
-            // className: classes.text,
             style: textFieldStyle.resize,
         }}
         />
@@ -212,7 +207,7 @@ class ItemCategory extends Component {
 
                     <form noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
-                        this.updateItem(data, e); /*this.handleClose();*/
+                        this.updateItem(data, e);
                     }}>
                         <Widget title={'Item Details'} disableWidgetMenu>
                             <Grid container spacing={3} justify="space-around"
@@ -284,17 +279,11 @@ class ItemCategory extends Component {
                             saveNewItem={this.saveNewItem}/>
 
                 <ToastContainer/>
-                {/**/}
-                {/*<Grid container spacing={1} >*/}
-                {/*<PageTitle title="Items"/>*/}
                 <DataTable
-                    // style={{width: '100%'}}
-                    // title="Item Category"
                     actions={this.actions()}
                     columns={columnsR}
                     data={this.state.filteredItems}
                     selectableRows // add for checkbox selection
-                    // onRowSelected={this.handleRowSelectedChange}
                     defaultSortField={'item'}
                     highlightOnHover
                     pointerOnHover
@@ -303,20 +292,13 @@ class ItemCategory extends Component {
                     expandableRowsComponent={<this.SampleExpandedComponent/>}
                     selectableRowsComponent={Checkbox}
                     sortIcon={arrowDownward}
-                    // onRowClicked={this.handleRowClicked}
                     contextActions={contextActions(this.deleteSelected)}
-                    // pagination
                     dense
-                    // expand
-                    // fixedHeader
                     expandOnRowClicked
                     customStyles={cust}
-                    // subHeader
-                    // subHeaderComponent={this.actions()}
                     paginationPerPage={15}
                     paginationRowsPerPageOptions={[15, 30, 50, 100]}
                 />
-                {/*</Grid>*/}
             </>
         );
     }
@@ -329,6 +311,4 @@ const cust = {
         },
     },
 };
-
-// export default Items;
 export default useStyles(ItemCategory);

@@ -38,7 +38,6 @@ const columnsR = [
     },
     {
         name: 'Picture', selector: 'name', width: '50px', cell: (d) =>
-            // <Avatar>
             <Img width="40px" alt={d.pic}
                  src={[`/images/${d.pic}.svg`,
                      `/images/${d.pic}.png`,
@@ -46,7 +45,6 @@ const columnsR = [
                      `/images/${d.pic}.jpg`,
                      `/images/${d.pic}.jpeg`,
                  ]}/>
-        // < /Avatar>
     },
     {
         name: 'Track Stock', selector: 'has_stock', hide: 'sm', sortable: true, width: '50px', cell: (da) => {
@@ -68,17 +66,6 @@ const columnsR = [
         grow: 5,
         format: d => moment(parseInt(d.updatedAt)).format("dd-Do-MM-YY"),
     },
-    // {
-    //     name: 'Created At',
-    //     selector: 'createdAt',
-    //     sortable: true,
-    //     grow: 5,
-    //     format: d => moment(parseInt(d.createdAt)).format("dd-Do-MM-YY"),
-    //     // format: d => moment(d.airstamp).format('LLL'),
-    //     // format: d => moment(parseInt(d)).format("L")
-    //     // format: d => (new Date((d))).toString()//.format("dd.mm.yyyy hh:MM:ss")
-    //     // format: d => moment((d)).format("ll")//.format("dd.mm.yyyy hh:MM:ss")
-    // },
 ];
 
 const contextActions = memoize((deleteHandler) => (
@@ -151,7 +138,6 @@ class Items extends Component {
 
     // save new item
     handleClickOpen = () => {
-        // console.log('open new item dialog');
         this.setState({open: true});
     };
 
@@ -160,12 +146,9 @@ class Items extends Component {
     };
 
     saveNewItem = async (e) => {
-        // console.log(e.target.item_name.value);
 
         let item = this.getItemStats(null, e);
-        let item_id = await this.updateOrCreateItem(item); //actually create new item;
-        // console.log(item_id);
-
+        let item_id = await this.updateOrCreateItem(item);
 
         if (item_id > -1) this.handleClose();
     };
@@ -198,7 +181,7 @@ class Items extends Component {
 
                     <form noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
-                        this.saveItem(data, e); /*this.handleClose();*/
+                        this.saveItem(data, e);
                     }}>
 
                         <Widget title={'Item Details'} disableWidgetMenu>
@@ -287,57 +270,10 @@ class Items extends Component {
                             </Grid>
 
                         </Widget>
-                        {/*    </Grid>*/}
-                        {/*</Grid>*/}
                     </form>
                 </Grid>
 
-                {/*<Grid item xs={7}>*/}
 
-                {/*    <form onSubmit={(e) => {*/}
-                {/*        e.preventDefault();*/}
-                {/*        this.handleAddStock(data, e);*/}
-                {/*    }}>*/}
-
-                {/*        /!*<Grid container spacing={3} direction="row"*!/*/}
-                {/*        /!*      justify="center" alignItems="center">*!/*/}
-                {/*        /!*    <Grid container item xs={12} spacing={2}>*!/*/}
-                {/*        <Widget title={data.name} disableWidgetMenu>*/}
-                {/*            <Grid container spacing={3} justify="center"*/}
-                {/*                  className={classes.dashedBorder2}>*/}
-                {/*                <Grid item xs={12} sm={3}>*/}
-                {/*                    <Typography variant="h5" color="secondary" className={classes.text}>*/}
-                {/*                        STOCK*/}
-                {/*                        <Checkbox id="standard-secondary" label="Has Stock"*/}
-                {/*                                  color="secondary" hidden*/}
-                {/*                                  name='has_stock' checked={data.has_stock}/>*/}
-                {/*                    </Typography>*/}
-                {/*                </Grid>*/}
-                {/*                <Grid item xs={12} sm={3}>*/}
-                {/*                    <TextField fullWidth label="Quantity In Stock"*/}
-                {/*                               color="secondary" type='number'*/}
-                {/*                               value={data.quantity} name='qty_in_stock'*/}
-                {/*                               variant="standard" disabled={true}/>*/}
-                {/*                </Grid>*/}
-                {/*                <Grid item xs={12} sm={3}>*/}
-                {/*                    <TextField fullWidth label="Quantity To Add" color="secondary"*/}
-                {/*                               inputProps={{step: "1", min: "0"}}*/}
-                {/*                               variant="standard"*/}
-                {/*                               type='number' defaultValue={this.state.stock_add_value}*/}
-                {/*                               name='qty_to_add'*/}
-                {/*                               disabled={false}/>*/}
-                {/*                </Grid>*/}
-                {/*                <Grid item xs={12} sm={3}>*/}
-                {/*                    <Button type='submit' fullWidth color='secondary'*/}
-                {/*                            startIcon={<CloudUploadIcon/>}*/}
-                {/*                            variant="contained">Add Stock</Button>*/}
-                {/*                </Grid>*/}
-                {/*            </Grid>*/}
-                {/*        </Widget>*/}
-                {/*        /!*    </Grid>*!/*/}
-                {/*        /!*</Grid>*!/*/}
-                {/*    </form>*/}
-                {/*</Grid>*/}
 
             </Grid>
             <br/>
@@ -374,7 +310,6 @@ class Items extends Component {
     };
 
     saveItem = (data, e) => {
-        // console.log("data", data);
 
         if (!this.state.sth_changed) {
             console.log('NO changes');
@@ -383,53 +318,27 @@ class Items extends Component {
 
         let item = this.getItemStats(data, e);
 
-        // if (item.has_stock && item.min_stock_level < 1) {
-        //     alert('This number can not be less 1.');
-        //     return;
-        // }
 
         this.updateOrCreateItem(item, 1); // if it's an update up is 1
     };
 
     updateOrCreateItem = async (item, up) => {
-        // console.log(item)
         let updatedOrAdded = 'failed';
         try {
             let res = await fetcher({
                 query: ITEM_UPDATE,
                 variables: item
             });
-            //---------------- not really needed ------------------// APA should help me on this
-
-            // console.log(res);
 
             if (res && res.errors && res.errors.length === 1) {
                 alert(res.errors[0].message);
                 return;
             }
-            // } else if (res && res.errors && res.errors.length > 1) {
-            //     return;
-            // }
 
 
             if (up === 1) { // item updated
                 updatedOrAdded = 'updated';
                 let items = [...this.state.items];
-
-                // const newItemsState = this.state.items.map((i) => {
-                //     if(i.id === item.id) {
-                //         i = {
-                //             ...item,
-                //             category: {
-                //                 id: item.category_id
-                //             }
-                //         };
-                //     }
-                //
-                //     return i;
-                // });
-
-                // console.log(item);
 
                 for (let i = 0; i < items.length; i++) {
                     if (items[i].id === item.id) {
@@ -459,7 +368,6 @@ class Items extends Component {
                 }
 
                 const newItem = res.data.updateItem;
-                // console.log(newItem);
 
                 items = [...this.state.items, newItem];
 
@@ -481,7 +389,6 @@ class Items extends Component {
         } catch (err) {
             console.log(err);
         }
-        // console.log(item.id);
         return item.id;
     };
 
@@ -509,17 +416,11 @@ class Items extends Component {
                             saveNewItem={this.saveNewItem}/>
 
                 <ToastContainer/>
-                {/**/}
-                {/*<Grid container spacing={1} >*/}
-                {/*<PageTitle title="Items"/>*/}
                 <DataTable
-                    // style={{width: '100%'}}
-                    // title="Items"
                     actions={this.actions()}
                     columns={columnsR}
                     data={this.state.filteredItems}
                     selectableRows // add for checkbox selection
-                    // onRowSelected={this.handleRowSelectedChange}
                     defaultSortField={'item'}
                     expandableRows
                     highlightOnHover
@@ -528,22 +429,13 @@ class Items extends Component {
                     expandableRowsComponent={<this.SampleExpandedComponent/>}
                     selectableRowsComponent={Checkbox}
                     sortIcon={arrowDownward}
-                    // onRowClicked={this.handleRowClicked}
                     contextActions={contextActions(this.deleteSelected)}
-
                     dense
-                    // expand
                     fixedHeader
                     fixedHeaderScrollHeight={'65vh'}
                     expandOnRowClicked
                     customStyles={cust}
-                    // subHeader
-                    // subHeaderComponent={this.actions()}
-                    // pagination
-                    // paginationPerPage={15}
-                    // paginationRowsPerPageOptions={[15, 30, 50, 100]}
                 />
-                {/*</Grid>*/}
             </>
         );
     }
@@ -553,7 +445,6 @@ const cust = {
     cells: {
         style: {
             fontSize: '17px', // override the cell padding for data cells
-            // paddingRight: '8px',
         },
     },
 };

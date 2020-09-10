@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from 'react';
 import Img from 'react-image';
-// import styled from 'styled-components';
 import useStyles from './styles'
 
 import memoize from 'memoize-one';
@@ -60,20 +59,6 @@ const columnsR = [
                              checked={da.isAdmin}/>
         }, grow: 2
     },
-    // {name: 'Vendor Site', selector: 'vendor.website_url', sortable: true, },
-    // {name: 'Vendor Address', selector: 'vendor.postal_address', sortable: true, },
-    // {
-    //     name: 'Picture', selector: 'name', width: '50px', cell: (d) =>
-    //         // <Avatar>
-    //         <Img width="40px" alt={d.pic}
-    //              src={[`/images/${d.pic}.svg`,
-    //                  `/images/${d.pic}.png`,
-    //                  `/images/${d.pic}.gif`,
-    //                  `/images/${d.pic}.jpg`,
-    //                  `/images/${d.pic}.jpeg`,
-    //              ]}/>
-    //     // < /Avatar>
-    // },
     {name: 'Status', selector: 'status', sortable: true, grow: 2},
     {
         name: 'Last Update',
@@ -101,7 +86,7 @@ const contextActions = memoize((deleteHandler, disableHandler, enableHandler, ad
         </Tooltip>
         <Tooltip title="Non Admin">
             <IconButton onClick={adminDisabler} color={'default'}>
-                <GpsOff fontSize={'large'} /*style={{fill: "#2196F3"}}*//>
+                <GpsOff fontSize={'large'} />
             </IconButton>
         </Tooltip>
         <Tooltip title="Enable">
@@ -134,9 +119,6 @@ class Users extends Component {
         super(props);
         classes = this.props.classes;
         toastOptions = {
-            // type: toast.TYPE.SUCCESS,
-            // variant: "contained",
-            // color: "primary",
             className: classes.notification,
             progressClassName: classes.progress,
         };
@@ -145,8 +127,6 @@ class Users extends Component {
             filteredUsers: [],
             filterText: '',
             sth_changed: false,
-            // resetPaginationToggle: false,
-            // setResetPaginationToggle: false,
             open: false,
             snackbar: {},
             selectedRows: [],
@@ -207,10 +187,6 @@ class Users extends Component {
             }
             user = res.data.createUser;
             user = {...user, ...userP};
-            console.log(user);
-            // else if (res && res.errors && res.errors.length >1){
-            //     return;
-            // }
         } catch (e) {
             console.log(e);
         }
@@ -235,9 +211,7 @@ class Users extends Component {
     };
 
     // save new user done
-
     getUserStats = (data, e) => {
-        // console.log('e.target.is_admin', e.target.is_admin.checked);
         let user = {};
         user.user_id = data !== null ? data.user_id : 0;
         user.first_name = e.target.first_name.value.charAt(0).toUpperCase() + e.target.first_name.value.trim().substring(1);
@@ -282,13 +256,7 @@ class Users extends Component {
     };
 
     handleChange = () => { // not using  this
-
-        // const {name, value} = e.target;
-        // console.log(name, value);
-        // this.setState({[name]: value});
         this.setState({sth_changed: true});
-        // console.log('sth_changed')
-
     };
 
     resetPassword = async (data) => {
@@ -316,7 +284,6 @@ class Users extends Component {
     deleteSelected = data => console.log(data);
 
     SampleExpandedComponent = ({data}) => {
-        // const {classes} = this.props;
         return <Fragment>
             <br/>
             <Grid container spacing={3} direction="row"
@@ -326,11 +293,8 @@ class Users extends Component {
 
                     <form noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
-                        this.updateOldUser(data, e); /*this.handleClose();*/
+                        this.updateOldUser(data, e);
                     }}>
-                        {/*{console.log(classes.textFieldStyle)}*/}
-                        {/*{console.log(textFieldStyle.resize)}*/}
-
                         <Widget title={'User Details'} disableWidgetMenu>
                             <Grid container spacing={1} justify="space-around"
                                   className={classes.dashedBorder}>
@@ -448,10 +412,7 @@ class Users extends Component {
                                             startIcon={<SaveIcon/>}>Save</Button>
                                 </Grid>
                             </Grid>
-
                         </Widget>
-                        {/*    </Grid>*/}
-                        {/*</Grid>*/}
                     </form>
                 </Grid>
 
@@ -459,7 +420,6 @@ class Users extends Component {
 
                     <form onSubmit={(e) => {
                         e.preventDefault();
-                        // this.handleAddStock(data, e);
                     }}>
 
                         <Widget title={"Vendor Details"} disableWidgetMenu>
@@ -492,16 +452,6 @@ class Users extends Component {
                                         name='vendor_telephone'
                                         disabled={false}/>
                                 </Grid>
-                                {/*<Grid item xs={12} sm={3}>*/}
-                                {/*    <TextField*/}
-                                {/*        InputProps={{*/}
-                                {/*            style: textFieldStyle.resize,*/}
-                                {/*        }}*/}
-                                {/*        fullWidth label="Email"*/}
-                                {/*        color="secondary" type='email'*/}
-                                {/*        value={data.vendor.email} name='vendor_email'*/}
-                                {/*        variant="standard"/>*/}
-                                {/*</Grid>*/}
                                 <Grid item xs={12} >
                                     <TextField
                                         fullWidth label="Vendor Address" color="secondary"
@@ -539,9 +489,6 @@ class Users extends Component {
                 variables: userP
             });
 
-            //---------------- not really needed ------------------// APA should help me on this
-            // console.log(res);
-
             if (res && res.errors) {
                 alert(res.errors[0].message);
                 return;
@@ -550,21 +497,6 @@ class Users extends Component {
             if (res && res.data.updateUser[0]) {
 
                 let users = [...this.state.users];
-
-                // let users = [...this.state.users];
-
-                // const newItemsState = this.state.items.map((i) => {
-                //     if(i.id === item.id) {
-                //         i = {
-                //             ...item,
-                //             category: {
-                //                 id: item.category_id
-                //             }
-                //         };
-                //     }
-                //
-                //     return i;
-                // });
 
                 for (let i = 0; i < users.length; i++) {
                     if (users[i].user_id === userP.user_id) {
@@ -615,7 +547,6 @@ class Users extends Component {
     };
 
     handleRowSelected = (sel) => {
-        // console.log(sel.selectedRows);
         this.setState({selectedRows: sel.selectedRows})
     };
 
@@ -638,10 +569,8 @@ class Users extends Component {
                 query: BULK_USER_UPDATE,
                 variables: {ids, type, tp: parseInt(localStorage.getItem('tp'))}
             });
-// /*
             //---------------- not really needed ------------------// APA should help me on this
 
-            // console.log(res);
             if (res && res.errors) {
                 console.log(...res.errors);
             }
@@ -651,20 +580,16 @@ class Users extends Component {
             }
 
             const updated = res.data.bulkUpdateUser;
-            // console.log(updated);
 
             let usersMap = new Map([...this.state.users].map(u => [u.user_id, u]));
-            // console.log(usersMap);
 
             updated.forEach((user) => {
                 if (usersMap.has(user.user_id)) {
                     usersMap.set(user.user_id, user);
-                    // console.log(usersMap);
                 }
             });
 
             const users = [...usersMap.values()];
-            // console.log(users);
 
             this.toggleCleared();
             this.setState({users, filteredUsers: users, sth_changed: false});
@@ -672,8 +597,6 @@ class Users extends Component {
             const updated_users = updated.reduce((prev, curr) => {
                 return (prev.user ? prev.first_name : prev) + ', ' + curr.first_name;
             });
-
-            // console.log(updated_users);
 
             const componentProps = {
                 type: "shipped",
@@ -715,7 +638,6 @@ class Users extends Component {
                     data={this.state.filteredUsers}
                     selectableRows // add for checkbox selection
                     clearSelectedRows={this.state.toggleCleared}
-                    // onRowSelected={this.handleRowSelectedChange}
                     defaultSortField={'first_name'}
                     expandableRows
                     highlightOnHover
@@ -724,16 +646,10 @@ class Users extends Component {
                     expandableRowsComponent={<this.SampleExpandedComponent/>}
                     selectableRowsComponent={Checkbox}
                     sortIcon={arrowDownward}
-                    // onRowClicked={this.handleRowClicked}
                     dense
-                    // expand
                     fixedHeader
-                    // fixedHeaderScrollHeight={'65vh'}
                     expandOnRowClicked
                     customStyles={cust}
-                    // subHeader
-                    // subHeaderComponent={this.actions()}
-                    // pagination
                     paginationPerPage={15}
                     paginationRowsPerPageOptions={[15, 30, 50, 100]}
                     contextActions={contextActions(() => this.handleSelected('deleted'), () => this.handleSelected('disabled'), () => this.handleSelected('enabled'), () => this.handleSelected('notadmin'), () => this.handleSelected('admin'))}
@@ -754,5 +670,4 @@ const cust = {
     },
 };
 
-// export default Items;
 export default useStyles(Users);

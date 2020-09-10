@@ -101,7 +101,7 @@ export default withStyles(theme => ({
     notificationComponent: {
         paddingRight: theme.spacing(4),
     },
-    textFieldStyle: { // not loading into invetory
+    textFieldStyle: { 
         resize: {
             fontSize: 30
         },

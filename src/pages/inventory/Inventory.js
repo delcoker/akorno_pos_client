@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from "react";
 import Img from "react-image";
-// import styled from 'styled-components';
 import useStyles from "./styles";
 
 import memoize from "memoize-one";
@@ -44,13 +43,11 @@ const columnsR = [
     {
         name: "In Stock", selector: "quantity", sortable: true, width: "70px",
         cell: (row) => {
-            // console.log("here");
             return row.quantity === null ? "-" : row.quantity;
         },
     },
     {
         name: "Picture", selector: "name", width: "50px", cell: (d) =>
-          // <Avatar>
           <Img width="40px" alt={d.pic}
                src={[`/images/${d.pic}.svg`,
                    `/images/${d.pic}.png`,
@@ -58,7 +55,6 @@ const columnsR = [
                    `/images/${d.pic}.jpg`,
                    `/images/${d.pic}.jpeg`,
                ]}/>,
-        // < /Avatar>
     },
     {
         name: "Track Stock", selector: "has_stock", hide: "sm", sortable: true, width: "50px", cell: (da) => {
@@ -107,7 +103,7 @@ const contextActions = memoize((deleteHandler, disableHandler, enableHandler, st
         </Tooltip>
         <Tooltip title="Cancel Track">
             <IconButton onClick={stockDisabler} color={"default"}>
-                <GpsOff fontSize={"large"} /*style={{fill: "#2196F3"}}*//>
+                <GpsOff fontSize={"large"} />
             </IconButton>
         </Tooltip>
         <Tooltip title="Enable">
@@ -204,23 +200,6 @@ class Inventory extends Component {
 //------------------------ // this will really slow down program ----------------------------------------
     handleChangeDropDown = (event, data) => {
         this.handleChange(event);
-        /* let items = {...this.state.items}; // this didn't work - > array did []
-
-         for (let i = 0; i < Object.keys(items).length; i++) {
-
-             if (items[i] == data) {
-                 items[i].category.id = event.target.value
-                 // itemz[i].category.name = event.target.innerHTML
-                 // console.log('kkeeey', itemz[i].category.id)
-                 break;
-             }
-         }*/
-
-        // const {options, value} = event.target;
-        // console.log(options[value].innerHTML);
-        // const {options, selectedIndex} = event.target;
-        // console.log(event.target);
-        // console.log(event, data);
 
         let items = [...this.state.items];
         for (let i = 0; i < items.length; i++) {
@@ -234,13 +213,7 @@ class Inventory extends Component {
     };
 //----------------------------------------------------------------------------
     handleChange = () => { // not using  this
-
-        // const {name, value} = e.target;
-        // console.log(name, value);
-        // this.setState({[name]: value});
         this.setState({ sth_changed: true });
-        // console.log('sth_changed')
-
     };
 
     handleSelected = (type) => {
@@ -259,17 +232,15 @@ class Inventory extends Component {
 
 
     SampleExpandedComponent = ({ data }) => {
-        // const {classes} = this.props;
         return <Fragment>
             <br/>
             <Grid container spacing={1} direction="row"
                   justify="space-evenly" alignItems="flex-start">
-                {/*<Grid item md={12} xs={12}>*/}
                 <Grid item lg={6} md={7} xs={7}>
 
                     <form noValidate autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
-                        this.saveItem(data, e); /*this.handleClose();*/
+                        this.saveItem(data, e);
                     }}>
                         <Grid container spacing={1} justify="space-around"
                               className={classes.dashedBorder}>
@@ -354,8 +325,6 @@ class Inventory extends Component {
                                         startIcon={<SaveIcon/>}>Save</Button>
                             </Grid>
                         </Grid>
-
-                        {/*</Widget>*/}
                     </form>
                 </Grid>
 
@@ -403,12 +372,9 @@ class Inventory extends Component {
                                         variant="contained">Add Stock</Button>
                             </Grid>
                         </Grid>
-                        {/*</Widget>*/}
                     </form>
                 </Grid>
             </Grid>
-
-            {/*</Grid>*/}
             <br/>
         </Fragment>;
     };
@@ -443,8 +409,6 @@ class Inventory extends Component {
     };
 
     saveItem = (data, e) => {
-        // console.log("data", data);
-
         if (!this.state.sth_changed) {
             console.log("NO changes");
             return;
@@ -477,9 +441,7 @@ class Inventory extends Component {
 
                 for (let i = 0; i < items.length; i++) {
                     if (items[i].id === item.id) {
-                        // console.log(items[i]);
                         items[i] = JSON.parse(JSON.stringify(items[i]));
-                        // items[i].id = item.id;
                         items[i].pic = item.pic;
                         items[i].name = item.name;
                         items[i].price = item.price;
@@ -545,7 +507,7 @@ class Inventory extends Component {
             }
             type = "min_stock: " + type;
         }
-        // console.log(type);  return;
+
         try {
             let res = await fetcher({
                 query: BULK_ITEM_UPDATE,
@@ -624,7 +586,6 @@ class Inventory extends Component {
         item.id = id;
         item.qty_to_add = parseInt(e.target.qty_to_add.value.trim());
         item.has_stock = e.target.has_stock.checked;
-        // console.log(item);
 
         if (!(item.has_stock)) {
             alert("This item stock is not being tracked. Select Track Stock and Hit SAVE to start tracking");
@@ -695,7 +656,6 @@ class Inventory extends Component {
     };
 
     handleRowSelected = (sel) =>
-      // console.log(sel.selectedRows);
       this.setState({ selectedRows: sel.selectedRows });
 
     render() {
@@ -721,7 +681,6 @@ class Inventory extends Component {
                 selectableRowsComponent={Checkbox}
                 sortIcon={arrowDownward}
                 dense
-                // expand
                 fixedHeader
                 fixedHeaderScrollHeight={"65vh"}
                 expandOnRowClicked

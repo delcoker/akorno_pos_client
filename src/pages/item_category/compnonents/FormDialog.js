@@ -36,7 +36,7 @@ export default function FormDialog(props) {
         <div>
 
             <Dialog open={props.open} onClose={props.onClose} aria-labelledby="form-dialog-title"
-                    maxWidth={'md'} //saveNewItem={props.saveNewItem}
+                    maxWidth={'md'} 
                     keepMounted onExit={props.onClose}>
                 <DialogTitle id="form-dialog-title">Add New Category</DialogTitle>
                 <DialogContent>

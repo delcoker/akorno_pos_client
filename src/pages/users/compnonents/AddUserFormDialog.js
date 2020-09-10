@@ -17,10 +17,7 @@ import {
 } from "@material-ui/core";
 import Widget from "../../../components/Widget";
 import {textFieldStyle} from "../../../_utils/inlineStyles";
-// import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
 import {Cancel as ResetIcon} from "@material-ui/icons";
-// import Slide from "@material-ui/core/Slide";
-
 
 const useStyles = makeStyles(theme => ({
     form: {
@@ -68,8 +65,6 @@ export default function AddUserFormDialog(props) {
                                         required
                                         label="First Name" color="primary" fullWidth
                                         autoComplete="i_name" name='first_name'
-                                        // defaultValue={data.first_name}
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
@@ -80,8 +75,6 @@ export default function AddUserFormDialog(props) {
                                         // required
                                         label="Other Names" color="primary" fullWidth
                                         autoComplete="i_name" name='other_names'
-                                        // defaultValue={data.other_names}
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={4}>
@@ -90,9 +83,7 @@ export default function AddUserFormDialog(props) {
                                         inputProps={{style: textFieldStyle.resize}}
                                         color="primary"
                                         fullWidth autoComplete="name" required
-                                        // defaultValue={(data.last_name)}
                                         name='last_name'
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={2}>
@@ -101,7 +92,6 @@ export default function AddUserFormDialog(props) {
                                             id="standard-secondary"
                                             label="Is Admin" color="primary"
                                             name='is_admin' required
-                                            // onChange={this.handleChange}
                                             defaultChecked={false}/>}
                                         label="Is Admin"
                                     />
@@ -112,9 +102,7 @@ export default function AddUserFormDialog(props) {
                                         inputProps={{style: textFieldStyle.resize}}
                                         color="primary"
                                         fullWidth autoComplete="email" required
-                                        // defaultValue={(data.email.email)}
                                         name='email'
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
@@ -123,9 +111,7 @@ export default function AddUserFormDialog(props) {
                                         inputProps={{style: textFieldStyle.resize}}
                                         color="primary"
                                         fullWidth autoComplete="tel" required
-                                        // defaultValue={(data.telephone)}
                                         name='telephone'
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
@@ -136,7 +122,6 @@ export default function AddUserFormDialog(props) {
                                         <Select style={textFieldStyle.resize}
                                                 id="standard-secondary" label="Status"
                                                 color="primary"
-                                            // onChange={this.handleChange}
                                                 defaultValue={"enabled"} name='status'>
                                             <MenuItem
                                                 style={textFieldStyle.resize}
@@ -155,9 +140,7 @@ export default function AddUserFormDialog(props) {
                                         inputProps={{style: textFieldStyle.resize}}
                                         color="primary"
                                         fullWidth autoComplete="address"
-                                        // defaultValue={(data.postal_address)}
                                         name='postal_address'
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={4}>
@@ -165,10 +148,8 @@ export default function AddUserFormDialog(props) {
                                         label="Picture"
                                         inputProps={{style: textFieldStyle.resize}}
                                         color="primary"
-                                        fullWidth autoComplete="i_price" //required
-                                        // defaultValue={(data.pic)}
+                                        fullWidth autoComplete="i_price"
                                         name='picture'
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={3}>
@@ -178,10 +159,7 @@ export default function AddUserFormDialog(props) {
                                             startIcon={<ResetIcon/>}>Add</Button>
                                 </Grid>
                             </Grid>
-
                         </Widget>
-                        {/*    </Grid>*/}
-                        {/*</Grid>*/}
                     </form>
 
                 </DialogContent>
@@ -189,9 +167,6 @@ export default function AddUserFormDialog(props) {
                     <Button onClick={props.onClose} color="primary">
                         Cancel
                     </Button>
-                    {/*<Button onClick={props.onClose} color="primary">*/}
-                    {/*    Subscribe*/}
-                    {/*</Button>*/}
                 </DialogActions>
             </Dialog>
         </div>

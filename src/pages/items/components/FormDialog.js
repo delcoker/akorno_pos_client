@@ -50,7 +50,6 @@ export default function FormDialog(props) {
 
 
     const renderItemCategories = () => {
-        // console.log(itemCategories);
         if (itemCategories && itemCategories.length > 0) {
             return (
                 itemCategories.map((itemCategory, i) => {

@@ -1,18 +1,7 @@
 import React, {Component, Fragment} from "react";
 import {Grid} from "@material-ui/core";
 
-// styles
-// import useStyles from "./styles";
-// import {withStyles} from "@material-ui/core/styles"
-
-// import "../../del_css.css";
-
-// import Img from 'react-image';
-
-// components
-// import PageTitle from "../../components/PageTitle";
-// import {Typography} from "../../components/Wrappers";
-import $ from 'jquery' // const $ = require('jquery'); // commonJS
+import $ from 'jquery';
 
 import {
     CHECK_USER_SESSION,
@@ -26,28 +15,17 @@ import {
 import {withStyles} from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import SaleList from "./components/SaleList";
-// import {YourAwesomeComponent} from "../../components/FAB/YourAwesomeComponent";
 import {toast} from "react-toastify";
 import Notification from "../../components/Notification";
 import moment from "moment";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 import CardItem from "./components/CardItem";
 import PaymentOptions from "../_shared_components/PaymentOptions";
-import Box from "@material-ui/core/Box";
-
 import purple from '@material-ui/core/colors/purple';
 import red from '@material-ui/core/colors/red';
 
 const primary = red[500]; // #f44336
 const accent = purple['A200']; // #e040fb
-// const accent = purple.A200; // #e040fb (alternative method)
-
-// const defaultProps = {
-//     bgcolor: 'background.paper',
-//     m: 1,
-//     style: { width: '15.8rem', height: '10rem' },
-//     borderColor: 'text.primary',
-// };
 
 const useStyles = (theme => ({
     dashedBorder: {
@@ -77,14 +55,8 @@ const useStyles = (theme => ({
 
 let classes = null;
 let toastOptions = null;
-// var classes = useStyles();
-// var theme = useTheme();
-
 
 const company_name = "AKORNO";
-
-// let API_KEY = "AIzaSyDXAm8fyR9alMVpg_Gq0-JfO6Yw_Kq7wQg";
-// let ENGINE_ID = "012568330619765078995:hgynjoenxeu";
 
 class Sales extends Component {
     constructor(props) {
@@ -111,17 +83,14 @@ class Sales extends Component {
 
             numberTextBox: "",
             numberTextBoxValue: "",
-            // numberTextBoxPlaceHolder : "Student Number",
             nameTextBox: "",
             nameTextBoxValue: "",
-            // nameTextBoxPlaceHolder : "Student Number",
             txtBoxDisabled: true,
             txtBoxVisible: false,
             detailNeeded: '',
 
             clientDetails: {}
         };
-        // this.myRef = React.createRef();
     }
 
     componentDidMount() {
@@ -132,7 +101,6 @@ class Sales extends Component {
     addFindAnythingFilter() {
         $("#myInput").on("keyup", function () {
             const value = $(this).val().toLowerCase();
-            // console.log(value); // actually don't need #myContainer
             $("#myContainer .filterable").filter(function () {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
                 return '';
@@ -141,7 +109,6 @@ class Sales extends Component {
     };
 
     handleNumberClicked = (e, num) => {
-        // console.log('num', num, 'num');
         let numm = num === '' ? 0 : this.state.quantity_clicked + num;
 
         this.setState({quantity_clicked: numm});
@@ -154,17 +121,13 @@ class Sales extends Component {
             });
             let items = res.data.getEnabledItems;
             this.setState({items});
-            // return items;
         } catch (err) {
             console.log(err);
         }
     };
 
     del_handleDel = (ids, selectedRows, qty_to_del) => {
-
-        // console.log('qty_to_del', qty_to_del);
         if (qty_to_del) {
-            // console.log(ids, qty_to_del);
             this.removeOrAddOne(ids, qty_to_del); // id will be the actual row id
             return;
         }
@@ -178,8 +141,6 @@ class Sales extends Component {
         const map = new Map(this.state.items_list);
         let removingFrom = null;
 
-        // console.log('row_id, qty', row_id, qty);
-
         for (let [k, v] of map) {
             if (k.id === row_id) { // means it's contained in list
 
@@ -192,7 +153,6 @@ class Sales extends Component {
                 }
 
                 qty += v;
-                // console.log('qty_to_delete', k,v,qty);
                 removingFrom = k;
                 map.delete(k);
                 break;
@@ -204,13 +164,10 @@ class Sales extends Component {
             map.set(removingFrom, qty);
         }
 
-        // console.log(map);
-
         this.getClickedItemsAsArray(map);
 
         this.setState({
             items_list: map,
-            // dataSet: dat
         });
     };
 
@@ -229,13 +186,10 @@ class Sales extends Component {
     }
 
     handleItemDelete2 = (indices) => {
-        // console.log('map', indices);
         const map = this.state.items_list;
 
         map.forEach((value, keyObj) => {
-            // console.log("keyObj", keyObj)
             indices.forEach((valu) => {
-                // console.log("valu", valu)
                 if (keyObj.id === valu) {
                     map.delete(keyObj);
                 }
@@ -249,10 +203,6 @@ class Sales extends Component {
     // when a card is clicked
     handleCardClickChild = (dataFromChild, qty) => {
 
-        // console.log(dataFromChild);
-
-        // console.log(parseInt(this.state.quantity_clicked));
-
         const map = new Map(this.state.items_list);
 
         if (map.size > 0) { // if there is a list
@@ -263,12 +213,10 @@ class Sales extends Component {
                     break;
                 } else {
                     parseInt(this.state.quantity_clicked) > 0 ? qty = parseInt(this.state.quantity_clicked) : qty = 1;
-                    // map.delete(k);
                 }
             }
         } else {
             parseInt(this.state.quantity_clicked) > 0 ? qty = parseInt(this.state.quantity_clicked) : qty = 1;
-            // map.delete(k);
         }
 
         if ((dataFromChild.has_stock && qty > dataFromChild.quantity)) {
@@ -294,9 +242,6 @@ class Sales extends Component {
 
         map.set(dataFromChild, qty);
 
-
-        // console.log(dataFromChild, qty);
-
         this.getClickedItemsAsArray(map);
 
         this.setState({
@@ -305,7 +250,6 @@ class Sales extends Component {
         });
 
         const a = $('#paying');
-        // console.log(a);
         a.focus();
         a.select();
     };
@@ -327,14 +271,12 @@ class Sales extends Component {
             }
             tot += value * key.price;
         });
-        // console.log(mDataSet);
         this.setState({
             totalNii: (Math.round(tot * 100) / 100).toFixed(2),
             changeNii: (Math.round((this.state.payingNii - tot) * 100) / 100).toFixed(2),
             payingNii: (Math.round(tot * 100) / 100),
             dataSet: mDataSet
         });
-        // return mDataSet;
     };
 
     highlight = e => {
@@ -342,27 +284,6 @@ class Sales extends Component {
     };
 
     getItemImage = item_name => {
-        /*  let API_URL = 'http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?'
-          let API_URL1 = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${ENGINE_ID}&searchType=image&q=${item_name}`
-          let image_src = logo;
-           $.getJSON(API_URL, {
-                  tags: item_name,
-                  tagmode: "any",
-                  format: "json"
-              },
-               function (data) {
-                  let rnd = Math.floor(Math.random() * data.items.length);
-                  try {
-                      let image_src = data.items[rnd]['media']['m'].replace("_m", "_b");
-                  }
-                  catch (e) {
-                      console.log(e);
-                  }
-                  // image_src = data.items[rnd]['link']; // for google
-                  console.log(image_src)
-              })//.then();
-  */
-        // console.log(`../../images/${item_name}`);
         return item_name.includes("%") ? "" : `images/${item_name}`;
     };
 
@@ -406,8 +327,6 @@ class Sales extends Component {
             this.student_name_ref.value = '';
         }
 
-        // console.log(value);
-
         if (value === 'cash') {
             this.setState({
                 txtBoxDisabled: true,
@@ -445,7 +364,6 @@ class Sales extends Component {
 
     handleNumberTextBox = async e => {// as number changes get try find user
         if (this.state.payment_method === "meal plan") {
-            //     this.myRef.value = "";
 
             const student_id = e.target.value;
             if (student_id.length < 7) return;
@@ -460,17 +378,13 @@ class Sales extends Component {
                 });
 
                 const nameTextBoxValue = res.data.getStudentDetail;
-                // console.log(client_details);
                 this.student_name_ref.value = nameTextBoxValue ? nameTextBoxValue.name : "";
-                // console.log(client_details);
                 this.setState({nameTextBoxValue});
 
             } catch (err) {
                 console.log(err);
             }
         } else if (this.state.payment_method === "visa") {
-            //     this.myRef.value = "";
-
             const student_id = e.target.value;
             if (student_id.length < 7) return;
             // try to get student details
@@ -483,9 +397,7 @@ class Sales extends Component {
                 });
 
                 const nameTextBoxValue = res.data.getStudentDetail;
-                // console.log(client_details);
                 this.student_name_ref.value = nameTextBoxValue ? nameTextBoxValue.name : "";
-                // console.log(client_details);
                 this.setState({nameTextBoxValue});
 
             } catch (err) {
@@ -493,9 +405,7 @@ class Sales extends Component {
             }
         } else if (this.state.payment_method === "momo") {
 
-
             const telephone_num_id = e.target.value;
-            // this.setState({numberTextBoxValue: telephone_num_id});
             if (telephone_num_id.length < 7) return;
 
             // try to get client details
@@ -509,9 +419,7 @@ class Sales extends Component {
                 });
 
                 const nameTextBoxValue = res.data.getCustomerDetail;
-                // console.log(e.target.value,'getting');
                 this.student_name_ref.value = nameTextBoxValue ? nameTextBoxValue.name : "";
-                // console.log(client_details);
                 this.setState({nameTextBoxValue});
 
             } catch (err) {
@@ -523,10 +431,8 @@ class Sales extends Component {
     };
 
     handleNameTextBox = async e => {
-        // console.log('here);
         if (this.state.payment_method === "cash") return;
         this.student_name_ref.value = this.state.nameTextBoxValue === null ?  e.target.value : this.state.nameTextBoxValue.name
-        // this.setState({typedNameTextBoxValue: e.target.value});
     };
 
     printey = async () => {
@@ -566,11 +472,9 @@ class Sales extends Component {
             this.setState({payment_detail});
         } else if (this.state.payment_method === "momo") {
             payment_detail = `${this.myRef.value} - ${this.student_name_ref.value}`
-            // payment_detail = `${this.myRef.value} - ${this.student_name_ref.value}`
             this.setState({payment_detail});
         }
 
-        // console.log(payment_detail);
         // get cashier at time of sale
         const user = await getUser(localStorage.getItem("token"));
 
@@ -582,7 +486,6 @@ class Sales extends Component {
 
             //check if user has started a shift
             const session_started = await this.checkUserSession(user.user_id);
-            // console.log(session_started);
             if (!session_started) {
 
                 if (window.confirm("You haven't started a SHIFT so you cannot make this sale.\n" +
@@ -600,7 +503,6 @@ class Sales extends Component {
 
                     if (await this.startShift(user.user_id)) {
 
-                        // alert a shift has started
                         alert("Shift Started");
                         //
                     } else {
@@ -709,10 +611,6 @@ class Sales extends Component {
 
             // ------------------- save transaction // saves as GMT
 
-            // console.log(
-            //     this.state.payment_method,
-            //     this.state.payment_detail)
-
             let res = await this.saveTransactions(
                 ids, qty, vendor,
                 transaction_point,
@@ -782,12 +680,6 @@ class Sales extends Component {
     };
 
     saveTransactions = async (ids, qty, vendor_id, transaction_point_id, user_id, payment_method, payment_detail) => {
-        // console.log('user_id', user_id);
-        // console.log('user_id', ids,)// qty, vendor_id, transaction_point_id, user_id);
-        // console.log('qty', qty,)// qty, vendor_id, transaction_point_id, user_id);
-        // console.log('ven', vendor_id,)// qty, vendor_id, transaction_point_id, user_id);
-        // console.log('transa', parseFloat(this.state.totalNii))// qty, vendor_id, transaction_point_id, user_id);
-        // console.log('payment_method', payment_method,);// qty, vendor_id, transaction_point_id, user_id);
         try {
             let res = await fetcher({
                 query: SAVE_TRANSACTIONS,
@@ -837,7 +729,6 @@ class Sales extends Component {
             val: null
         };
 
-        // console.log(this.state);
         return (
             <Fragment>
                 <Grid container item spacing={1} sm={7} xs={12}>
@@ -848,7 +739,6 @@ class Sales extends Component {
                             autoComplete='' fullWidth variant={"outlined"}
                             inputProps={{style: textFieldStyle.resize}}
                             name="search"
-                            // helperText={'Type in here to find what you want'}
                         />
                     </Grid>
                     <Grid item sm={2} xs={12}>
@@ -857,8 +747,6 @@ class Sales extends Component {
                             handlePaymentMethodChange={this.handlePaymentMethodChange}
                             selectStyle={textFieldStyle.resize}
                             formStyle={{style: textFieldStyle.resize, marginTop: '0px'}}
-                            // numberTextBox={this.state.numberTextBox}
-                            // nameTextBox={this.state.nameTextBox}
                         />
                     </Grid>
                     <Grid container item spacing={1} sm={7} xs={12}>
@@ -873,15 +761,11 @@ class Sales extends Component {
                                 autoComplete='' fullWidth variant={"outlined"}
                                 inputProps={{style: textFieldStyle.resize}}
                                 name="student_number"
-                                // value={this.state.numberTextBoxValue}
                                 onBlur={this.handleNumberTextBox}
-                                // ref={this.myRef}
                                 inputRef={input => (this.myRef = input)}
-                                // ref={'stud_num'}
                                 disabled={this.state.txtBoxDisabled}
                             />
                             }
-
                         </Grid>
 
                         <Grid container item sm={7} xs={12}>
@@ -893,10 +777,8 @@ class Sales extends Component {
                                 type='text' color='primary'
                                 fullWidth variant={"standard"}
                                 inputProps={{style: textFieldStyle.resize}}
-                                // value={this.state.nameTextBoxValue ? this.state.nameTextBoxValue.name : this.state.typedNameTextBoxValue}
                                 name={'student_name'}
                                 onChange={this.handleNameTextBox}
-                                // onBlur={this.handleNameTextBox}
                                 inputRef={input => (this.student_name_ref = input)}
                                 disabled={this.state.txtBoxDisabled}
                             />
@@ -909,18 +791,11 @@ class Sales extends Component {
                     <Grid container className="flex-section">
                         <Grid container item spacing={2} sm={7} xs={12} className={"flex-col-scroll"}>
                             <Grid container item spacing={2} id="myContainer">
-
-                                {/*<Grid container item spacing={2} sm={7} xs={12}>*/}
                                 {this.renderItems()}
-                                {/*</Grid>*/}
-
                             </Grid>
                         </Grid>
                         <Grid container item spacing={2} sm={5} xs={12}>
                             <Grid item className={"flex-col-scroll"}>
-                                {/*<Grid item xs={12}>*/}
-
-                                {/*<Grid item xs={12}>*/}
                                 <SaleList
                                     {...data}
                                     mData={this.state.dataSet}
@@ -934,9 +809,6 @@ class Sales extends Component {
 
                                     handleNumberClick={this.handleNumberClicked}
                                 />
-                                {/*</Grid>*/}
-
-                                {/*</Grid>*/}
                             </Grid>
                         </Grid>
                     </Grid>

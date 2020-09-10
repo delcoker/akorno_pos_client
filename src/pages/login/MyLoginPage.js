@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-// import {userService} from '../../_services/user.service';
 import LoginDropDown from "./LoginDropDown";
-import {fetcher, LOGIN_QUERY, LOGIN_SEED, LOGGED_USER, USERS} from "../../_utils/fetcher";
+import {fetcher, LOGIN_QUERY, LOGGED_USER, USERS} from "../../_utils/fetcher";
 import {
     Avatar, Button, CssBaseline, TextField,// FormControlLabel, Checkbox,
     Link, Grid, Box, Typography, Container
@@ -15,7 +14,7 @@ import {userService} from "../../_utils/user.service";
 const Copyright = () =>
     (<Typography variant="body2" color="textSecondary" align="center">
             {'Copyright © '}
-            <Link color="inherit" /*href="https://material-ui.com/"*/>
+            <Link color="inherit" >
                 Deloop Artisans Ltd.
             </Link>{' '}
             {new Date().getFullYear()}
@@ -73,36 +72,17 @@ class MyLoginPage extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDropdownChange = this.handleDropdownChange.bind(this);
-//.then(r => console.log('r'));
-
     }
 
     componentDidMount() {
-        // this.userDispatch = this.context;
         this.fetchUsers()
     }
-
-    createDummyUsers = async (pass) => {
-        try {
-            let res = await fetcher({
-                query: LOGIN_SEED,
-                variables: {pass: pass}
-            });
-            // console.log(res.data.createDummyUsers)
-            if (res) this.fetchUsers();
-        } catch (err) {
-            console.log(err);
-        }
-
-
-    };
 
     fetchUsers = async () => {
         try {
             let res = await fetcher({
                 query: USERS,
             });
-            // console.log(res)
             let users = res.data.allUsersNoAdmin;
 
             this.setState({users});
@@ -113,16 +93,12 @@ class MyLoginPage extends Component {
 
     handleDropdownChange(e) {
         const {value} = e.target;
-        // console.log(name, value);
         this.setState({registerEmail: value})
     };
 
     handleChange(e) {
         const {name, value} = e.target;
-        // console.log(name,value,'fsfadf');
         this.setState({[name]: value});
-
-        // if (value === '123') this.createDummyUsers(value);
     }
 
     tokenSuccess = (token) => {
@@ -149,9 +125,6 @@ class MyLoginPage extends Component {
                     this.state.error,
                     res.data.me
                 );
-
-                // this.props.history.push("/");
-                // history.push('/app/dashboard');
             },
             error => this.setState({error, loading: false})
         );
@@ -161,12 +134,8 @@ class MyLoginPage extends Component {
 
         e.preventDefault();
 
-        // var userDispatch = useUserDispatch();
-        //
-        // // this.createDummyUsers();
         this.setState({submitted: true});
         const {registerEmail, registerPassword, /*registerAgree*/} = this.state;
-
 
         // stop here if form is invalid
         if (!(registerEmail && registerPassword /* && registerAgree*/)) {
@@ -174,7 +143,6 @@ class MyLoginPage extends Component {
         }
         this.setState({loading: true});
 
-        // You can also easily pass variables for dynamic arguments
         await fetcher({
             query: LOGIN_QUERY,
             variables: {email: this.state.registerEmail, password: this.state.registerPassword},
@@ -192,14 +160,11 @@ class MyLoginPage extends Component {
                     console.log(this.state.error);
                 }
             },
-            error => { // this is not doing anything except when connection is refused, gql server down
+            error => {
                 this.setState({error, loading: false});
                 console.log('Error log', error)
             });
 
-        if (localStorage.getItem('token')) {
-            // get the authentication token from local storage if it exists
-        }
     };
 
     render() {
@@ -259,14 +224,6 @@ class MyLoginPage extends Component {
                             }}
                         />
 
-                        {/*<FormControlLabel*/}
-                        {/*    control={<Checkbox*/}
-                        {/*        value={registerAgree}*/}
-                        {/*        color="secondary"/>}*/}
-                        {/*    required name="registerAgree"*/}
-                        {/*    label="I agree with the terms and policy"*/}
-                        {/*    onChange={this.handleChange}*/}
-                        {/*/>*/}
                         <Button
                             style={textFieldStyle.resize}
                             type="submit"
