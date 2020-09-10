@@ -321,7 +321,6 @@ class Sales extends Component {
 
     handlePaymentMethodChange = (e) => {
         const {value} = e.target;
-        // console.log(this.myRef);
         if (this.myRef && this.myRef.value > 6) {
             this.myRef.value = this.myRef.value.substring(0, 6);
             this.student_name_ref.value = '';
