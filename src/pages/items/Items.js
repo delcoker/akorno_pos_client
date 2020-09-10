@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import Img from 'react-image';
-// import styled from 'styled-components';
 import useStyles from './styles'
 
 import memoize from 'memoize-one';
@@ -18,7 +17,6 @@ import GetItemCategoriesDropDown from "../_shared_components/GetItemCategoriesDr
 import moment from "moment";
 
 import {fetcher, ITEM_UPDATE, ALL_ITEMS,} from "../../_utils/fetcher";
-// import PageTitle from "../../components/PageTitle";
 import {textFieldStyle} from "../../_utils/inlineStyles";
 
 import {toast, ToastContainer} from 'react-toastify';
@@ -100,9 +98,6 @@ class Items extends Component {
         super(props);
         classes = this.props.classes;
         toastOptions = {
-            // type: toast.TYPE.SUCCESS,
-            // variant: "contained",
-            // color: "primary",
             className: classes.notification,
             progressClassName: classes.progress,
         };
@@ -112,8 +107,6 @@ class Items extends Component {
             filterText: '',
             sth_changed: false,
             stock_add_value: 0,
-            // resetPaginationToggle: false,
-            // setResetPaginationToggle: false,
             filteredItems: [],
             open: false
         };
@@ -148,7 +141,6 @@ class Items extends Component {
         <TextField id="search" type="text" variant="standard"
                    placeholder="Filter by Name" value={filterText}
                    onChange={onFilter} inputProps={{
-            // className: classes.text,
             style: textFieldStyle.resize,
         }}
         />
@@ -177,54 +169,26 @@ class Items extends Component {
 
         if (item_id > -1) this.handleClose();
     };
-    // save new item done
 
-//------------------------ // this will really slow down program ----------------------------------------
     handleChangeDropDown = (event, data) => {
         this.handleChange(event);
-        /* let items = {...this.state.items}; // this didn't work - > array did []
-
-         for (let i = 0; i < Object.keys(items).length; i++) {
-
-             if (items[i] == data) {
-                 items[i].category.id = event.target.value
-                 // itemz[i].category.name = event.target.innerHTML
-                 // console.log('kkeeey', itemz[i].category.id)
-                 break;
-             }
-         }*/
-
-        // const {options, value} = event.target;
-        // console.log(options[value].innerHTML);
-        // const {options, selectedIndex} = event.target;
-        // console.log(event.target);
-        // console.log(event, data);
-
         let items = [...this.state.items];
         for (let i = 0; i < items.length; i++) {
             if (items[i] === data) {
-                // items[i].category.id = event.key
                 items[i].category.id = event.target.value;
                 break;
             }
         }
         this.setState({items, filteredItems: items})
     };
-//----------------------------------------------------------------------------
-    handleChange = () => { // not using  this
 
-        // const {name, value} = e.target;
-        // console.log(name, value);
-        // this.setState({[name]: value});
+    handleChange = () => {
         this.setState({sth_changed: true});
-        // console.log('sth_changed')
-
-    };
+            };
 
     deleteSelected = data => console.log(data);
 
     SampleExpandedComponent = ({data}) => {
-        // const {classes} = this.props;
         return <>
             <br/>
             <Grid container spacing={3} direction="row"
@@ -236,8 +200,6 @@ class Items extends Component {
                         e.preventDefault();
                         this.saveItem(data, e); /*this.handleClose();*/
                     }}>
-                        {/*{console.log(classes.textFieldStyle)}*/}
-                        {/*{console.log(textFieldStyle.resize)}*/}
 
                         <Widget title={'Item Details'} disableWidgetMenu>
                             <Grid container spacing={3} justify="space-around"

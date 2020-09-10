@@ -10,9 +10,7 @@ import {
 } from "@material-ui/core";
 import Widget from "../../../components/Widget";
 import {textFieldStyle} from "../../../_utils/inlineStyles";
-// import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
 import {Save as SaveIcon} from "@material-ui/icons";
-// import {fetcher, GET_CATEGORIES} from "../../../_utils/fetcher";
 
 const useStyles = makeStyles(theme => ({
     form: {
@@ -57,7 +55,6 @@ export default function FormDialog(props) {
                                         }}
                                         required label="Name" color="primary" fullWidth
                                         autoComplete="c_name" name='category_name'
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
 
@@ -69,7 +66,6 @@ export default function FormDialog(props) {
                                         <Select style={textFieldStyle.resize}
                                                 id="standard-secondary" label="Status"
                                                 color="primary"
-                                            // onChange={this.handleChange}
                                                 defaultValue={'enabled'} name='status'>
                                             <MenuItem
                                                 style={textFieldStyle.resize}
@@ -95,9 +91,6 @@ export default function FormDialog(props) {
                     <Button onClick={props.onClose} color="primary">
                         Cancel
                     </Button>
-                    {/*<Button onClick={props.onClose} color="primary">*/}
-                    {/*    Subscribe*/}
-                    {/*</Button>*/}
                 </DialogActions>
             </Dialog>
         </div>

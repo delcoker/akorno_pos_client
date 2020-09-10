@@ -31,25 +31,6 @@ export const renderPageRoutes = (pageNamFunc) => {
                        key={i + 1}/>
             );
     });
-
-
-// how do i just return without map
-    // console.log('break');
-    //
-    //   let routes = [];
-    //   for (const [key, value] of Object.entries(LandingPage)) {
-    //       console.log(key, value, value.route);
-    //       routes.push(<Route path={value.route} component={value.page} key={key}/>);
-    //       break;
-    //   }
-    //
-    //   console.log(routes);
-    //   routes.map((route, i) => {
-    //       return (
-    //           route
-    //       );
-    //   });
-    //   return routes;
 };
 
 export const renderSideBarRoutes = () => {

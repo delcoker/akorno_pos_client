@@ -11,7 +11,6 @@ import {
 import Widget from "../../components/Widget";
 import {textFieldStyle, textFieldStyle30} from "../../_utils/inlineStyles";
 import {Save as SaveIcon} from "@material-ui/icons";
-// import Slide from "@material-ui/core/Slide";
 import {CHANGE_PASSWORD, fetcher, getUser} from "../../_utils/fetcher";
 
 
@@ -36,26 +35,6 @@ export default function ResetPasswordFormDialog(props) {
 
     const classes = useStyles();
 
-    // const Transition = React.forwardRef(function Transition(props, ref) {
-    //     return <Slide direction="up" ref={ref} {...props} />;
-    // });
-
-    // const checkOldPassword = async (pass) => {
-    //     const user = await getUser(localStorage.getItem('token'));
-    //
-    //     try {
-    //         let res = await fetcher({
-    //             query: NO_ADMIN_RESET_PASSWORD,
-    //             variables: {user_id: user.user_id, pass}
-    //         });
-    //         console.log(res);
-    //         // if (res)
-    //     } catch (e) {
-    //         console.log(e);
-    //     }
-    //     return res.data.validPass;
-    // };
-
     const resetPassword = async (e) => {
         const old = e.target.old_pass.value;
         const newP = e.target.new_pass.value;
@@ -72,7 +51,6 @@ export default function ResetPasswordFormDialog(props) {
             return;
         }
 
-        // check if old password is right
         const user = await getUser(localStorage.getItem('token'));
 
         try {
@@ -80,8 +58,6 @@ export default function ResetPasswordFormDialog(props) {
                 query: CHANGE_PASSWORD,
                 variables: {user_id: user.user_id, old, newP, conf}
             });
-
-            // console.log(res);
 
             if (res && res.errors) {
                 alert(res.errors.message);
@@ -124,8 +100,6 @@ export default function ResetPasswordFormDialog(props) {
                                         label="Old Password"
                                         color="primary"
                                         type={'password'}
-                                        // onChange={this.handleChange}
-                                        // defaultValue={data.pic}
                                         name='old_pass'
                                     />
                                 </Grid>
@@ -138,8 +112,6 @@ export default function ResetPasswordFormDialog(props) {
                                         label="New Password"
                                         color="primary"
                                         type={'password'}
-                                        // onChange={this.handleChange}
-                                        // defaultValue={data.pic}
                                         name='new_pass'
                                     />
                                 </Grid>
@@ -152,8 +124,6 @@ export default function ResetPasswordFormDialog(props) {
                                         label="Confirm"
                                         color="secondary"
                                         type={'password'}
-                                        // onChange={this.handleChange}
-                                        // defaultValue={data.pic}
                                         name='confirm'
                                     />
                                 </Grid>
@@ -166,19 +136,12 @@ export default function ResetPasswordFormDialog(props) {
                             </Grid>
 
                         </Widget>
-                        {/*    </Grid>*/}
-                        {/*</Grid>*/}
                     </form>
-
-                    {/*</Grid>*/}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.onClose} color="primary">
                         Cancel
                     </Button>
-                    {/*<Button onClick={props.onClose} color="primary">*/}
-                    {/*    Subscribe*/}
-                    {/*</Button>*/}
                 </DialogActions>
             </Dialog>
         </div>

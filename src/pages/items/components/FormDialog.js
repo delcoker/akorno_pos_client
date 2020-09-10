@@ -11,10 +11,8 @@ import {
 } from "@material-ui/core";
 import Widget from "../../../components/Widget";
 import {textFieldStyle} from "../../../_utils/inlineStyles";
-// import GetItemCategoriesDropDown from "../../_shared_components/GetItemCategoriesDropDown";
 import {Save as SaveIcon} from "@material-ui/icons";
 import {fetcher, GET_CATEGORIES} from "../../../_utils/fetcher";
-// import Slide from "@material-ui/core/Slide";
 
 
 const useStyles = makeStyles(theme => ({
@@ -98,8 +96,6 @@ export default function FormDialog(props) {
                                         }}
                                         required label="Name" color="primary" fullWidth
                                         autoComplete="i_name" name='item_name'
-                                        // defaultValue={data.name}
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={4}>
@@ -109,7 +105,6 @@ export default function FormDialog(props) {
                                         color="primary" type='number'
                                         fullWidth autoComplete="i_price" required
                                         defaultValue={parseFloat(1).toFixed(2)} name='item_price'
-                                        // onChange={this.handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
@@ -133,8 +128,6 @@ export default function FormDialog(props) {
                                         }}
                                         fullWidth id="standard-second" label="Picture"
                                         color="primary"
-                                        // onChange={this.handleChange}
-                                        // defaultValue={data.pic}
                                         name='item_pic'
                                     />
                                 </Grid>
@@ -163,7 +156,6 @@ export default function FormDialog(props) {
                                         <Select style={textFieldStyle.resize}
                                                 id="standard-secondary" label="Status"
                                                 color="primary"
-                                            // onChange={this.handleChange}
                                                 defaultValue={'enabled'} name='status'>
                                             <MenuItem
                                                 style={textFieldStyle.resize}
@@ -182,21 +174,14 @@ export default function FormDialog(props) {
                                             startIcon={<SaveIcon/>}>Add</Button>
                                 </Grid>
                             </Grid>
-
                         </Widget>
-                        {/*    </Grid>*/}
-                        {/*</Grid>*/}
                     </form>
 
-                    {/*</Grid>*/}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.onClose} color="primary">
                         Cancel
                     </Button>
-                    {/*<Button onClick={props.onClose} color="primary">*/}
-                    {/*    Subscribe*/}
-                    {/*</Button>*/}
                 </DialogActions>
             </Dialog>
         </div>

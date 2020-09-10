@@ -34,39 +34,6 @@ import FormDialog from "./compnonents/FormDialog";
 
 const columnsR = [
     {name: 'Name', selector: 'name', sortable: true, grow: 4,},
-    // {
-    //     name: 'Price', selector: 'price', right: false, sortable: true, hide: 'sm', grow: 2,
-    //     cell: (row) => (row.price).toFixed(2)
-    // },
-    // {name: 'Category', selector: 'category.name', sortable: true,},
-    // {
-    //     name: 'In Stock', selector: 'quantity', sortable: true, width: '70px',
-    //     cell: (row) => row.quantity === null ? '-' : row.quantity
-    // },
-    // {
-    //     name: 'Picture', selector: 'name', width: '50px', cell: (d) =>
-    //         // <Avatar>
-    //         <Img width="40px" alt={d.pic}
-    //              src={[`/images/${d.pic}.svg`,
-    //                  `/images/${d.pic}.png`,
-    //                  `/images/${d.pic}.gif`,
-    //                  `/images/${d.pic}.jpg`,
-    //                  `/images/${d.pic}.jpeg`,
-    //              ]}/>
-    //     // < /Avatar>
-    // },
-    // {
-    //     name: 'Track Stock', selector: 'has_stock', hide: 'sm', sortable: true, width: '50px', cell: (da) => {
-    //         return <Checkbox
-    //             id="standard-secondary"
-    //             label="Has Stock" color="secondary"
-    //             checked={da.has_stock}/>
-    //     }
-    // },
-    // {
-    //     name: 'Min Stock', selector: 'min_stock_level', sortable: true, width: '70px',
-    //     cell: (row) => row.min_stock_level === null ? '-' : row.min_stock_level
-    // },
     {name: 'Status', selector: 'status', sortable: true,},
     {
         name: 'Last Update',
@@ -81,10 +48,6 @@ const columnsR = [
         sortable: true,
         grow: 5,
         format: d => moment(parseInt(d.createdAt)).format("llll"),
-        // format: d => moment(d.airstamp).format('LLL'),
-        // format: d => moment(parseInt(d)).format("L")
-        // format: d => (new Date((d))).toString()//.format("dd.mm.yyyy hh:MM:ss")
-        // format: d => moment((d)).format("ll")//.format("dd.mm.yyyy hh:MM:ss")
     },
 ];
 
@@ -105,9 +68,6 @@ class ItemCategory extends Component {
         super(props);
         classes = this.props.classes;
         toastOptions = {
-            // type: toast.TYPE.SUCCESS,
-            // variant: "contained",
-            // color: "primary",
             className: classes.notification,
             progressClassName: classes.progress,
         };
@@ -117,8 +77,6 @@ class ItemCategory extends Component {
             filterText: '',
             sth_changed: false,
             stock_add_value: 0,
-            // resetPaginationToggle: false,
-            // setResetPaginationToggle: false,
             filteredItems: [],
             open: false
         };
@@ -164,7 +122,6 @@ class ItemCategory extends Component {
 
     // save new item
     handleClickOpen = () => {
-        // console.log('open new item dialog');
         this.setState({open: true});
     };
 
@@ -173,36 +130,16 @@ class ItemCategory extends Component {
     };
 
     saveNewItem = async (e) => {
-        // console.log(e.target.item_name.value);
-
         let item = this.getItemStats(null, e);
         this.saveItem(item);
-        // let item_id = await this.updateOrCreateItem(item); //actually create new item;
-        // console.log(item_id);
-
-
-        // if (item_id > -1) this.handleClose();
     };
-    // save new item done
-
-//------------------------ // this will really slow down program ----------------------------------------
-//----------------------------------------------------------------------------
-    handleChange = () => { // not using  this
-
-        // const {name, value} = e.target;
-        // console.log(name, value);
-        // this.setState({[name]: value});
+    handleChange = () => {
         this.setState({sth_changed: true});
-        // console.log('sth_changed')
-
     };
 
     deleteSelected = data => console.log(data);
 
     getItemStats = (data, e) => {
-
-        // console.log('data === null' ,data === null , data);
-
         let item = {};
         item.id =  data.id === null ? 0 : data.id;
         item.name = e.target.category_name.value.charAt(0).toUpperCase() + e.target.category_name.value.trim().substring(1);
@@ -216,32 +153,19 @@ class ItemCategory extends Component {
     };
 
     saveItem = async (item, e) => {
-
-        // if (!this.state.sth_changed) {
-        //     console.log('NO changes');
-        //     return;
-        // }
-
         try {
             let res = await fetcher({
                 query: CATEGORY_ADD,
                 variables: item
             });
 
-            // console.log(res);
-
             if (res && res.errors && res.errors.length === 1) {
                 alert(res.errors[0].message);
                 return;
             }
 
-            alert('category saved')
+            alert('category saved');
 
-            // } else if (res && res.errors && res.errors.length > 1) {
-            //     return;
-            // }
-
-            //---------------- not really needed ------------------// APA should help me on this
         } catch (e) {
 
         }
@@ -271,11 +195,6 @@ class ItemCategory extends Component {
 
             alert('category updated');
 
-            // } else if (res && res.errors && res.errors.length > 1) {
-            //     return;
-            // }
-
-            //---------------- not really needed ------------------// APA should help me on this
         } catch (e) {
 
         }
@@ -295,9 +214,6 @@ class ItemCategory extends Component {
                         e.preventDefault();
                         this.updateItem(data, e); /*this.handleClose();*/
                     }}>
-                        {/*{console.log(classes.textFieldStyle)}*/}
-                        {/*{console.log(textFieldStyle.resize)}*/}
-
                         <Widget title={'Item Details'} disableWidgetMenu>
                             <Grid container spacing={3} justify="space-around"
                                   className={classes.dashedBorder}>
@@ -336,60 +252,9 @@ class ItemCategory extends Component {
                                             startIcon={<SaveIcon/>}>Save</Button>
                                 </Grid>
                             </Grid>
-
                         </Widget>
-                        {/*    </Grid>*/}
-                        {/*</Grid>*/}
                     </form>
                 </Grid>
-
-                {/*<Grid item xs={7}>*/}
-
-                {/*    <form onSubmit={(e) => {*/}
-                {/*        e.preventDefault();*/}
-                {/*        this.handleAddStock(data, e);*/}
-                {/*    }}>*/}
-
-                {/*        /!*<Grid container spacing={3} direction="row"*!/*/}
-                {/*        /!*      justify="center" alignItems="center">*!/*/}
-                {/*        /!*    <Grid container item xs={12} spacing={2}>*!/*/}
-                {/*        <Widget title={data.name} disableWidgetMenu>*/}
-                {/*            <Grid container spacing={3} justify="center"*/}
-                {/*                  className={classes.dashedBorder2}>*/}
-                {/*                <Grid item xs={12} sm={3}>*/}
-                {/*                    <Typography variant="h5" color="secondary" className={classes.text}>*/}
-                {/*                        STOCK*/}
-                {/*                        <Checkbox id="standard-secondary" label="Has Stock"*/}
-                {/*                                  color="secondary" hidden*/}
-                {/*                                  name='has_stock' checked={data.has_stock}/>*/}
-                {/*                    </Typography>*/}
-                {/*                </Grid>*/}
-                {/*                <Grid item xs={12} sm={3}>*/}
-                {/*                    <TextField fullWidth label="Quantity In Stock"*/}
-                {/*                               color="secondary" type='number'*/}
-                {/*                               value={data.quantity} name='qty_in_stock'*/}
-                {/*                               variant="standard" disabled={true}/>*/}
-                {/*                </Grid>*/}
-                {/*                <Grid item xs={12} sm={3}>*/}
-                {/*                    <TextField fullWidth label="Quantity To Add" color="secondary"*/}
-                {/*                               inputProps={{step: "1", min: "0"}}*/}
-                {/*                               variant="standard"*/}
-                {/*                               type='number' defaultValue={this.state.stock_add_value}*/}
-                {/*                               name='qty_to_add'*/}
-                {/*                               disabled={false}/>*/}
-                {/*                </Grid>*/}
-                {/*                <Grid item xs={12} sm={3}>*/}
-                {/*                    <Button type='submit' fullWidth color='secondary'*/}
-                {/*                            startIcon={<CloudUploadIcon/>}*/}
-                {/*                            variant="contained">Add Stock</Button>*/}
-                {/*                </Grid>*/}
-                {/*            </Grid>*/}
-                {/*        </Widget>*/}
-                {/*        /!*    </Grid>*!/*/}
-                {/*        /!*</Grid>*!/*/}
-                {/*    </form>*/}
-                {/*</Grid>*/}
-
             </Grid>
             <br/>
         </>
@@ -460,8 +325,7 @@ class ItemCategory extends Component {
 const cust = {
     cells: {
         style: {
-            fontSize: '16px', // override the cell padding for data cells
-            // paddingRight: '8px',
+            fontSize: '16px',
         },
     },
 };

@@ -18,7 +18,6 @@ class GetUsersDropDown extends Component {
             let res = await fetcher({
                 query: USERS
             });
-            // console.log('ressssssssssss', res)
             let users = res.data.allUsersNoAdmin;
             this.setState({ users });
         } catch (err) {
@@ -27,10 +26,8 @@ class GetUsersDropDown extends Component {
     };
 
     renderUsers = () => {
-        // console.log('this.state.users', this.state.users)
         if (this.state.users && this.state.users.length > 0) {
             return this.state.users.map((user, i) => {
-                // console.log('user',user)
                 return (
                     <MenuItem
                         onClick={this.props.handleDropDownHTML}
@@ -49,7 +46,7 @@ class GetUsersDropDown extends Component {
             <FormControl style={{ marginTop: '10px' }} fullWidth>
                 <InputLabel>Report On:</InputLabel>
                 <Select
-                    color="secondary" /*defaultValue={data.category.id}*/
+                    color="secondary"
                     labelId="demo-simple-select-label"
                     id="users"
                     name="users_list"

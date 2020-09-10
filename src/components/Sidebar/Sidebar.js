@@ -2,9 +2,6 @@ import React, {useState, useEffect} from "react";
 import {Drawer, IconButton, List} from "@material-ui/core";
 import {
     Dashboard as DashboardIcon,
-    /*AttachMoney as SalesIcon,*/
-    // NotificationsNone as NotificationsIcon,
-    // FormatSize as TypographyIcon,
     FilterNone as UIElementsIcon,
     // BorderAll as TableIcon,
     QuestionAnswer as SupportIcon,
@@ -29,32 +26,13 @@ import {
     toggleSidebar,
 } from "../../context/LayoutContext";
 
-// modular page import
-// import sales from '../../pages/sales';
-// import reports from '../../pages/reports';
-// import items from '../../pages/items';
-// import inventory from '../../pages/inventory';
-// import users from '../../pages/users';
 import {renderSideBarRoutes} from "../../_utils/routes";
 
 
 const structure = [
     {id: 0, label: "Dashboard", link: "/app/dashboard", icon: <DashboardIcon/>},
     ...renderSideBarRoutes(),
-    // {id: 10, label: inventory.label, link: inventory.route, icon: inventory.icon},
-    // {id: 11, label: users.label, link: users.route, icon: users.icon},
-    // {id: 3, label: items.label, link: items.route, icon: <items.icon/>},
 
-    // {id: 11,label: "Typography",link: "/app/typography",
-    //     icon: <TypographyIcon/>,},
-
-    // {id: 21, label: "Tables", link: "/app/tables", icon: <TableIcon/>},
-    // {
-    //     id: 31,
-    //     label: "Notifications",
-    //     link: "/app/notifications",
-    //     icon: <NotificationsIcon/>,
-    // },
     {
         id: 41,
         label: "UI Elements",

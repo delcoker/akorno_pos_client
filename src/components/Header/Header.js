@@ -27,7 +27,6 @@ import Avatar from "@material-ui/core/Avatar";
 import {getUser, isAnyShiftActive} from "../../_utils/fetcher";
 import ResetPasswordFormDialog from "../../pages/_shared_components/ResetPasswordDialog";
 import {textFieldStyle} from "../../_utils/inlineStyles";
-// import {getUser} from "../../_utils/fetcher";
 
 const messages = [
     {

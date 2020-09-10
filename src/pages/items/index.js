@@ -13,9 +13,5 @@ export default {
     children: [
         {label: "Item List", link: "/app/items/list", page: ItemPage},
         {label: ItemCategoryPg.label, link: ItemCategoryPg.route, icon: ItemCategoryPg.icon, page: ItemCategoryPg.page},
-        // {label: "Icons", route: "/app/ui/icons"},
-        // {label: "Charts", route: "/app/ui/charts"},
-        // {label: "Maps", route: "/app/ui/maps"},
-        // {label: "Maps", route: "/app/ui/maps"},
     ]
 };

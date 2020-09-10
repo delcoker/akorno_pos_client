@@ -59,9 +59,7 @@ class GetItemCategoriesDropDown extends Component {
                 value={this.props.category_id}
                 renderdalue={1}
                 onChange={this.props.changeHandler}
-                // fromHere={(e)=>this.props.here}
             >
-                {/*onChange={(event, name) => {this.props.changeHandler(event); /*console.log(name)*!/}>*/}
                 {this.renderItemCategories()}
             </Select>
         );

@@ -1,28 +1,9 @@
-import {createApolloFetch} from "apollo-fetch";
+import { createApolloFetch } from "apollo-fetch";
 import gql from "graphql-tag";
-import {config} from './config'
 
 export const fetcher = createApolloFetch({
-    // uri: 'http://192.168.1.21:4000/graphql', //lisa's
-    // uri: 'http://192.168.0.39:3333/graphql', //apa's
-    // uri: 'http://192.168.137.1:3333/graphql', //
-    // uri: 'http://192.168.137.84:3333/graphql', //
-    // uri: 'http://192.168.9.104:3333/graphql',
-    // uri: 'http://localhost:3333/graphql', //
-    uri: config.url.API_URL,
-    // uri: contents[0]
+    uri: process.env.NODE_ENV === "development" ? process.env.REACT_APP_DEV_BACKEND_API_URL : process.env.REACT_APP_PROD_BACKEND_API_URL,
 });
-
-// console.log('fetcher_url', config);
-
-
-//     .use(({ request, options }, next) => {
-//   options.headers = {
-//     authorization: localStorage.getItem('token'),
-//   };
-//   next();
-//   console.log('toooooooooooooooooooooooooken')
-// });
 
 export const LOGIN_QUERY = gql`
     mutation loginQuery($email: String!, $password: String!) {
@@ -48,12 +29,12 @@ export const convertArrayOfObjectsToPrint = (header, array, footer) => {
 
     let result = header + lineDelimiter + lineDelimiter;
     result +=
-        '<table <table style="font-size: 15px; border-collapse: collapse; border:1px solid"><tr style="border:1px solid"><th align="left">Item</th><th>Ty</th><th>Qty</th><th>SubT</th></tr><tbody>';
+      "<table <table style=\"font-size: 15px; border-collapse: collapse; border:1px solid\"><tr style=\"border:1px solid\"><th align=\"left\">Item</th><th>Ty</th><th>Qty</th><th>SubT</th></tr><tbody>";
 
     for (let i = 0; i < array.length; i++) {
         let start = array[i].item.substr(0, itemNameLength);
         result +=
-            `<tr>
+          `<tr>
                 <td style="border:1px solid">${start}</td>
                 <td style="border:1px solid">${typeDelimiter}${array[i].type.substring(0, 1)}</td>
                 <td style="border:1px solid">${array[i].qty}</td>
@@ -764,7 +745,7 @@ export const MP_RECONCILIATION = gql`
 
 export const getUser = token => {
     // console.log('tokenpppppppppppppppppppppppppppppppppppppppppp', token);
-    fetcher.use(({request, options}, next) => {
+    fetcher.use(({ request, options }, next) => {
         options.headers = {
             authorization: token,
         };

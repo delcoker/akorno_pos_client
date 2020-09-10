@@ -5,7 +5,6 @@ let UserStateContext = React.createContext();
 let UserDispatchContext = React.createContext();
 
 function userReducer(state, action) {
-    // console.log(action);
     switch (action.type) {
         case "LOGIN_SUCCESS":
             return {...state, isAuthenticated: true, isAdmin: action.admin};
@@ -45,21 +44,6 @@ function useUserState() {
 function useUserDispatch() {
     let context = React.useContext(UserDispatchContext);
 
-
-    // ////////////////////////////// DEL//////////////////////
-    // getUser(localStorage.getItem('token')).then(
-    //     res => {
-    //       // console.log('useUserDispatch', 'context', res);
-    //       if(res === null){
-    //         localStorage.removeItem("id_token");
-    //         localStorage.removeItem("token");
-    //         localStorage.removeItem("username");
-    //       }
-    //     }
-    // );
-    // // let context = UserDispatchContext;
-    // ////////////////////////////// DEL///////////////////
-
     if (context === undefined) {
         throw new Error("useUserDispatch must be used within a UserProvider");
     }
@@ -71,22 +55,9 @@ export {UserProvider, useUserState, useUserDispatch, loginUser, signOut};
 // ###########################################################
 
 function loginUser(dispatch, login, password, history, setIsLoading, setError, user) {
-    // setError(false);
-    // setIsLoading(true);
-
-    // console.log('loginUser', login, password, history, setIsLoading, setError);
-
     if (!!login && !!password) {
-
-        // console.log('loginUser');
-
-
         setTimeout(() => {
             localStorage.setItem('id_token', 1);
-            // localStorage.setItem('token', '1');
-            // localStorage.setItem('username', '1');
-            // setError(null);
-            // setIsLoading(false);
             dispatch({type: 'LOGIN_SUCCESS', admin:user.isAdmin});
 
             history.push('/app/dashboard');
@@ -94,20 +65,8 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError, u
         }, 2000);
     } else {
         dispatch({type: "LOGIN_FAILURE"});
-        // setError(true);
-        // setIsLoading(false);
     }
 }
-
-// export const isAdmin = async () => {
-//     let a = await getUser(localStorage.getItem('token')).then(r=>r.isAdmin);
-//     // console.log('aaaaaaaaaaaaaaaaaaaaaaa', a);
-//     return a;
-// };
-//
-// // let is = await isAdmin(localStorage.getItem('token')).then(r=>r);
-// // console.log(is.isAdmin);
-//
 
 export const shiftOut = async (user) => {
     // console.log(user.user_id);
@@ -116,7 +75,6 @@ export const shiftOut = async (user) => {
             query: END_SHIFT,
             variables: {user_id: user.user_id}
         });
-        // console.log(a);
         return a.data.endShift;
     } catch (e) {
         console.log(e);
